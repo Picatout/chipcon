@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>6.1</ProjectVersion>
+    <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
+    <ProjectGuid>{435ed4ec-d23a-4ce5-9938-f6be476845e2}</ProjectGuid>
+    <avrdevice>ATmega328P</avrdevice>
+    <avrdeviceseries>none</avrdeviceseries>
+    <OutputType>Executable</OutputType>
+    <Language>C</Language>
+    <OutputFileName>$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AssemblyName>chip-comp</AssemblyName>
+    <Name>CHIPCON</Name>
+    <RootNamespace>chip-comp</RootNamespace>
+    <ToolchainFlavour>Native</ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <CacheFlash>false</CacheFlash>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
+    <UncachedRange />
+    <OverrideVtorValue>exception_table</OverrideVtorValue>
+    <BootSegment>2</BootSegment>
+    <eraseonlaunchrule>0</eraseonlaunchrule>
+    <AsfFrameworkConfig>
+      <framework-data xmlns="">
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.11.0" />
+        </dependencies>
+      </framework-data>
+    </AsfFrameworkConfig>
+    <avrtool>com.atmel.avrdbg.tool.ispmk2</avrtool>
+    <avrtoolinterface>ISP</avrtoolinterface>
+    <com_atmel_avrdbg_tool_ispmk2>
+      <ToolOptions>
+        <InterfaceProperties>
+          <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
+          <IspClock>1990000</IspClock>
+        </InterfaceProperties>
+        <InterfaceName>ISP</InterfaceName>
+      </ToolOptions>
+      <ToolType>com.atmel.avrdbg.tool.ispmk2</ToolType>
+      <ToolNumber>000200131548</ToolNumber>
+      <ToolName>AVRISP mkII</ToolName>
+    </com_atmel_avrdbg_tool_ispmk2>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ToolchainSettings>
+      <AvrGcc>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>NDEBUG</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../../../sdCard+fat_driver/sd-reader_source_20120612</Value>
+    </ListValues>
+  </avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize more (-O2)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avrgcc.linker.libraries.Libraries>
+</AvrGcc>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ToolchainSettings>
+      <AvrGcc>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DEBUG</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.optimization.level>Optimize more (-O2)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'no_sdcard' ">
+    <OutputPath>bin\no_sdcard\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ant.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ant.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="blinky.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="blinky.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="byteordering.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="byteordering.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="chip8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="chipcon.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="chip8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="chipcon_config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="fat.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="fat.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="fat_config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="filesys.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="filesys.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="joust23.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="joust23.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="keypad.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="keypad.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="mines.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="mines.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="partition.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="partition.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="partition_config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sd-reader_config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sd_raw.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sd_raw.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sd_raw_config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sokoban.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sokoban.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="spacefig.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="spacefig.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="splash.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="splash.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="square.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="square.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="text.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="text.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sram.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sram.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tone.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tone.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tvout.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tvout.h">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+</Project>

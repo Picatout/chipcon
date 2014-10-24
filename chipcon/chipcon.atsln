@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "CHIPCON", "CHIPCON.cproj", "{435ED4EC-D23A-4CE5-9938-F6BE476845E2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		no_sdcard|AVR = no_sdcard|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{435ED4EC-D23A-4CE5-9938-F6BE476845E2}.Debug|AVR.ActiveCfg = Debug|AVR
+		{435ED4EC-D23A-4CE5-9938-F6BE476845E2}.Debug|AVR.Build.0 = Debug|AVR
+		{435ED4EC-D23A-4CE5-9938-F6BE476845E2}.no_sdcard|AVR.ActiveCfg = no_sdcard|AVR
+		{435ED4EC-D23A-4CE5-9938-F6BE476845E2}.no_sdcard|AVR.Build.0 = no_sdcard|AVR
+		{435ED4EC-D23A-4CE5-9938-F6BE476845E2}.Release|AVR.ActiveCfg = Release|AVR
+		{435ED4EC-D23A-4CE5-9938-F6BE476845E2}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

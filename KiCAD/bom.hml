@@ -1,0 +1,43 @@
+﻿<!doctype html>
+<html>
+<header>
+</header>
+<body>
+<ol>
+<li> audio1     PIEZO       </li>
+<li> C1         100µF/16V  </li>
+<li> C2         22nF        </li>
+<li> C3         22nF        </li>
+<li> C4         100nF       </li>
+<li> C5         1µF        </li>
+<li> C6         1µF        </li>
+<li> C7         100nF       </li>
+<li> C8         100nF       </li>
+<li> C9         100nF       </li>
+<li> C10        100nF       </li>
+<li> CON1       BARREL_JACK </li>
+<li> D1         1N4148      </li>
+<li> J1         audio_out   </li>
+<li> J2         video out   </li>
+<li> k1         KEYPAD      </li>
+<li> P1         SD card     </li>
+<li> P2         ICSP        </li>
+<li> R1         4k7         </li>
+<li> R2         150R        </li>
+<li> R3         620R        </li>
+<li> R4         470R        </li>
+<li> R5         10K         </li>
+<li> R6         10K         </li>
+<li> R7         10K         </li>
+<li> R8         10K         </li>
+<li> R9         10K         </li>
+<li> RV1        10K         </li>
+<li> SW1        reset       </li>
+<li> SW2        power       </li>
+<li> U1         ATMEGA328-PU</li>
+<li> U2         23LC512     </li>
+<li> U3         LT1117-3,3  </li>
+<li> X1         14.31Mhz  </li>
+</ol>
+</body>
+</html>
