@@ -33,7 +33,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#include "ms_timer.h"
 #include "chip8.h"
 #include "tvout.h"
 #include "sram.h"
