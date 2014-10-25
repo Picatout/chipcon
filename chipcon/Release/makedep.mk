@@ -2,8 +2,6 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
-ant.c
-
 blinky.c
 
 byteordering.c
@@ -13,6 +11,8 @@ chip8.c
 chipcon.c
 
 fat.c
+
+field.c
 
 filesys.c
 

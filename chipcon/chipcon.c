@@ -57,8 +57,8 @@
 #include "joust23.h"
 #include "mines.h"
 #include "square.h"
-#include "ant.h"
-
+//#include "ant.h"
+#include "field.h"
 
 extern vm_state_t vms;
 
@@ -202,6 +202,7 @@ void games_on_sdcard(){
 	fcount=sdc_files();
 	if (fcount && ((selected=select_file(fcount))>-1)){
 		if (fs_load_file(selected)){
+			cls();
 			if (schip(F_RESET)==CHIP_BAD_OPCODE){
 				print_vms(PSTR("CRASH! bad opcode\n"));
 			}
@@ -218,8 +219,9 @@ PROGMEM const uint8_t flash_games[]=
 //"car\n"
 "joust 2.3\n"
 "mines hunter\n"
-"ant\n"
+//"ant\n"
 "magic square\n"
+"asteroids field\n"
 "";
 
 
@@ -269,19 +271,29 @@ void games_in_flash(){
 		load_flash_game(mines,MINES_SIZE);
 		text_scroller(mines_info,4);
 		break;
+/*
 	case 5:
 		load_flash_game(ant,ANT_SIZE);
 		text_scroller(ant_info,4);
 		break;
-	case 6:
+*/		
+	case 5:
 		load_flash_game(magic_square,SQUARE_SIZE);
 		text_scroller(magic_square_info,4);
+		break;
+	case 6:
+		load_flash_game(field,FIELD_SIZE);
+		text_scroller(field_info,4);
+		//set_break_point(0x302);
+		//set_break_point(0x2fa);
+		//set_break_point(0x304);
 		break;
 	default:
 		return;	
 	}
+	cls();
 #if FW_DEBUG	
-	schip(F_TRACE|F_DEBUG|F_RESET);
+	schip(F_DEBUG|F_RESET);
 #else
 	if (schip(F_RESET)==CHIP_BAD_OPCODE){
 		print_vms(PSTR("CRASH! bad opcode\n"));	

@@ -131,7 +131,7 @@ uint16_t sram_read_word(uint16_t addr){
 }
 
 // charge un bloc de mémoire SRAM dans un variable tableau.
-void sram_load_block(uint16_t addr,int size, uint8_t *b){
+void sram_load_block(uint16_t addr,uint16_t size, uint8_t *b){
 	sram_enable();
 	sram_cmd(SRAM_READ,addr);
 	sram_read_block(b,size);
@@ -140,7 +140,7 @@ void sram_load_block(uint16_t addr,int size, uint8_t *b){
 
 // transfert le contenu d'une variable tableau dans 
 // la mémoire SRAM
-void sram_store_block(uint16_t addr, int size, uint8_t *b){
+void sram_store_block(uint16_t addr, uint16_t size, uint8_t *b){
 	sram_enable();
 	sram_cmd(SRAM_WRITE,addr);
 	sram_write_block(b,size);

@@ -36,12 +36,12 @@ SUBDIRS :=
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
-../ant.c \
 ../blinky.c \
 ../byteordering.c \
 ../chip8.c \
 ../chipcon.c \
 ../fat.c \
+../field.c \
 ../filesys.c \
 ../joust23.c \
 ../keypad.c \
@@ -65,12 +65,12 @@ ASM_SRCS +=
 
 
 OBJS +=  \
-ant.o \
 blinky.o \
 byteordering.o \
 chip8.o \
 chipcon.o \
 fat.o \
+field.o \
 filesys.o \
 joust23.o \
 keypad.o \
@@ -87,12 +87,12 @@ tone.o \
 tvout.o
 
 OBJS_AS_ARGS +=  \
-ant.o \
 blinky.o \
 byteordering.o \
 chip8.o \
 chipcon.o \
 fat.o \
+field.o \
 filesys.o \
 joust23.o \
 keypad.o \
@@ -109,12 +109,12 @@ tone.o \
 tvout.o
 
 C_DEPS +=  \
-ant.d \
 blinky.d \
 byteordering.d \
 chip8.d \
 chipcon.d \
 fat.d \
+field.d \
 filesys.d \
 joust23.d \
 keypad.d \
@@ -131,12 +131,12 @@ tone.d \
 tvout.d
 
 C_DEPS_AS_ARGS +=  \
-ant.d \
 blinky.d \
 byteordering.d \
 chip8.d \
 chipcon.d \
 fat.d \
+field.d \
 filesys.d \
 joust23.d \
 keypad.d \

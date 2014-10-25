@@ -39,11 +39,16 @@
 #define  is_break()  !(KP_PIN & (KP_INP5|KP_INP7))
 #define  settle_delay()  	__asm__ __volatile__("nop");
 
+// chaque bit représente une touche
+// 1 touche relâché
+// 0 touche enfoncée.
+uint16_t keys_state;
 
 void keypad_init(){
 	KP_DDR |= KP_OMASK; // broches en sortie
 	set_row_high(KP_OMASK); // mettre les broches à 1
 	KP_IPORT |= KP_IMASK; // activation pullup	sur les entrées
+	keys_state=0xffff;
 }
 
 // transcription position switch clavier à valeur
@@ -121,4 +126,21 @@ uint8_t keypad_break(){
 	return break_down;
 }
 
+
+uint8_t key_down(uint8_t key){
+	uint8_t r,c;
+	
+	keys_state=0xffff;
+	
+	for (r=0;r<4;r++){
+		set_row_low(out_pin(r));
+		for (c=0;c<4;c++){
+			if (is_pin_low(inp_pin(c))){
+				keys_state &= ~(1<<(hex_key(r,c)));
+			}
+		}
+		set_row_high(KP_OMASK);
+	}
+	return (keys_state&(1<<key))==0;
+}
 

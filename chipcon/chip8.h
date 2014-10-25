@@ -62,5 +62,7 @@ typedef struct vm_state{
 	
 uint8_t schip(uint8_t flags);
 void print_vms(const char *msg);
+void set_break_point(uint16_t addr);
+void clr_break_point(uint16_t addr);
 
 #endif /* CHIP8_H_ */

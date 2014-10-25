@@ -45,7 +45,7 @@
 #define ry(b2)  ((b2&0xf0)>>4)
 
 // état de la machine virtuelle
-vm_state_t vms;
+static vm_state_t vms;
 
 // stockage temporaire sprite
 static uint8_t block[32];
@@ -76,8 +76,40 @@ void print_vms(const char *msg){
 		print_hex(vms.rpl[i++],2);
 	}
 */	
-	prompt_key();
+	prt_pstr(PSTR("'E'xit trace or any"));
+	if (wait_key()==0xE) vms.trace=0;
+	while (keypad_read()!=255);
 	screen_restore();
+}
+
+#define MAX_BREAK  (10)
+
+static uint16_t break_points[MAX_BREAK]={0,0,0,0,0,0,0,0,0,0};
+
+void set_break_point(uint16_t addr){
+	uint8_t i;
+	for (i=0;i<MAX_BREAK;i++)
+		if (!break_points[i]) break_points[i]=addr;
+}
+
+void clr_break_point(uint16_t addr){
+	uint8_t i;
+	for (i=0;i<MAX_BREAK;i++){ 
+		if (break_points[i]==addr){ 
+			break_points[i]=0;
+			break;
+		}
+	}
+}
+
+static uint8_t is_break_point(uint16_t addr){
+	uint8_t i;
+	for (i=0;i<MAX_BREAK;i++){
+		if (break_points[i]==addr){
+			return 1;
+		}
+	}
+	return 0;	
 }
 
 
@@ -114,7 +146,10 @@ uint8_t schip(uint8_t flags){
 		vms.opcode=sram_read_word(vms.pc);
 		vms.pc+=2;
 #if FW_DEBUG		
-		if (vms.trace) print_vms(PSTR("Trace print\n"));
+		if (vms.trace || (vms.debug && is_break_point(vms.pc-2))){ 
+			vms.trace=1;
+			print_vms(PSTR("Trace print\n"));
+		}
 #endif		
 		x=rx(vms.b1);
 		y=ry(vms.b2);
@@ -242,12 +277,14 @@ uint8_t schip(uint8_t flags){
 				}
 				break;
 			case 0xe9e: //EX9E, saute l'instruction suivante si la touche VX est enfoncée
-				n=keypad_read();
-				if (vms.var[x]==n) vms.pc+=2;
+				//n=keypad_read();
+				//if (vms.var[x]==n) vms.pc+=2;
+				if (key_down(vms.var[x])) vms.pc+=2;
 				break;
 			case 0xea1: //EXA1, saute l'instruction suivante si la touche VX n'est pas enfoncée
-				n=keypad_read();
-				if (vms.var[x]!=n) vms.pc+=2;
+				//n=keypad_read();
+				//if (vms.var[x]!=n) vms.pc+=2;
+				if (!key_down(vms.var[x])) vms.pc+=2;
 				break;
 			case 0xf07: // FX07     VX := delay_cntr
 				vms.var[x]=frame_delay;

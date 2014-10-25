@@ -54,5 +54,6 @@ uint8_t keypad_read();
 uint8_t wait_key();
 void prompt_key();
 uint8_t keypad_break();
+uint8_t key_down(uint8_t key);
 
 #endif /* KEYPAD_H_ */
