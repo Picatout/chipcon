@@ -1,0 +1,68 @@
+﻿<!doctype html>
+<html>
+<header>
+<title>CHIPcon Virtual machine opcodes</title>
+</header>
+<body>
+<p>
+Dans la table ci-bas  <b>NNN</b> représente un nombre de 12 bits en hexadécimal (000-FFF).<br>
+<b>KK</b> représente une constante de 8 bits en hexadécimal (00-FF).<br>
+<b>X et Y</b> représentent un registre V en hexadécimal (0-F).<br>
+Les instructions suivies d'un <b>*</b> sont spécifiques à SCHIP.<br>
+Les instructions suivies de <b>**</b> sont spécifiques à CHIPcon.<br>
+</p> 
+<p>
+<table border="single"> 
+<tr><th>OPCODE</th><th>Mnémonique</th><th>Description</th></tr>
+<tr><td>00CN*</td><td>SCD N</td><td>défile l'affichage vers le bas de N lignes.</td></tr>
+<tr><td>00E0</td><td>CLS</td><td>Efface l'affichage.</td></tr>
+<tr><td>00EE</td><td>RET</td><td>Quitte une sous-routine.</td></tr>
+<tr><td>00FB*</td><td>SCR</td><td>Défile l'écran vers la droite de 4 pixels.</td></tr>
+<tr><td>00FC*</td><td>SCL</td><td>Défile l'écran vers la gauche de 4 pixels.</td></tr>
+<tr><td>00FD*</td><td>EXIT</td><td>Fin de programme, quitte la machine virtuelle.</td></tr>
+<tr><td>00FE*</td><td>LOW</td><td>Désactive le mode SCHIP, retour au mode CHIP-8 de 64x32 pixels. <b>Instruction ignorée par CHIPcon.</b></td></tr>
+<tr><td>00FF*</td><td>HIGH</td><td>Active le mode étendu, 128x64 pixels. <b>Instruction ignorée par CHIPcon qui demeure toujours dans ce mode.</b></td></tr>
+<tr><td>1NNN</td><td>JP NNN</td><td>Saute à l'adresse NNN.</td></tr>
+<tr><td>2NNN</td><td>CALL NNN</td><td>Exécute la sous-routine à l'adresse NNN.</td></tr>
+<tr><td>3XKK</td><td>SE VX, KK</td><td>Saute l'instruction suivante si VX == KK </td></tr>
+<tr><td>4XKK</td><td>SNE VX, KK</td><td>Saute l'instruction suivante si VX <> KK </td></tr>
+<tr><td>5XY0</td><td>SE VX, VY</td><td>Saute l'instruction suivante si VX == VY </td></tr>
+<tr><td>6XKK</td><td>LD VX, KK</td><td>VX := KK </td></tr>
+<tr><td>7XKK</td><td>ADD VX, KK</td><td>VX := VX + KK </td></tr>
+<tr><td>8XY0</td><td>LD VX, VY</td><td>VX := VY</td></tr>
+<tr><td>8XY1</td><td>OR VX, VY</td><td>VX := VX or VY</td></tr>
+<tr><td>8XY2</td><td>AND VX, VY</td><td>VX := VX and VY</td></tr>
+<tr><td>8XY3</td><td>XOR VX, VY</td><td>VX := VX xor VY</td></tr>
+<tr><td>8XY4</td><td>ADD VX, VY</td><td>VX := VX + VY, VF := carry </td></tr>
+<tr><td>8XY5</td><td>SUB VX, VY</td><td>VX := VX - VY, VF := not borrow </td></tr>
+<tr><td>8XY6</td><td>SHR VX</td><td>VX := VX shr 1, VF := carry </td></tr>
+<tr><td>8XY7</td><td>SUBN VX, VY</td><td>VX := VY - VX, VF := not borrow</td></tr>
+<tr><td>8XYE</td><td>SHL VX</td><td>VX := VX shl 1, VF := carry </td></tr>
+<tr><td>9XY0</td><td>SNE VX, VY</td><td>Saute l'instruction suivante si VX <> VY </td></tr>
+<tr><td>9XY1**</td><td>TONE VX, VY</td><td>Fais entendre une note de la gamme tempérée. VX note entre 0-F. 0=DO4, F=RÉ5#. VY durée.</td>
+<tr><td>9XY2**</td><td>PRT VX, VY</td><td>imprime une chaîne texte à l'écran. VX coordonnée X et VY coordonnée Y. Le texte est pointé par I. I est incrémenté.</td>
+<tr><td>ANNN</td><td>LD I, NNN</td><td>I := NNN </td></tr>
+<tr><td>BNNN</td><td>JP V0, NNN</td><td>saute à l'adresse NNN+V0 </td></tr>
+<tr><td>CXKK</td><td>RND VX, KK</td><td>VX := nombre aléatoire and KK </td></tr>
+<tr><td>DXYN*</td><td>DRW VX, VY, N</td><td>Affiche un sprite de  N-octets aux coordonnées d'écran VX, VY.<br>
+       Le contenu du sprite se trouve à l'adresse débutan M(I).<br>
+       VF := 1 si il y a collision.<br>
+       Si N==0 indique un sprite de 16x16 pixels.</td></tr>
+<tr><td>EX9E</td><td>SKP VX</td><td>Saute l'instruction suivante si la touche dont la valeur est indiquée dans VX est enfoncée.</td></tr>
+<tr><td>EXA1</td><td>SKNP VX</td><td>Saute l'instruction suivante si la touche dont la valeur est indiquée dans VX n'est pas enfoncée.</td></tr>
+<tr><td>FX07</td><td>LD VX, DT</td><td>VX := valeur de la minuterie délais.</td></tr>
+<tr><td>FX0A</td><td>LD VX, K</td><td>Attend qu'une touche sois enfoncée et met sa valeur dans VX.</td></tr>
+<tr><td>FX15</td><td>LD DT, VX</td><td>minuterie de délais := VX, elle est décrémentée jusqu'à zéro 60 fois par seconde.</td></tr>
+<tr><td>FX18</td><td>LD ST, VX</td><td>minuterie son := VX, La minuterie est décrémentée, le son s'arrête lorsqu'elle atteint zéro. </td></tr>
+<tr><td>FX1E</td><td>ADD I, VX</td><td>I := I + VX </td></tr>
+<tr><td>FX29</td><td>LD F, VX</td><td>VX contient une valeur entre 0 et 15. La valeur du registre I est ajusté au début du sprite qui représente ce caractère dans la table  3x5.</td></tr>
+<tr><td>FX30*</td><td>LD LF, VX</td><td>VX contient une valeur entre 0 et 9. La valeur du registre I est ajusté au début du sprite qui représente ce caractère dans la table 8x10.</td></tr>
+<tr><td>FX33</td><td>LD B, VX</td><td>Met à l'adresse M(I)..M(I+2) la valeur BCD du nombre qui est dans VX.</td></tr>
+<tr><td>FX55</td><td>LD [I], VX</td><td>Enregistres les valeurs des registres V0..VX dans la mémoire RAM en débutant à l'adresse M(I).</td></tr>
+<tr><td>FX65</td><td>LD VX, [I]</td><td>Charge les V0..VX à partir de la mémoire RAM en débutant à l'adresse M(I).</td></tr>
+<tr><td>FX75*</td><td>LD R, VX</td><td>Sauvegarde les registres V0..VX dans la banque de registres RPL.</td></tr>
+<tr><td>FX85*</td><td>LD VX, R</td><td>Charge les registres V0..VX à partir des registres RPL.</td></tr>
+</table>
+</p>
+</body>
+</html>

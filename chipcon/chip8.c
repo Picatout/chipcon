@@ -164,6 +164,7 @@ uint8_t schip(uint8_t flags){
 				code |= vms.b2;
 				break;
 			case 0x800:
+			case 0x900:
 				code |= vms.b2&0xf;
 				break;
 		}
@@ -251,6 +252,18 @@ uint8_t schip(uint8_t flags){
 				break;
 			case 0x900: // 9XY0     Saute l'instruction suivante si VX <> VY
 				if (vms.var[x]!=vms.var[y]) vms.pc+=2;
+				break;
+			case 0x901: // 9XY1  TONE VX, VY  joue une note de la gamme tempérée.
+				key_tone(vms.var[x],vms.var[y]);
+				break;
+			case 0x902: // 9XY2  PRT VX, VY  imprime le texte pointé par I. I est incrémenté.
+				select_font(FONT_ASCII);
+				set_cursor(vms.var[x],vms.var[y]);
+				n=sram_read_byte(vms.ix++);
+				while (n){
+					put_char(n);
+					n=sram_read_byte(vms.ix++);
+				}
 				break;
 			case 0xa00: // ANNN     I := NNN
 				vms.ix=caddr(vms.b1,vms.b2);  // chip-8 et schip adressse de 12 bits
