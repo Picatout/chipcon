@@ -1,31 +1,34 @@
-eeschema (2013-07-07 BZR 4022)-stable  >> Creation date: 2014-10-19 14:04:32
+eeschema (2013-07-07 BZR 4022)-stable  >> Creation date: 2014-10-30 16:11:20
 #Cmp ( ordre = Référence )
 | C1         100µF/16V  
 | C2         18pF        
 | C3         100nF       
 | C4         18pF        
-| C5         1µF        
-| C6         100nF       
+| C5         10µF/16V   
+| C6         1µF        
 | C7         100nF       
 | C8         100nF       
 | C9         100nF       
-| C10        1µF        
+| C10        100nF       
+| C11        1µF        
 | CON1       BARREL_JACK 
 | D1         1N4148      
+| D2         LED         
 | J1         audio_out   
 | J2         video out   
 | k1         KEYPAD      
 | P1         SD card     
 | P2         ICSP        
-| R1         4k7         
+| R1         10K         
 | R2         150R        
 | R3         620R        
 | R4         470R        
 | R5         10K         
 | R6         10K         
-| R7         10K         
+| R7         100R        
 | R8         10K         
-| R9         10R         
+| R9         10K         
+| R10        10R         
 | RV1        10K         
 | SW1        reset       
 | SW2        power       
@@ -34,43 +37,6 @@ eeschema (2013-07-07 BZR 4022)-stable  >> Creation date: 2014-10-19 14:04:32
 | U3         LT1117-3,3  
 | X1         16Mhz       
 | Z1         audio out   
-#End Cmp
-
-#Cmp ( ordre = Valeur )
-| 18pF         C2        
-| 18pF         C4        
-| 100nF        C3        
-| 100nF        C6        
-| 100nF        C7        
-| 100nF        C8        
-| 100nF        C9        
-| 100µF/16V   C1        
-| 1µF         C5        
-| 1µF         C10       
-| BARREL_JACK  CON1      
-| 1N4148       D1        
-| audio_out    J1        
-| video out    J2        
-| KEYPAD       k1        
-| SD card      P1        
-| ICSP         P2        
-| 10R          R9        
-| 150R         R2        
-| 470R         R4        
-| 620R         R3        
-| 4k7          R1        
-| 10K          R5        
-| 10K          R6        
-| 10K          R7        
-| 10K          R8        
-| 10K          RV1       
-| reset        SW1       
-| power        SW2       
-| ATMEGA328-PU U1        
-| LT1117-3,3   U3        
-| 23LC512      U2        
-| 16Mhz        X1        
-| audio out    Z1        
 #End Cmp
 
 #End List

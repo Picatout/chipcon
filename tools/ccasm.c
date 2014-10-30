@@ -37,11 +37,16 @@ FILE *bin;
 int pc; // program counter
 int line_no; //source file line number
 
-unsigned char binary[4096];
+#define MEM_SIZE (4096)   
+unsigned char binary[MEM_SIZE];
 
 
 int start,end; // word start and end position
 char line[256]; // input line buffer
+
+bool letter(char c){
+	return (c>='A') && (c<='Z');
+}
 
 bool digit(char c){
 	return (c>='0') && (c<='9');
@@ -59,9 +64,18 @@ int get_register(){
 	return line[start+1]<='9'?line[start+1]-'0':line[start+1]-'A'+10;
 }
 
+void memory_overflow(){
+	printf("CHIPcon program memory overflow at line %d\n", line_no);
+	exit(EXIT_FAILURE);
+}
+
 void store_code(unsigned char b1, unsigned char b2){
-	binary[pc++]=b1&0xff;
-	binary[pc++]=b2&0xff;
+	if (pc<4095){
+		binary[pc++]=b1&0xff;
+		binary[pc++]=b2&0xff;
+	}else{
+		memory_overflow();
+	}
 }
 
 #define KW_COUNT (27)
@@ -234,6 +248,7 @@ void kw_sne(){
 
 void kw_ld(){
 	unsigned b1,b2;
+	label_t *lbl;
 	next_word();
 	switch (line[start]){
 	case 'V':
@@ -263,7 +278,7 @@ void kw_ld(){
 				}
 				break;
 			default:
-				b1|=0x70;
+				b1|=0x60;
 				b2=get_number();
 			}		
 			}else{
@@ -272,9 +287,21 @@ void kw_ld(){
 		break;
 	case 'I':
 		next_word();
-		b2=get_number();
-		b1=0xA0|((b2&0xf00)>>8);
-		b2 &= 0xff;
+		if (letter(line[start])){
+			lbl=search_label(&line[start]);
+			if (lbl){
+				b1=0xA0|((lbl->addr&0xf00)>>8);
+				b2=lbl->addr&0xff;
+			}else{
+				add_forward_ref();
+				b1=0xA0;
+				b2=0;
+			}
+		}else{
+			b2=get_number();
+			b1=0xA0|((b2&0xf00)>>8);
+			b2 &= 0xff;
+		}
 		break;
 	case 'D':
 	    if (line[start+1]=='T'){
@@ -598,8 +625,8 @@ const kw_fn opcode[KW_COUNT]={kw_scd,kw_cls,kw_ret,kw_scr,kw_scl,kw_exit,kw_low,
 							   kw_rnd,kw_drw,kw_tone,kw_prt,kw_skp,kw_sknp};
 
 						 
-#define DIR_COUNT (5)						 
-const char *directives[]={"DB","DW","OPTION","ALIGN","BINARY","OFF","ON"};
+#define DIR_COUNT (3)						 
+const char *directives[]={"DB","DW","ASCII"};
 
 
 int search_word(char *target, const char *list[], int list_count){
@@ -637,15 +664,16 @@ void next_word(){
 	}else{
 		end=start;
 		while (line[end] && !(space(line[end])||(line[end]==','))){
+			if (line[end]==';'){memset(&line[end],0,strlen(&line[end])); break;}
 			if ((line[end]>='a') && (line[end]<='z')) line[end] -= 32;
 			end++;
 		}
+		line[end]=0;
 	}
-	line[end]=0;
 }
 
 int htoi(char *hnbr){
-	int n=0;
+	unsigned int n=0;
 	while (hex(*hnbr)){
 		n*=16;
 		n+=*hnbr<='9'?*hnbr-'0':*hnbr-'A'+10;
@@ -655,10 +683,11 @@ int htoi(char *hnbr){
 }
 
 int btoi(char *bnbr){
-	int n=0;
+	unsigned int n=0;
 	while ((*bnbr=='1')||(*bnbr=='.')||(*bnbr=='0')){
 		n <<=1;
 		n += *bnbr=='1';
+		bnbr++;
 	}
 	return n;
 }
@@ -675,17 +704,74 @@ int get_number(){
 	}
 }
 
+void data_byte(){
+	next_word();
+	while(pc<MEM_SIZE && strlen(&line[start])){
+		binary[pc++]=get_number()&0xff;
+		next_word();
+	}
+}
+
+void data_word(){
+	unsigned n;
+	next_word();
+	while(pc<MEM_SIZE-1 && strlen(&line[start])){
+		n=get_number();
+		binary[pc++]=(n>>8)&0xff;
+		binary[pc++]=n&0xff;
+		next_word();
+	}
+}
+
+void data_text(){
+	bool quote=false;
+	bool escape=false;
+	
+	start=end+1;
+	end=start;
+	while(line[end] && !line[end]=='"') end++;
+	if (!line[end]) return;
+	end++;
+	while (line[end] && pc<MEM_SIZE && !quote){
+		switch(line[end]){
+		case '\\':
+			if (!escape) escape=true;else{binary[pc++]=line[end];escape=false;}
+			break;
+		case 'n':
+			if (!escape) binary[pc++]=line[end];else{binary[pc++]='\n';escape=false;}
+			break;
+		case '"':
+			if (!escape) quote=true;else{binary[pc++]=line[end];escape=false;} 
+			break;
+		default:
+			if ((line[end]<32)||line[end]>127) error();else{ binary[pc++]=line[end];} 
+			break;
+		}
+		end++;
+	}
+	if (pc<MEM_SIZE) binary[pc++]=0;
+}
+
 void parse_line(){
 	int i;
-	while (line[start]){
+	while (line[start] && pc<MEM_SIZE){
 		next_word();
-		if (line[start]==';') break;
 		if (strlen(&line[start])){
 			if ((i=search_word(&line[start],mnemonics,KW_COUNT))<KW_COUNT){
-				//operation opcode
+				//operation code
 				opcode[i]();
 			}else if ((i=search_word(&line[start],directives,DIR_COUNT))<DIR_COUNT){
-				// assemble directvie
+				// assembler directive
+				switch(i){
+				case 0:
+					data_byte();
+					break;
+				case 1:
+					data_word();
+					break;
+				case 2:
+					data_text();
+				}
 			}else if (line[end-1]==':'){
 				// label
 				line[end-1]=0;
@@ -694,7 +780,6 @@ void parse_line(){
 				//unknown code
 				error();
 			}
-			
 		}
 	}
 }
@@ -704,13 +789,14 @@ void resolve_forward(){
 	label_t *lbl;
 	
 	fwd=fref;
-	while (fwd){
+	while (fwd && pc<MEM_SIZE){
 		lbl=search_label(fwd->name);
 		if (lbl){
 			binary[fwd->pc] += (lbl->addr&0xf00)>>8;
 			binary[fwd->pc+1] = lbl->addr&0xff;
 		}else{
-			error();
+			printf("undefined reference: %s\n", fwd->name);
+			exit(EXIT_FAILURE);
 		}
 		fwd=fwd->next;
 	}
@@ -726,7 +812,7 @@ int main(int argc, char **argv){
 	pc=ORG;
 	memset(line,0,256);
 	line_no=0;
-	while (fgets(line,256,src)){
+	while (pc<MEM_SIZE && fgets(line,256,src)){
 		line_no++;
 		line[strlen(line)-1]=0;
 		start=0;
@@ -734,6 +820,7 @@ int main(int argc, char **argv){
 		parse_line();
 		memset(line,0,256);
 	}
+	if (pc>4095 && !feof(src)) memory_overflow();
 	fclose(src);
 	resolve_forward();
 	int i;
@@ -741,5 +828,6 @@ int main(int argc, char **argv){
 		fputc(binary[i],bin);
 	}
 	fclose(bin);
+	printf("Total lines read: %d\ncode size: %d\n",line_no, pc);
 	return EXIT_SUCCESS;
 }

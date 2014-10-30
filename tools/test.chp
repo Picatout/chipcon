@@ -1,38 +1,36 @@
-CLS
-SCD 4
-SCR
-SCL
 HIGH
-LOW
-CALL SUB1
-SE V1, V2
-SE V3, #ff
-SNE VF, V4
-SNE VC, 80
-JP END
-LD V1, 3
-LD V2, V1
-LD I, 333
-LD R, V4
-LD V4, R
-LD DT, V4
-LD V4, DT
-LD ST, V3
-LD B, V2
-LD F, V1
-LD LF, VA
-LD V4, [i]
-LD [I], V4
-ADD V1, 250
-ADD V1, V2
-DRW v3,v4,3
-TONE V1,VA
-PRT  V0,V2
-SUB1:
-RET
-
-END:
+CLS
+LD V0, 30
+LD V1, 32
+LD I, hello
+PRT V0,V1
+LD V0, 32
+; test TONE
+LD V4, 15
+LD V5, 10
+next_tone:
+TONE V4, V5
+; delais 
+ld v6, 10
+ld dt, v6
+wait_tone_end:
+ld v6, dt
+se v6, 0
+jp wait_tone_end
+add v4, 255
+se v4, 0
+jp next_tone
+loop:
+SCD 1
+LD V1,10
+LD DT, V1
+delais:
+LD V1, DT
+SE V1, 0
+JP delais
+add v0, 255
+se v0,0
+jp loop
 EXIT
-
-
-
+hello:
+ascii "hello world!"
