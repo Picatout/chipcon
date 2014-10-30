@@ -216,15 +216,15 @@ int main(int argc, char *argv[]){
 			previous=NOT_SKIP;
 			break;
 		case 3: // 3XKK     saute l'instruction suivante si VX == KK 
-			sprintf(line+strlen(line),"SE V%X==%d\n",r1(b1),b2);
+			sprintf(line+strlen(line),"SE V%X, %d\n",r1(b1),b2);
 			previous=SKIP;
 			break;
 		case 4: // 4XKK     Saute l'instruction suivante si VX <> KK 
-			sprintf(line+strlen(line),"SNE V%X==%d\n",r1(b1),b2);
+			sprintf(line+strlen(line),"SNE V%X, %d\n",r1(b1),b2);
 			previous=SKIP;
 			break;
 		case 5: // 5XY0     Saute l'instruction suivante si VX == VY
-			sprintf(line+strlen(line),"SE V%X==V%X\n",r1(b1),r2(b2));
+			sprintf(line+strlen(line),"SE V%X, V%X\n",r1(b1),r2(b2));
 			previous=SKIP;
 			break;
 		case 6: // 6XKK     VX := KK 
@@ -271,8 +271,18 @@ int main(int argc, char *argv[]){
 			previous=NOT_SKIP;
 			break;
 		case 9: // 9XY0     Saute l'instruction suivante si VX <> VY
-			sprintf(line+strlen(line),"SNE  V%X, V%X\n",r1(b1),r2(b2));
-			previous=SKIP;
+			switch(b2&0xf){
+			case 0:
+				sprintf(line+strlen(line),"SNE  V%X, V%X\n",r1(b1),r2(b2));
+				previous=SKIP;
+				break;
+			case 1:
+				sprintf(line+strlen(line),"TONE V%X,V%X\n",r1(b1),r2(b2));
+				break;
+			case 2:
+				sprintf(line+strlen(line),"PRT V%X,V%X\n",r1(b1),r2(b2));
+				break;
+			}
 			break;
 		case 0xA: // ANNN     I := NNN 
 			ix=caddr(b1,b2);
@@ -281,12 +291,6 @@ int main(int argc, char *argv[]){
 			previous=LDI;
 			break;
 		case 0xB: // BNNN     saut à NNN+V0
-/*		
-			if (search_for_target(caddr(b1,b2))==-1){
-				target[tx].addr=caddr(b1,b2);
-				target[tx].done=NOT_DONE;
-			}
-*/			
 			sprintf(line+strlen(line),"JP V0, 0x%03X\n",caddr(b1,b2));
 			previous=NOT_SKIP;
 			break;
@@ -295,7 +299,7 @@ int main(int argc, char *argv[]){
 			previous=NOT_SKIP;
 			break;
 		case 0xD: //DXYN dessine le sprite pointé par I
-			sprintf(line+strlen(line),"DRAW V%X, V%X, %d\n",r1(b1),r2(b2),b2&0xf);
+			sprintf(line+strlen(line),"DRW V%X, V%X, %d\n",r1(b1),r2(b2),b2&0xf);
 			if (previous==LDI){
 				if ((i=search_for_data(ix))<dx){
 					data[i].size=b2&0xf;
@@ -355,7 +359,7 @@ int main(int argc, char *argv[]){
 				break;
 			case 0x65: // FX65     charge les registres V0..VX à partir de la mémoire SRAM à l'adresse M(ix)	
 				if ((i=search_for_data(ix))<dx) data[i].size=r1(b1);
-				sprintf(line+strlen(line),"LD VX, [I]\n",r1(b1));
+				sprintf(line+strlen(line),"LD V%X, [I]\n",r1(b1));
 				break;
 			case 0x75: // FX75 (modes schip et xchip seulement) sauvegarde les registres V0..VX dans rpl  (X <= 7)
 				sprintf(line+strlen(line),"LD R, V%X\n",r1(b1));
