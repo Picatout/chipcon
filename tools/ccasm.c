@@ -12,48 +12,74 @@
 
 #define ORG (512)
 
-typedef struct label{
-	int addr;
-	struct label *next;
+typedef struct data_node{
 	char *name;
-}label_t;
+	union {
+		unsigned addr;
+		unsigned pc;
+		unsigned value;
+	}
+	struct data_node *next;
+}node_t;
 
-typedef struct forward_ref{
-	int pc;
-	struct forward_ref *next;
-	char *name;
-}forward_ref_t;
+typedef enum token {eNONE,eSYMBOL,eNUMBER,eSTRING,eADDOP,eMULOP,eCOMMA,eLPAREN,eRPAREN,eLBRACKET,eRBRACKET} token_t;
+
+token_t tok_id;
+char tok_value[256];
 
 
-label_t *label_list=NULL;
-label_t *last_lbl=NULL;
+node_t *label_list=NULL;
+node_t *forward_list=NULL;
+node_t *symbol_list=NULL;
 
-forward_ref_t *fref=NULL;
-forward_ref_t *last_ref=NULL;
+#define add_label(name,addr)   add_node(name,addr,label_list)
+#define add_forward_ref(name,pc) add_node(name,pc,forward_list)
+#define add_symbol(name,value)  add_node(name,value,symbol_symb)
+#define search_label(name)   search_list(name,label_list)
+#define search_ref(name)  search_list(name,forward_ref)
+#define search_symbol(name) search_list(name,symbol_list)
 
 
 FILE *bin;
 
-int pc; // program counter
-int line_no; //source file line number
+int pc; // compteur ordinal
+int line_no; //no de ligne en cours d'analyse
 
 #define MEM_SIZE (4096)   
 unsigned char binary[MEM_SIZE];
 
 
-int start,end; // word start and end position
-char line[256]; // input line buffer
+int inp; // pointeur d'analyse ligne d'entrée
+char line[256]; // contient la ligne à analyser
 
 bool letter(char c){
-	return (c>='A') && (c<='Z');
+	return ((c>='A') && (c<='Z')) || ((c>='a') && (c<='z'));
 }
 
 bool digit(char c){
 	return (c>='0') && (c<='9');
 }
 
+bool alnum(char c){
+	return letter(c) || digit(c);
+}
+
 bool hex(char c){
 	return digit(c) || ((c>='A')&&(c<='F'));
+}
+
+bool identifier(char *name){
+	if (!letter(*name)) return false;
+	name++;
+	while (*name){
+		if (!(alnum(*name) || *name=='_')) return false;
+		name++;
+	}
+	return true;
+}
+
+bool separator(char c){
+	strchar("()[]+-*/%,:",c);
 }
 
 bool match_vx(char *w){
@@ -82,63 +108,44 @@ void store_code(unsigned char b1, unsigned char b2){
 
 typedef  void (*kw_fn)();
 
-void next_word();
-int get_number();
+void next_token();
+void parse_identifier();
+unsigned get_number();
+unsigned expression();
 
 void error(){
+	puts(line);
 	printf("Syntax error at line %d, position %d\n",line_no,start+1);
 	exit(EXIT_FAILURE);
 }
 
-void add_forward_ref(){
-	if (fref==NULL){
-		fref=malloc(sizeof(forward_ref_t));
-		fref->pc=pc;
-		fref->next=NULL;
-		fref->name=malloc(strlen(&line[start])+1);
-		strcpy(fref->name,&line[start]);
-		last_ref=fref;
+node_t *add_node(char *name, unsigned value, node_t *list){
+	if (list==NULL){
+		list=malloc(sizeof(node_t));
+		list->next=NULL;
 	}else{
-		last_ref->next=malloc(sizeof(forward_ref_t));
-		last_ref=last_ref->next;
-		last_ref->pc=pc;
-		last_ref->name=malloc(strlen(&line[start])+1);
-		strcpy(last_ref->name,&line[start]);
-		last_ref->next=NULL;
+		list->next=list;
 	}
+	list->value=value;
+	list->name=malloc(strlen(name)+1);
+	strcpy(list->name,name);
+	return list;
 }
 
-void add_label(){
-	if (label_list==NULL){
-		label_list=malloc(sizeof(label_t));
-		label_list->addr=pc;
-		label_list->name=malloc(strlen(&line[start])+1);
-		strcpy(label_list->name,&line[start]);
-		label_list->next=NULL;
-		last_lbl=label_list;
-	}else{
-		last_lbl->next=malloc(sizeof(label_t));
-		last_lbl=last_lbl->next;
-		last_lbl->addr=pc;
-		last_lbl->name=malloc(strlen(&line[start])+1);
-		strcpy(last_lbl->name,&line[start]);
-		last_lbl->next=NULL;
+node_t *search_list(char *name, node_t *list){
+	node_t *node;
+	node=list;
+	while (node){
+		if (!strcmp(name,node->name)) break;
+		node=node->next;
 	}
+	return node;
 }
 
-label_t *search_label(char *name){
-	label_t *lbl;
-	lbl=label_list;
-	while (lbl){
-		if (!strcmp(name,lbl->name)) break;
-		lbl=lbl->next;
-	}
-	return lbl;
-}
 
 void kw_scd(){
 	int i;
-	next_word();
+	next_token();
 	i=atoi(&line[start]);
 	store_code(0,0xc0+(i&0xf));
 }
@@ -174,31 +181,50 @@ void kw_high(){
 void kw_jp(){
 	unsigned b1,b2;
 	label_t *lbl;
-	next_word();
-    lbl=search_label(&line[start]);
-	if (lbl){
-		b1=0x10+((lbl->addr&0xf00)>>8);
-		b2=lbl->addr&0xff;	
-	}else{
-		add_forward_ref();
-		b1=0x10;
-		b2=0;
-	}
+	next_token();
+	if (!strcmp("V0",&line[start])){
+		b1=0xB0;
+		next_token();
+		b2=get_number();
+		b1|=(b2&0xf00)>>8;
+		b2&=0xff;
+	}else if (letter(line[start])){
+			lbl=search_label(&line[start]);
+			if (lbl){
+				b1=0x10+((lbl->addr&0xf00)>>8);
+				b2=lbl->addr&0xff;	
+			}else{
+				add_forward_ref();
+				b1=0x10;
+				b2=0;
+			}
+			}else{
+				b2=get_number();
+				b1=0x10|((b2&0xf00)>>8);
+				b2&=0xff;
+			}
+	
 	store_code(b1,b2);
 }
 
 void kw_call(){
 	unsigned b1,b2;
 	label_t *lbl;
-	next_word();
-    lbl=search_label(&line[start]);
-	if (lbl){
-		b1=0x20+((lbl->addr&0xf00)>>8);
-		b2=lbl->addr&0xff;	
+	next_token();
+	if (letter(line[start])){
+		lbl=search_label(&line[start]);
+		if (lbl){
+			b1=0x20+((lbl->addr&0xf00)>>8);
+			b2=lbl->addr&0xff;	
+		}else{
+			add_forward_ref(&line[start]);
+			b1=0x20;
+			b2=0;
+		}
 	}else{
-		add_forward_ref(&line[start]);
-		b1=0x20;
-		b2=0;
+		b2=get_number();
+		b1=0x20|((b2&0xf00)>>8);
+		b2&=0xff;
 	}
 	store_code(b1,b2);
 }
@@ -207,10 +233,10 @@ void kw_call(){
 void kw_se(){
 	unsigned b1,b2;
 
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 			b1=get_register();
-			next_word();
+			next_token();
 			if (match_vx(&line[start])){
 				b2=get_register();
 				b1|=0x50;
@@ -228,10 +254,10 @@ void kw_se(){
 void kw_sne(){
 	unsigned b1,b2;
 
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 			b1=get_register();
-			next_word();
+			next_token();
 			if (match_vx(&line[start])){
 				b2=get_register();
 				b1|=0x90;
@@ -249,12 +275,12 @@ void kw_sne(){
 void kw_ld(){
 	unsigned b1,b2;
 	label_t *lbl;
-	next_word();
+	next_token();
 	switch (line[start]){
 	case 'V':
 		if (hex(line[start+1])){
 			b1=get_register();
-			next_word();
+			next_token();
 			switch(line[start]){
 			case 'V':
 				b1|=0x80;
@@ -286,7 +312,7 @@ void kw_ld(){
 		}
 		break;
 	case 'I':
-		next_word();
+		next_token();
 		if (letter(line[start])){
 			lbl=search_label(&line[start]);
 			if (lbl){
@@ -307,7 +333,7 @@ void kw_ld(){
 	    if (line[start+1]=='T'){
 			b1=0xF0;
 			b2=0x15;
-			next_word();
+			next_token();
 			if (match_vx(&line[start])){
 				b1|=get_register();
 			}else{
@@ -321,7 +347,7 @@ void kw_ld(){
 	    if (line[start+1]=='T'){
 			b1=0xF0;
 			b2=0x18;
-			next_word();
+			next_token();
 			if (match_vx(&line[start])){
 				b1|=get_register();
 			}else{
@@ -334,7 +360,7 @@ void kw_ld(){
 	case 'R':
 		b1=0xF0;
 		b2=0x75;
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=get_register();
 		}else{
@@ -344,7 +370,7 @@ void kw_ld(){
 	case 'B':
 		b1=0xF0;
 		b2=0x33;
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=get_register();
 		}else{
@@ -354,7 +380,7 @@ void kw_ld(){
 	case 'F':
 		b1=0xF0;
 		b2=0x29;
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=get_register();
 		}else{
@@ -365,7 +391,7 @@ void kw_ld(){
 	    if (line[start+1]=='F'){
 			b1=0xF0;
 			b2=0x30;
-			next_word();
+			next_token();
 			if (match_vx(&line[start])){
 				b1|=get_register();
 			}else{
@@ -377,7 +403,7 @@ void kw_ld(){
 		break;
 	case '[':
 		if ((line[start+1]=='I') && (line[start+2]==']')){
-			next_word();
+			next_token();
 			if (match_vx(&line[start])){
 				b1=0xF0+get_register();
 				b2=0x55;
@@ -394,10 +420,10 @@ void kw_ld(){
 
 void kw_add(){
 	unsigned b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=0x80;
 			b2=(get_register()<<4)+4;
@@ -413,10 +439,10 @@ void kw_add(){
 
 void kw_sub(){
 	unsigned b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=0x80;
 			b2=(get_register()<<4)+5;
@@ -431,10 +457,10 @@ void kw_sub(){
 
 void kw_subn(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=0x80;
 			b2=(get_register()<<4)+7;
@@ -449,10 +475,10 @@ void kw_subn(){
 
 void kw_or(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=0x80;
 			b2=(get_register()<<4)+1;
@@ -467,10 +493,10 @@ void kw_or(){
 
 void kw_and(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=0x80;
 			b2=(get_register()<<4)+2;
@@ -485,10 +511,10 @@ void kw_and(){
 
 void kw_xor(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b1|=0x80;
 			b2=(get_register()<<4)+3;
@@ -503,7 +529,7 @@ void kw_xor(){
 
 void kw_shl(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=0x80|get_register();
 		b2=0x0e;
@@ -515,7 +541,7 @@ void kw_shl(){
 
 void kw_shr(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=0x80|get_register();
 		b2=0x06;
@@ -527,13 +553,13 @@ void kw_shr(){
 
 void kw_drw(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=0xd0|get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b2=(get_register()<<4);
-			next_word();
+			next_token();
 			b2|=get_number()&0xf;
 		}else{
 			error();
@@ -546,7 +572,7 @@ void kw_drw(){
 
 void kw_skp(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if(match_vx(&line[start])){
 		b1=0xE0|get_register();
 		b2=0x9e;
@@ -558,7 +584,7 @@ void kw_skp(){
 
 void kw_sknp(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if(match_vx(&line[start])){
 		b1=0xE0|get_register();
 		b2=0xa1;
@@ -570,10 +596,10 @@ void kw_sknp(){
 
 void kw_rnd(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=0xe0|get_register();
-		next_word();
+		next_token();
 		b2=get_number();
 	}else{
 		error();
@@ -583,10 +609,10 @@ void kw_rnd(){
 
 void kw_tone(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=0x90|get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b2=(get_register()<<4)+1;
 		}else{
@@ -601,10 +627,10 @@ void kw_tone(){
 
 void kw_prt(){
 	unsigned int b1,b2;
-	next_word();
+	next_token();
 	if (match_vx(&line[start])){
 		b1=0x90|get_register();
-		next_word();
+		next_token();
 		if (match_vx(&line[start])){
 			b2=(get_register()<<4)+2;
 		}else{
@@ -626,7 +652,7 @@ const kw_fn opcode[KW_COUNT]={kw_scd,kw_cls,kw_ret,kw_scr,kw_scl,kw_exit,kw_low,
 
 						 
 #define DIR_COUNT (3)						 
-const char *directives[]={"DB","DW","ASCII"};
+const char *directives[]={"DB","DW","ASCII","EQU"};
 
 
 int search_word(char *target, const char *list[], int list_count){
@@ -656,20 +682,158 @@ void skip_white(){
 	while(line[start] && space(line[start])) start++;
 }
 
-void next_word(){
-	if (start<end) start=end+1;
+void parse_string(){
+	bool quote=false;
+	bool escape=false;
+	unsigned i=0;
+	
+	while (line[inp] && !quote){
+		switch(line[inp]){
+		case '\\':
+			if (!escape) escape=true;else{tok_value[i++]=line[inp];escape=false;}
+			break;
+		case 'n':
+			if (!escape) tok_value[i++]=line[inp];else{tok_value[i++]='\n';escape=false;}
+			break;
+		case '"':
+			if (!escape) quote=true;else{tok_value[i++]=line[inp];escape=false;} 
+			break;
+		default:
+			if ((line[inp]<32)||line[inp]>127) error();else{tok_value[i++]=line[inp];} 
+			break;
+		}//switch
+		inp++;
+	}//while
+	if (quote) inp--; else error();
+	return i;
+}
+
+void next_token(){
+	unsigned state=0;
+	unsigned i=0;
+	
 	skip_white();
-	if (!line[start]){
-		end=start;
-	}else{
-		end=start;
-		while (line[end] && !(space(line[end])||(line[end]==','))){
-			if (line[end]==';'){memset(&line[end],0,strlen(&line[end])); break;}
-			if ((line[end]>='a') && (line[end]<='z')) line[end] -= 32;
-			end++;
-		}
-		line[end]=0;
-	}
+	tok_id=eNONE;
+	tok_value[0]=0;
+	while ((state<5) && line[inp] && !space(line[inp])){
+		switch(state){
+		case 0:
+			switch(line[inp]){
+			case ';':
+				tok_id=eNONE;
+				tok_value[i++]=0;
+				inp=strlen(line);
+				state=5;
+				break;
+			case '+':
+			case '-':
+				tok_id=eADDOP;
+				tok_value[i++]=line[inp];
+				state=5;	
+				break;
+			case '*':
+			case '/':
+			case '%':
+				tok_id=eMULOP;
+				tok_value[i++]=line[inp];
+				state=5;	
+				break;
+			case '[':
+				tok_id=eLBRACKET;
+				tok_value[i++]=line[inp];
+				state=5;	
+				break;
+			case '(':
+				tok_id=eLPAREN;
+				tok_value[i++]=line[inp];
+				state=5;	
+				break;
+			case ')':
+				tok_id=eRPAREN;
+				tok_value[i++]=line[inp];
+				state=5;	
+				break;
+			case ']':
+				tok_id=eRBRACKET;
+				tok_value[i++]=line[inp];
+				state=5;	
+				break;
+			case ',':
+				tok_id=eCOMMA;
+				tok_value[i++]=line[inp];
+				state=5;	
+				break;
+			case '"':
+				inp++;
+				i=parse_string();
+				tok_id=eSTRING;
+				state=5;
+				break;
+			case '#':
+				tok_id=eNUMBER;
+				tok_value[i++]=line[inp];
+				state=1; // nombre hexadécimal
+			case '$':
+				tok_id=eNUMBER;
+				tok_value[i++]=line[inp];
+				state=2; // nombre binaire
+			default:
+				if (letter(line[inp])||(line[inp]=='_')){
+					tok_id=eSYMBOL;
+					tok_value[i++]=toupper(line[inp]);
+					state=4; // symbole alphanumérique
+				}else if (digit(line[inp])){
+					tok_id=eNUMBER;
+					tok_value[i++]=line[inp];
+					state=3; // nombre décimal
+				}
+			}//switch
+			break;
+		case 1: // nombre hexadécimal
+			if (hex(line[inp])){
+				tok_value[i++]=toupper(line[inp]);
+			}else if (separator(line[inp])){
+				inp--;
+				state=5;
+			}else{
+				error();
+			}
+			break;
+		case 2: // nombre binaire
+			if ((line[inp]=='1') || (line[inp]=='0') || (line[inp]=='.')){
+				tok_value[i++]=line[inp];
+			}else if (separator(line[inp]){
+				inp--;
+				state=5;
+			}else{
+				error();
+			}
+			break;
+		case 3: // nombre décimal
+			if (digit(line[inp])){
+				tok_value[i++]=line[inp];
+			}else if (separator(line[inp])){
+				inp--;
+				state=5;
+			}else{
+				error();
+			}
+			break;
+		case 4: // symbole alphanumérique
+			if (alnum(line[inp]) || line[inp]=='_'){
+				tok_value[i++]=toupper(line[inp]);
+			}else if (separator(line[inp]){
+				inp--;
+				state=5;
+			}else{
+				error();
+			}
+			break;
+
+		}//switch
+		inp++;
+	}//while
+	tok_value[i]=0;
 }
 
 int htoi(char *hnbr){
@@ -692,75 +856,140 @@ int btoi(char *bnbr){
 	return n;
 }
 
-int get_number(){
-	if (digit(line[start])){
-		return atoi(&line[start]);
-	}else if (line[start]=='#'){
-		return htoi(&line[start+1]);
-	}else if (line[start]=='$'){
-		return btoi(&line[start+1]);
-	}else {
-		error();
-	}
-}
-
 void data_byte(){
-	next_word();
-	while(pc<MEM_SIZE && strlen(&line[start])){
-		binary[pc++]=get_number()&0xff;
-		next_word();
-	}
+	unsigned n;
+	
+	do{
+	   n=expression();
+	   binary[pc++]=n&0xff;
+	   next_token();
+	   if (tok_id && tok_id!=eCOMMA) error();	
+   }while((pc<MEM_SIZE) && tok_id){
 }
 
 void data_word(){
 	unsigned n;
-	next_word();
-	while(pc<MEM_SIZE-1 && strlen(&line[start])){
-		n=get_number();
+	
+	do{
+		n = expression();
 		binary[pc++]=(n>>8)&0xff;
 		binary[pc++]=n&0xff;
-		next_word();
+		next_token();
+		if (tok_id && tok_id!=eCOMMA) error();
+	}while((pc<MEM_SIZE-1) && tok_id){
+}
+
+
+void data_ascii(){
+	unsigned i=0;
+	
+	next_token();
+	if (tok_id!=eSTRING) error();
+	while ((pc<MEM_SIZE-1) && tok_value[i]) binary[pc++]=tok_value[i++];
+	if (pc<MEM_SIZE) binary[pc++]=0; else {puts("memory overflow";error();}
+}
+
+
+void equate(){
+	node_t symbol;
+	
+	next_token();
+	if (tok_id==eSYMBOL){
+		symbol=search_symbol(tok_value);
+		if (!symbol) symbol = add_symbol(tok_value,0);
+		symbol->value = expression();
+	}else{
+		error();
 	}
 }
 
-void data_text(){
-	bool quote=false;
-	bool escape=false;
+unsigned factor(){
+	unsigned n;
+	node_t symbol;
 	
-	start=end+1;
-	end=start;
-	while(line[end] && !line[end]=='"') end++;
-	if (!line[end]) return;
-	end++;
-	while (line[end] && pc<MEM_SIZE && !quote){
-		switch(line[end]){
-		case '\\':
-			if (!escape) escape=true;else{binary[pc++]=line[end];escape=false;}
+	next_token();
+	switch(token_id){
+	case (eNUMBER):
+		switch(tok_value[0]{
+		case '#':
+			n=htoi(tok_value+1);
 			break;
-		case 'n':
-			if (!escape) binary[pc++]=line[end];else{binary[pc++]='\n';escape=false;}
-			break;
-		case '"':
-			if (!escape) quote=true;else{binary[pc++]=line[end];escape=false;} 
+		case '$':
+			n=btoi(tok_value+1);
 			break;
 		default:
-			if ((line[end]<32)||line[end]>127) error();else{ binary[pc++]=line[end];} 
-			break;
+			n=atoi(tok_value);
 		}
-		end++;
+		break;
+	case (eSYMBOL):
+		symbol=search_symbol(tok_value);
+		if (symbol){
+			n=sumbol->value;
+		}else{
+			puts("Unknown symbol");
+			error();
+		}
+		break;
+	case (eLPAREN):
+		n=expression();
+		next_token();
+		if (token_id!=RPAREN) error();
+	default:
+		error();
 	}
-	if (pc<MEM_SIZE) binary[pc++]=0;
+	return n;
+}
+
+unsigned (term){
+	unsigned n;
+	
+	n=factor();
+	next_token();
+	if (tok_id!=eMULOP) error();
+	switch(tok_value[0]){
+	case '*':
+		n *=factor();
+		break;
+	case '/':
+		n /= factor();
+		break;
+	case '%':
+		n %= factor();
+		break;
+	default:
+		error();
+	}
+	return n;
+}
+
+
+unsigned expression(){
+	unsigned n;
+	
+	n=term();
+	next_token();
+	if (tok_id!=eADDOP) error();
+	switch(tok_value[0]){
+	case '+':
+		n += term();
+		break;
+	case '-':
+		n -= term();
+		break;
+	default:
+		error();
+	}
+	return n;
 }
 
 void parse_line(){
 	int i;
-	while (line[start] && pc<MEM_SIZE){
-		next_word();
-		if (strlen(&line[start])){
-			if ((i=search_word(&line[start],mnemonics,KW_COUNT))<KW_COUNT){
+		next_token();
+		while (tok_id){
+			if ((tok_id==eSYMBOL) && (i=search_word(tok_value,mnemonics,KW_COUNT))<KW_COUNT){
 				//operation code
 				opcode[i]();
-			}else if ((i=search_word(&line[start],directives,DIR_COUNT))<DIR_COUNT){
+			}else if ((tok_id==eSYMBOL) && (i=search_word(tok_value,directives,DIR_COUNT))<DIR_COUNT){
 				// assembler directive
 				switch(i){
 				case 0:
@@ -771,17 +1000,20 @@ void parse_line(){
 					break;
 				case 2:
 					data_text();
+				case 3:	
+					equate();
+					break;
 				}
-			}else if (line[end-1]==':'){
+			}else if ((tok_id==eSYMBOL) && line[inp]==':'){
 				// label
-				line[end-1]=0;
-				add_label();
+				inp++;
+				add_label(tok_value,pc);
 			}else{
 				//unknown code
 				error();
 			}
-		}
-	}
+		}//while
+	
 }
 
 void resolve_forward(){
@@ -816,8 +1048,8 @@ int main(int argc, char **argv){
 		line_no++;
 		line[strlen(line)-1]=0;
 		start=0;
-		end=0;
-		parse_line();
+		inp=0;
+		if (strlne(line)) parse_line();
 		memset(line,0,256);
 	}
 	if (pc>4095 && !feof(src)) memory_overflow();

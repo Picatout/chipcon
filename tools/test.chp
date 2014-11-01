@@ -1,5 +1,10 @@
 HIGH
 CLS
+se v1, 2
+JP V0, #222
+se v1, 3
+JP #300
+call 400
 LD V0, 30
 LD V1, 32
 LD I, hello
