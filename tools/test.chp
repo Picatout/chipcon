@@ -1,41 +1,51 @@
+; dimension des caractères pour les différentes polices
+; hexadécimal petite
+equ  F_HEIGH 6  
+equ  F_WIDTH 4
+; hexadécimale large
+equ  LF_HEIGH 10 
+equ  LF_WIDTH 8
+; police ASCII
+equ  TXT_HEIGH 8
+equ  TXT_WIDTH 6
+
 HIGH
 CLS
-se v1, 2
-JP V0, #222
-se v1, 3
-JP #300
-call 400
-LD V0, 30
-LD V1, 32
+LD V0, TXT_WIDTH*(21-11)/2
+LD V1, TXT_HEIGH*64/TXT_HEIGH/2
 LD I, hello
+; affiche "hello world!" en centre de l'écran
 PRT V0,V1
-LD V0, 32
-; test TONE
+; test TONE, joue les 16 notes
+;  V4 fréquence
+;  V5 durée
+;  V6 compteur délais
 LD V4, 15
 LD V5, 10
 next_tone:
 TONE V4, V5
-; delais 
 ld v6, 10
 ld dt, v6
-wait_tone_end:
-ld v6, dt
-se v6, 0
-jp wait_tone_end
+call delay
 add v4, 255
-se v4, 0
+se v4, 255
 jp next_tone
+;défilement de l'écran
+;vers le bas jusqu'à 
+;ce que le message disparaisse.
 loop:
 SCD 1
-LD V1,10
-LD DT, V1
-delais:
-LD V1, DT
-SE V1, 0
-JP delais
-add v0, 255
-se v0,0
+LD V6,10
+LD DT, V6
+call delay
+add v1, 255
+se v1,0
 jp loop
 EXIT
+delay:
+ld v6, dt
+se v6, 0
+jp delay
+ret
 hello:
 ascii "hello world!"

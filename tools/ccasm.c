@@ -1,4 +1,21 @@
 /*
+* Copyright 2014, Jacques Deschênes
+* This file is part of CHIPcon.
+*
+*     CHIPcon is free software: you can redistribute it and/or modify
+*     it under the terms of the GNU General Public License as published by
+*     the Free Software Foundation, either version 3 of the License, or
+*     (at your option) any later version.
+*
+*     CHIPcon is distributed in the hope that it will be useful,
+*     but WITHOUT ANY WARRANTY; without even the implied warranty of
+*     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*     GNU General Public License for more details.
+*
+*     You should have received a copy of the GNU General Public License
+*     along with CHIPcon.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/*
 *   Nom:  ccasm.c
 *   Description: assembleur pour la console CHIPcon
 *   auteur: Jacques Deschenes
@@ -18,7 +35,7 @@ typedef struct data_node{
 		unsigned addr;
 		unsigned pc;
 		unsigned value;
-	}
+	};
 	struct data_node *next;
 }node_t;
 
@@ -34,9 +51,9 @@ node_t *symbol_list=NULL;
 
 #define add_label(name,addr)   add_node(name,addr,label_list)
 #define add_forward_ref(name,pc) add_node(name,pc,forward_list)
-#define add_symbol(name,value)  add_node(name,value,symbol_symb)
+#define add_symbol(name,value)  add_node(name,value,symbol_list)
 #define search_label(name)   search_list(name,label_list)
-#define search_ref(name)  search_list(name,forward_ref)
+#define search_ref(name)  search_list(name,forward_list)
 #define search_symbol(name) search_list(name,symbol_list)
 
 
@@ -51,6 +68,29 @@ unsigned char binary[MEM_SIZE];
 
 int inp; // pointeur d'analyse ligne d'entrée
 char line[256]; // contient la ligne à analyser
+
+#define KW_COUNT (27)
+
+const char *mnemonics[KW_COUNT]={"CLS","RET","SCR","SCL","EXIT","LOW","HIGH","SCD","JP","CALL",
+						 "SHR","SHL","SKP","SKNP","SE","SNE","ADD","SUB","SUBN","OR","AND","XOR",
+						 "RND","TONE","PRT","LD","DRW"};
+
+typedef enum Mnemo {eCLS,eRET,eSCR,eSCL,eEXIT,eLOW,eHIGH,eSCD,eJP,eCALL,eSHR,eSHL,eSKP,eSKNP,eSE,eSNE,eADD,
+                    eSUB,eSUBN,eOR,eAND,eXOR,eRND,eTONE,ePRT,eLD,eDRW} mnemo_t;
+						 
+#define DIR_COUNT (4)						 
+const char *directives[]={"DB","DW","ASCII","EQU"};
+
+
+int search_word(char *target, const char *list[], int list_count){
+	int i=0;
+	while (i<list_count){
+		if (!strcmp(target,list[i])) break;
+		i++;
+	}
+	return i;
+	
+}
 
 bool letter(char c){
 	return ((c>='A') && (c<='Z')) || ((c>='a') && (c<='z'));
@@ -79,16 +119,13 @@ bool identifier(char *name){
 }
 
 bool separator(char c){
-	strchar("()[]+-*/%,:",c);
+	strchr("()[]+-*/%,:",c);
 }
 
 bool match_vx(char *w){
 	return (*w=='V') && hex(*(w+1)); 
 }
 
-int get_register(){
-	return line[start+1]<='9'?line[start+1]-'0':line[start+1]-'A'+10;
-}
 
 void memory_overflow(){
 	printf("CHIPcon program memory overflow at line %d\n", line_no);
@@ -96,6 +133,9 @@ void memory_overflow(){
 }
 
 void store_code(unsigned char b1, unsigned char b2){
+#if defined DEBUG
+	printf("%d\t%04X\t%02X %02X\n", line_no,pc,b1,b2);
+#endif
 	if (pc<4095){
 		binary[pc++]=b1&0xff;
 		binary[pc++]=b2&0xff;
@@ -104,565 +144,441 @@ void store_code(unsigned char b1, unsigned char b2){
 	}
 }
 
-#define KW_COUNT (27)
 
-typedef  void (*kw_fn)();
+
 
 void next_token();
 void parse_identifier();
 unsigned get_number();
 unsigned expression();
 
+
 void error(){
 	puts(line);
-	printf("Syntax error at line %d, position %d\n",line_no,start+1);
+	printf("Syntax error at line %d, position %d\n",line_no,inp-strlen(tok_value));
 	exit(EXIT_FAILURE);
 }
 
-node_t *add_node(char *name, unsigned value, node_t *list){
-	if (list==NULL){
-		list=malloc(sizeof(node_t));
-		list->next=NULL;
-	}else{
-		list->next=list;
+//convertie une chaine hexadécimale
+//en entier positif
+int htoi(char *hnbr){
+	unsigned int n=0;
+	while (hex(*hnbr)){
+		n*=16;
+		n+=*hnbr<='9'?*hnbr-'0':*hnbr-'A'+10;
+		hnbr++;
 	}
-	list->value=value;
-	list->name=malloc(strlen(name)+1);
-	strcpy(list->name,name);
-	return list;
+	return n;
+}
+
+// convertie une chaine binaire
+// en entier positif
+int btoi(char *bnbr){
+	unsigned int n=0;
+	while ((*bnbr=='1')||(*bnbr=='.')||(*bnbr=='0')){
+		n <<=1;
+		n += *bnbr=='1';
+		bnbr++;
+	}
+	return n;
+}
+
+//convertie un token numérique
+// en entier positif
+unsigned token_to_i(){
+	switch(tok_value[0]){
+	case '#':
+		return htoi(tok_value+1);
+	case '$':
+		return btoi(tok_value+1);
+	default:
+		return atoi(tok_value);
+	}
+}
+
+
+node_t *add_node(char *name, unsigned value, node_t *list){
+	node_t *n;
+	
+	n=malloc(sizeof(node_t));
+	n->next=NULL;
+	if (list) n->next=list; else list=n;
+#if defined DEBUG
+	printf("%d\t%d\t%d\t%d\t%d\n",line_no,label_list,forward_list,symbol_list);
+#endif	
+	n->value=value;
+	n->name=malloc(strlen(name)+1);
+	strcpy(n->name,name);
+	return n;
 }
 
 node_t *search_list(char *name, node_t *list){
 	node_t *node;
 	node=list;
 	while (node){
+#if defined DEBUG
+	printf("%d ",node);
+#endif	
 		if (!strcmp(name,node->name)) break;
 		node=node->next;
 	}
+#if defined DEBUG
+	puts("");
+#endif	
 	return node;
 }
 
-
-void kw_scd(){
-	int i;
+int parse_vx(){
 	next_token();
-	i=atoi(&line[start]);
-	store_code(0,0xc0+(i&0xf));
+	if (!(tok_id==eSYMBOL && tok_value[0]=='V' && hex(tok_value[1]))) error();
+	return tok_value[1]<='9'?tok_value[1]-'0':tok_value[1]-'A'+10;
 }
 
-void kw_cls(){
-	store_code(0,0xe0);
-}
-
-void kw_ret(){
-	store_code(0,0xee);
-}
-
-void kw_scr(){
-	store_code(0,0xfb);
-}
-
-void kw_scl(){
-	store_code(0,0xfc);
-}
-
-void kw_exit(){
-	store_code(0,0xfd);
-}
-
-void kw_low(){
-	store_code(0,0xfe);
-}
-
-void kw_high(){
-	store_code(0,0xff);
-}
-
-void kw_jp(){
+// codes sans arguments
+// "CLS","RET","SCR","SCL","EXIT","LOW","HIGH"
+void op0(mnemo_t code){
 	unsigned b1,b2;
-	label_t *lbl;
-	next_token();
-	if (!strcmp("V0",&line[start])){
-		b1=0xB0;
-		next_token();
-		b2=get_number();
-		b1|=(b2&0xf00)>>8;
-		b2&=0xff;
-	}else if (letter(line[start])){
-			lbl=search_label(&line[start]);
-			if (lbl){
-				b1=0x10+((lbl->addr&0xf00)>>8);
-				b2=lbl->addr&0xff;	
-			}else{
-				add_forward_ref();
-				b1=0x10;
-				b2=0;
-			}
-			}else{
-				b2=get_number();
-				b1=0x10|((b2&0xf00)>>8);
-				b2&=0xff;
-			}
 	
+	b1=0;
+	switch (code){
+	case eCLS: // CLS
+		b2=0xe0;
+		break;
+	case eRET: // RET
+		b2=0xee;
+		break;
+	case eSCR: // SCR
+		b2=0xfb;
+		break;
+	case eSCL: // SCL
+		b2=0xfc;
+		break;
+	case eEXIT: // EXIT
+		b2=0xfd;
+		break;
+	case eLOW: // LOW
+		b2=0xfe;
+		break;
+	case eHIGH: // HIGH
+		b2=0xff;
+		break;
+	}
 	store_code(b1,b2);
 }
 
-void kw_call(){
+// codes avec 1 arguments
+//"SCD","JP","CALL","SHR","SHL","SKP","SKNP" 
+void op1(mnemo_t code){
 	unsigned b1,b2;
-	label_t *lbl;
-	next_token();
-	if (letter(line[start])){
-		lbl=search_label(&line[start]);
-		if (lbl){
-			b1=0x20+((lbl->addr&0xf00)>>8);
-			b2=lbl->addr&0xff;	
+	node_t *n;
+	
+	switch (code){
+	case eSCD: // SCD
+		b2=expression();
+		b1=0;
+		b2=0xc0|(b2&0xf);
+		break;
+	case eJP: // JP
+		b2=0;
+		next_token();
+		if (tok_id!=eSYMBOL) error();
+		if (!strcmp(tok_value,"V0")){
+			b1=0xB0;
+			next_token();
+			if (tok_id!=eCOMMA) error();
+			next_token();
+			if (tok_id!=eSYMBOL) error();
+			n=search_label(tok_value);
+			if (n){
+				b1|=(n->addr&0xf00)>>8;
+				b2=n->addr&0xff;
+			}else{
+				forward_list=add_forward_ref(tok_value,pc);
+			}
 		}else{
-			add_forward_ref(&line[start]);
-			b1=0x20;
-			b2=0;
+			b1=0x10;
+			n=search_label(tok_value);
+			if (n){
+				b1|=(n->addr&0xf00)>>8;
+				b2=n->addr&0xff;
+			}else{
+				forward_list=add_forward_ref(tok_value,pc);
+			}
 		}
-	}else{
-		b2=get_number();
-		b1=0x20|((b2&0xf00)>>8);
-		b2&=0xff;
+		break;
+	case eCALL: // CALL
+		b1=0x20;
+		next_token();
+		if (tok_id!=eSYMBOL) error();
+		n=search_label(tok_value);
+		if (n){
+			b1|=(n->addr&0xf00)>>8;
+			b2&=n->addr&0xff;
+		}else{
+			b2=0;
+			forward_list=add_forward_ref(tok_value,pc);
+		}
+		break;
+	case eSHR: // SHR
+		b1=0x80|parse_vx();
+		b2=6;
+		break;
+	case eSHL: // SHL
+		b1=0x80|parse_vx();
+		b2=6;
+		break;
+	case eSKP: // SKP
+		b1=0xe0|parse_vx();
+		b2=0x9e;
+		break;
+	case eSKNP: // SKNP
+		b1=0xe0|parse_vx();
+		b2=0xa1;
+		break;
 	}
 	store_code(b1,b2);
 }
 
-
-void kw_se(){
-	unsigned b1,b2;
-
+// codes avec 2 arguments
+//"SE","SNE","ADD","SUB","SUBN","OR","AND","XOR","RND","TONE","PRT"
+void op2(unsigned code){
+	unsigned b1,b2,mark;
+	bool reg2;
+	
 	next_token();
-	if (match_vx(&line[start])){
-			b1=get_register();
-			next_token();
-			if (match_vx(&line[start])){
-				b2=get_register();
-				b1|=0x50;
-				b2<<=4;
-			}else{
-				b1|=0x30;
-				b2=get_number();
-			}
-			store_code(b1,b2);
+	if (tok_id!=eSYMBOL) error();
+	if (strlen(tok_value)==1 && tok_value[0]=='I'){
+		// ADD I,VX  FX1E
+		b2=0x1E;
+		next_token();
+		if (tok_id!=eCOMMA) error();
+		b1=0xF0|parse_vx();
+		goto op2_done;
+	}else if (strlen(tok_value)==2 && tok_value[0]=='V' && hex(tok_value[1])){
+		b1=(tok_value[1]<='9'?tok_value[1]-'0':tok_value[1]-'A'+10);
+	}else error();
+	next_token();
+	if (tok_id!=eCOMMA) error();
+	mark=inp;
+	next_token();
+	if ((tok_id==eSYMBOL) && strlen(tok_value)==2 && tok_value[0]=='V' && hex(tok_value[1])){
+		reg2=true;
+		b2=(tok_value[1]<='9'?tok_value[1]-'0':tok_value[1]-'A'+10)<<4;
 	}else{
-		error();
+		reg2=false;
+		inp=mark;
+		b2=expression()&0xff;
 	}
+	switch (code){
+	case eSE: // SE
+		if (reg2){ // 5XY0
+			b1|=0x50;
+		}else{ // 3XKK
+			b1|=0x30;
+		}
+		break;
+	case eSNE: // SNE
+		if (reg2){ // 9XY0
+			b1|=0x90;
+		}else{ // 4XKK
+			b1|=0x40;
+		}
+		break;
+	case eADD: // ADD
+		if (reg2){ // 8XY4
+			b1|=0x80;
+			b2|=4;
+		}else{
+			b1|=0x70;
+		}		
+		break;
+	case eSUB: // SUB  8XY5
+		b1|=0x80;
+		b2|=5;
+		break;
+	case eSUBN: // SUBN  8XY7
+		b1|=0x80;
+		b2|=7;
+		break;
+	case eOR: // OR 8XY1
+		b1|=0x80;
+		b2|=1;
+		break; 
+	case eAND: // AND 8XY2
+		b1|=0x80;
+		b2|=2;
+		break;
+	case eXOR: // XOR  8XY3
+		b1|=0x80;
+		b2|=3;
+		break;
+	case eRND: // RND CXKK
+		b1|=0xC0;
+		break;
+	case eTONE: // TONE  9XY1
+		b1|=0x90;
+		b2|=1;
+		break;
+	case ePRT: // PRT  9XY2
+		b1|=0x90;
+		b2|=2;
+		break;
+	}
+op2_done:	
+	store_code(b1,b2);
 }
 
-void kw_sne(){
-	unsigned b1,b2;
-
+// DRW DXYN
+void draw(){
+	unsigned b1,b2,n;
+	b1=0xD0|parse_vx();
 	next_token();
-	if (match_vx(&line[start])){
-			b1=get_register();
-			next_token();
-			if (match_vx(&line[start])){
-				b2=get_register();
-				b1|=0x90;
-				b2<<=4;
-			}else{
-				b1|=0x40;
-				b2=get_number();
-			}
-			store_code(b1,b2);
-	}else{
-		error();
-	}
+	if (tok_id!=eCOMMA) error();
+	b2=parse_vx()<<4;
+	next_token();
+	if (tok_id!=eCOMMA) error();
+	n=expression();
+	b2|=n&0xf;
+	store_code(b1,b2);
 }
 
-void kw_ld(){
-	unsigned b1,b2;
-	label_t *lbl;
+// LD VX,KK  6XKK
+// LD VX,VY  8XY0
+// LD I,label  ANNN
+// LD VX,DT  FX07
+// LD DT,VX  FX15
+// LD ST,VX  FX18
+// LD F,VX   FX29
+// LD LF,VX  FX30
+// LD B,VX   FX33
+// LD [I],VX FX55  
+// LD VX,[I] FX65
+// LD R,VX   FX75
+// LD VX,R   FX85
+// LD VX,K   FX0A
+void load(){
+	unsigned b1,b2,mark;
+	node_t *n;
+	char c=0,c1;
+	
 	next_token();
-	switch (line[start]){
-	case 'V':
-		if (hex(line[start+1])){
-			b1=get_register();
+	if (tok_id==eLBRACKET){
+		next_token();
+		if (!(tok_id==eSYMBOL && strlen(tok_value)==1 && tok_value[0]=='I')) error();
+		next_token();
+		if (tok_id!=eRBRACKET) error();
+	}else if (!((tok_id==eSYMBOL) && ((strlen(tok_value)==1)||(strlen(tok_value)==2)))) error();
+	if (strlen(tok_value)==1){
+		c=tok_value[0];
+		next_token();
+		if (tok_id!=eCOMMA) error();
+		switch (c){
+		case ']': //LD [I],VX  FX55
+			b1=0xf0|parse_vx();
+			b2=0x55;
+			break;
+		case 'I': // LD I,label  ANNN
+			b1=0xa0;
 			next_token();
-			switch(line[start]){
-			case 'V':
-				b1|=0x80;
-				b2=get_register();
-				b2<<=4;
-				break;
-			case 'R':
-				b1|=0xF0;
-				b2=0x85;
-				break;
-			case 'D':
-				b1|=0xF0;
-				b2=0x07;
-				break;
-			case '[':
-				if (line[start+1]=='I' && line[start+2]==']'){
-					b1|=0xF0;
+			if (tok_id!=eSYMBOL) error();
+			n=search_label(tok_value);
+			if (n){
+				b1|=(n->addr&0xf00)>>8;
+				b2=n->addr&0xff;
+			}else{
+				b2=0;
+				forward_list=add_forward_ref(tok_value,pc);
+			}
+			break;
+		case 'R': // LD R,VX  FX75
+			b1=0xf0|parse_vx();
+			b2=0x75;
+			break;
+		case 'F': // LD F,VX  FX29
+			b1=0xf0|parse_vx();
+			b2=0x29;
+			break;
+		case 'B': // LD B,VX  FX33
+			b1=0xf0|parse_vx();
+			b2=0x33;
+			break;
+		default:
+			error();
+		}
+		goto load_done;
+	}else if (strlen(tok_value)==2){
+		if (tok_value[0]=='V' && hex(tok_value[1])){
+			c=tok_value[1];
+			b1=c<='9'?c-'0':c-'A'+10;
+			next_token();
+			if (tok_id!=eCOMMA) error();
+			mark=inp;
+			next_token();
+			if (tok_id==eNUMBER || ((tok_id==eSYMBOL) && (search_symbol(tok_value)))){
+				inp=mark;
+				b2=expression()&0xff;
+				b1|=0x60;
+				goto load_done;
+			}
+			if (tok_id==eLBRACKET || (tok_id==eSYMBOL  && strlen(tok_value)==1)){
+				c=tok_value[0];
+				switch (c){
+				case 'R': // LD VX,R  FX85
+					b1|=0xf0;
+					b2=0x85;
+				case 'K': // LD VX,K  FX0A
+					b1|=0xf0;
+					b2=0x0a;
+				case '[':  // LD VX,[I] FX65
+					next_token();
+					if (!(tok_id==eSYMBOL && strlen(tok_value)==1 && tok_value[0]=='I')) error();
+					next_token();
+					if (tok_id!=eRBRACKET) error();
+					b1|=0xf0;
 					b2=0x65;
-				}else{
+				default:
 					error();
 				}
+				goto load_done;
+			}
+			if (tok_id==eSYMBOL && strlen(tok_value)==2){
+				if (!strcmp(tok_value,"DT")){ // LD VX,DT FX07
+					b1|=0xf0;
+					b2=0x07;
+				}else if (tok_value[0]='V' && hex(tok_value[1])){ // LD VX,VY  8XY0
+					b1|=0x80;
+					c=tok_value[1];
+					b2=(c<='9'?c-'0':c-'A'+10)<<4;
+				}else error();
+				goto load_done;
+			}
+			error();
+		}else{
+			c=tok_value[0];
+			c1=tok_value[1];
+			next_token();
+			if (tok_id!=eCOMMA) error();
+			b1=0xf0|parse_vx();
+			switch(c){
+			case 'D':  // LD DT,VX   FX15
+				if (c1!='T') error();
+				b2=0x15;
+				break;
+			case 'L': // LD LF,VX   FX30
+				if (c1!='F') error();
+				b2=0x30;
+				break;
+			case 'S': // LD ST, VX  FX18
+			    if (c1!='T') error();
+				b2=0x18;
 				break;
 			default:
-				b1|=0x60;
-				b2=get_number();
-			}		
-			}else{
-			error();
-		}
-		break;
-	case 'I':
-		next_token();
-		if (letter(line[start])){
-			lbl=search_label(&line[start]);
-			if (lbl){
-				b1=0xA0|((lbl->addr&0xf00)>>8);
-				b2=lbl->addr&0xff;
-			}else{
-				add_forward_ref();
-				b1=0xA0;
-				b2=0;
-			}
-		}else{
-			b2=get_number();
-			b1=0xA0|((b2&0xf00)>>8);
-			b2 &= 0xff;
-		}
-		break;
-	case 'D':
-	    if (line[start+1]=='T'){
-			b1=0xF0;
-			b2=0x15;
-			next_token();
-			if (match_vx(&line[start])){
-				b1|=get_register();
-			}else{
 				error();
 			}
-		}else{
-			error();
 		}
-		break;
-	case 'S':
-	    if (line[start+1]=='T'){
-			b1=0xF0;
-			b2=0x18;
-			next_token();
-			if (match_vx(&line[start])){
-				b1|=get_register();
-			}else{
-				error();
-			}
-		}else{
-			error();
-		}
-		break;
-	case 'R':
-		b1=0xF0;
-		b2=0x75;
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=get_register();
-		}else{
-			error();
-		}
-		break;
-	case 'B':
-		b1=0xF0;
-		b2=0x33;
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=get_register();
-		}else{
-			error();
-		}
-		break;
-	case 'F':
-		b1=0xF0;
-		b2=0x29;
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=get_register();
-		}else{
-			error();
-		}
-		break;
-	case 'L':
-	    if (line[start+1]=='F'){
-			b1=0xF0;
-			b2=0x30;
-			next_token();
-			if (match_vx(&line[start])){
-				b1|=get_register();
-			}else{
-				error();
-			}
-		}else{
-			error();
-		}
-		break;
-	case '[':
-		if ((line[start+1]=='I') && (line[start+2]==']')){
-			next_token();
-			if (match_vx(&line[start])){
-				b1=0xF0+get_register();
-				b2=0x55;
-			}else{
-				error();
-			}
-		}else{
-			error();
-		}
-		break;
-	}
+	}else error();
+load_done:	
 	store_code(b1,b2);
-}
-
-void kw_add(){
-	unsigned b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=0x80;
-			b2=(get_register()<<4)+4;
-		}else{
-			b2=get_number();
-			b1|=0x70;
-		}
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_sub(){
-	unsigned b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=0x80;
-			b2=(get_register()<<4)+5;
-		}else{
-			error();
-		}
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_subn(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=0x80;
-			b2=(get_register()<<4)+7;
-		}else{
-			error();
-		}
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_or(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=0x80;
-			b2=(get_register()<<4)+1;
-		}else{
-			error();
-		}
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_and(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=0x80;
-			b2=(get_register()<<4)+2;
-		}else{
-			error();
-		}
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_xor(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b1|=0x80;
-			b2=(get_register()<<4)+3;
-		}else{
-			error();
-		}
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_shl(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=0x80|get_register();
-		b2=0x0e;
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_shr(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=0x80|get_register();
-		b2=0x06;
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_drw(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=0xd0|get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b2=(get_register()<<4);
-			next_token();
-			b2|=get_number()&0xf;
-		}else{
-			error();
-		}
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_skp(){
-	unsigned int b1,b2;
-	next_token();
-	if(match_vx(&line[start])){
-		b1=0xE0|get_register();
-		b2=0x9e;
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_sknp(){
-	unsigned int b1,b2;
-	next_token();
-	if(match_vx(&line[start])){
-		b1=0xE0|get_register();
-		b2=0xa1;
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_rnd(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=0xe0|get_register();
-		next_token();
-		b2=get_number();
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_tone(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=0x90|get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b2=(get_register()<<4)+1;
-		}else{
-			error();
-		}
-	}else{
-		puts(&line[start]);
-		error();
-	}
-	store_code(b1,b2);
-}
-
-void kw_prt(){
-	unsigned int b1,b2;
-	next_token();
-	if (match_vx(&line[start])){
-		b1=0x90|get_register();
-		next_token();
-		if (match_vx(&line[start])){
-			b2=(get_register()<<4)+2;
-		}else{
-			error();
-		}
-	}else{
-		error();
-	}
-	store_code(b1,b2);
-}
-
-const char *mnemonics[KW_COUNT]={"SCD",	"CLS","RET","SCR","SCL","EXIT","LOW","HIGH","JP","CALL",
-						 "SE","SNE","LD","ADD","OR","AND","XOR","SUB","SHR","SUBN","SHL",
-						 "RND","DRW","TONE","PRT","SKP","SKNP"};
-
-const kw_fn opcode[KW_COUNT]={kw_scd,kw_cls,kw_ret,kw_scr,kw_scl,kw_exit,kw_low,kw_high,kw_jp,kw_call,
-							   kw_se,kw_sne,kw_ld,kw_add,kw_or,kw_and,kw_xor,kw_sub,kw_shr,kw_subn,kw_shl,
-							   kw_rnd,kw_drw,kw_tone,kw_prt,kw_skp,kw_sknp};
-
-						 
-#define DIR_COUNT (3)						 
-const char *directives[]={"DB","DW","ASCII","EQU"};
-
-
-int search_word(char *target, const char *list[], int list_count){
-	int i=0;
-	while (i<list_count){
-		if (!strcmp(target,list[i])) break;
-		i++;
-	}
-	return i;
-	
 }
 
 void usage(){
@@ -679,10 +595,10 @@ bool space(char c){
 }
 
 void skip_white(){
-	while(line[start] && space(line[start])) start++;
+	while(line[inp] && space(line[inp])) inp++;
 }
 
-void parse_string(){
+unsigned parse_string(){
 	bool quote=false;
 	bool escape=false;
 	unsigned i=0;
@@ -704,7 +620,7 @@ void parse_string(){
 		}//switch
 		inp++;
 	}//while
-	if (quote) inp--; else error();
+	if (quote){tok_value[i]=0;inp--;} else error();
 	return i;
 }
 
@@ -773,6 +689,7 @@ void next_token(){
 				tok_id=eNUMBER;
 				tok_value[i++]=line[inp];
 				state=1; // nombre hexadécimal
+				break;
 			case '$':
 				tok_id=eNUMBER;
 				tok_value[i++]=line[inp];
@@ -802,7 +719,7 @@ void next_token(){
 		case 2: // nombre binaire
 			if ((line[inp]=='1') || (line[inp]=='0') || (line[inp]=='.')){
 				tok_value[i++]=line[inp];
-			}else if (separator(line[inp]){
+			}else if (separator(line[inp])){
 				inp--;
 				state=5;
 			}else{
@@ -822,7 +739,7 @@ void next_token(){
 		case 4: // symbole alphanumérique
 			if (alnum(line[inp]) || line[inp]=='_'){
 				tok_value[i++]=toupper(line[inp]);
-			}else if (separator(line[inp]){
+			}else if (separator(line[inp])){
 				inp--;
 				state=5;
 			}else{
@@ -836,26 +753,6 @@ void next_token(){
 	tok_value[i]=0;
 }
 
-int htoi(char *hnbr){
-	unsigned int n=0;
-	while (hex(*hnbr)){
-		n*=16;
-		n+=*hnbr<='9'?*hnbr-'0':*hnbr-'A'+10;
-		hnbr++;
-	}
-	return n;
-}
-
-int btoi(char *bnbr){
-	unsigned int n=0;
-	while ((*bnbr=='1')||(*bnbr=='.')||(*bnbr=='0')){
-		n <<=1;
-		n += *bnbr=='1';
-		bnbr++;
-	}
-	return n;
-}
-
 void data_byte(){
 	unsigned n;
 	
@@ -864,7 +761,7 @@ void data_byte(){
 	   binary[pc++]=n&0xff;
 	   next_token();
 	   if (tok_id && tok_id!=eCOMMA) error();	
-   }while((pc<MEM_SIZE) && tok_id){
+   }while((pc<MEM_SIZE) && tok_id);
 }
 
 void data_word(){
@@ -876,7 +773,7 @@ void data_word(){
 		binary[pc++]=n&0xff;
 		next_token();
 		if (tok_id && tok_id!=eCOMMA) error();
-	}while((pc<MEM_SIZE-1) && tok_id){
+	}while((pc<MEM_SIZE-1) && tok_id);
 }
 
 
@@ -886,18 +783,19 @@ void data_ascii(){
 	next_token();
 	if (tok_id!=eSTRING) error();
 	while ((pc<MEM_SIZE-1) && tok_value[i]) binary[pc++]=tok_value[i++];
-	if (pc<MEM_SIZE) binary[pc++]=0; else {puts("memory overflow";error();}
+	if (pc<MEM_SIZE) binary[pc++]=0; else {puts("memory overflow");error();}
 }
 
 
 void equate(){
-	node_t symbol;
+	node_t *symbol;
 	
 	next_token();
 	if (tok_id==eSYMBOL){
 		symbol=search_symbol(tok_value);
-		if (!symbol) symbol = add_symbol(tok_value,0);
+		if (!symbol){ symbol = add_symbol(tok_value,0);}
 		symbol->value = expression();
+		symbol_list=symbol;
 	}else{
 		error();
 	}
@@ -905,26 +803,17 @@ void equate(){
 
 unsigned factor(){
 	unsigned n;
-	node_t symbol;
+	node_t *symbol;
 	
 	next_token();
-	switch(token_id){
+	switch(tok_id){
 	case (eNUMBER):
-		switch(tok_value[0]{
-		case '#':
-			n=htoi(tok_value+1);
-			break;
-		case '$':
-			n=btoi(tok_value+1);
-			break;
-		default:
-			n=atoi(tok_value);
-		}
+		n=token_to_i();
 		break;
 	case (eSYMBOL):
 		symbol=search_symbol(tok_value);
 		if (symbol){
-			n=sumbol->value;
+			n=symbol->value;
 		}else{
 			puts("Unknown symbol");
 			error();
@@ -933,52 +822,70 @@ unsigned factor(){
 	case (eLPAREN):
 		n=expression();
 		next_token();
-		if (token_id!=RPAREN) error();
+		if (tok_id!=eRPAREN) error();
+		break;
 	default:
 		error();
 	}
+#if defined DEBUG
+	printf("%d\tfactor=%d\n",line_no,n);
+#endif	
 	return n;
 }
 
-unsigned (term){
-	unsigned n;
-	
+unsigned term(){
+	unsigned n, mark;
+
 	n=factor();
+	mark=inp;
 	next_token();
-	if (tok_id!=eMULOP) error();
-	switch(tok_value[0]){
-	case '*':
-		n *=factor();
-		break;
-	case '/':
-		n /= factor();
-		break;
-	case '%':
-		n %= factor();
-		break;
-	default:
-		error();
-	}
+	while (tok_id==eMULOP){
+		switch (tok_value[0]){
+		case '*':
+			n*=factor();
+			break;
+		case '/':
+			n/=factor();
+			break;
+		case '%':
+			n%=factor();
+			break;
+		default:
+			error();
+		}//switch
+		mark=inp;
+		next_token();
+	}//while
+	if (tok_id) inp=mark;
+#if defined DEBUG
+	printf("%d\tterm=%d\n",line_no,n);
+#endif	
 	return n;
 }
 
 
 unsigned expression(){
-	unsigned n;
+	unsigned n,mark;
 	
 	n=term();
+	mark=inp;
 	next_token();
-	if (tok_id!=eADDOP) error();
-	switch(tok_value[0]){
-	case '+':
-		n += term();
-		break;
-	case '-':
-		n -= term();
-		break;
-	default:
-		error();
-	}
+	while (tok_id==eADDOP){
+		switch(tok_value[0]){
+		case '+':
+			n += term();
+			break;
+		case '-':
+			n -= term();
+			break;
+		}//switch
+		mark=inp;
+		next_token();
+	}//while
+	if (tok_id) inp=mark;
+#if defined DEBUG
+	printf("%d\texpression=%d\n",line_no,n);
+#endif	
 	return n;
 }
 
@@ -988,7 +895,44 @@ void parse_line(){
 		while (tok_id){
 			if ((tok_id==eSYMBOL) && (i=search_word(tok_value,mnemonics,KW_COUNT))<KW_COUNT){
 				//operation code
-				opcode[i]();
+				switch(i){
+				case eCLS:
+				case eRET:
+				case eSCL:
+				case eEXIT:
+				case eLOW:
+				case eHIGH:
+					op0(i);
+					break;
+			    case eSCD:
+				case eJP:
+				case eCALL:
+				case eSHR:
+				case eSHL:
+				case eSKP:
+				case eSKNP:
+					op1(i);
+					break;
+				case eSE:
+				case eSNE:
+				case eADD:
+                case eSUB:
+				case eSUBN:
+				case eOR:
+				case eAND:
+				case eXOR:
+				case eRND:
+				case eTONE:
+				case ePRT:
+					op2(i);
+					break;
+				case eDRW:
+					draw();
+					break;
+				case eLD:
+					load();
+					break;
+				}
 			}else if ((tok_id==eSYMBOL) && (i=search_word(tok_value,directives,DIR_COUNT))<DIR_COUNT){
 				// assembler directive
 				switch(i){
@@ -999,7 +943,8 @@ void parse_line(){
 					data_word();
 					break;
 				case 2:
-					data_text();
+					data_ascii();
+					break;
 				case 3:	
 					equate();
 					break;
@@ -1007,30 +952,37 @@ void parse_line(){
 			}else if ((tok_id==eSYMBOL) && line[inp]==':'){
 				// label
 				inp++;
-				add_label(tok_value,pc);
+				label_list=add_label(tok_value,pc);
 			}else{
 				//unknown code
 				error();
 			}
+			next_token();
 		}//while
 	
 }
 
-void resolve_forward(){
-	forward_ref_t *fwd;
-	label_t *lbl;
+void fix_forward_ref(){
+	node_t *fwd;
+	node_t *lbl;
 	
-	fwd=fref;
+	fwd=forward_list;
+#if defined DEBUG
+	printf("fwd=%d\n",fwd);
+#endif	
 	while (fwd && pc<MEM_SIZE){
 		lbl=search_label(fwd->name);
 		if (lbl){
-			binary[fwd->pc] += (lbl->addr&0xf00)>>8;
+			binary[fwd->pc] |= (lbl->addr&0xf00)>>8;
 			binary[fwd->pc+1] = lbl->addr&0xff;
 		}else{
 			printf("undefined reference: %s\n", fwd->name);
 			exit(EXIT_FAILURE);
 		}
 		fwd=fwd->next;
+#if defined DEBUG
+	printf("fwd=%d\n",fwd);
+#endif	
 	}
 }
 
@@ -1047,14 +999,13 @@ int main(int argc, char **argv){
 	while (pc<MEM_SIZE && fgets(line,256,src)){
 		line_no++;
 		line[strlen(line)-1]=0;
-		start=0;
 		inp=0;
-		if (strlne(line)) parse_line();
+		if (strlen(line)) parse_line();
 		memset(line,0,256);
 	}
 	if (pc>4095 && !feof(src)) memory_overflow();
 	fclose(src);
-	resolve_forward();
+	fix_forward_ref();
 	int i;
 	for (i=ORG;i<pc;i++){
 		fputc(binary[i],bin);
