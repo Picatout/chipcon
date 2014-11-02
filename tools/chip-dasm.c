@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright 2014, Jacques Deschênes
 * This file is part of CHIPcon.
 *
@@ -301,7 +301,10 @@ int main(int argc, char *argv[]){
 			case 2:
 				sprintf(line+strlen(line),"PRT V%X,V%X\n",r1(b1),r2(b2));
 				break;
+			case 3:
+				sprintf(line+strlen(line),"PIXI V%X,V%X\n",r1(b1),r2(b2));
 			}
+			previous=NOT_SKIP;
 			break;
 		case 0xA: // ANNN     I := NNN 
 			ix=caddr(b1,b2);

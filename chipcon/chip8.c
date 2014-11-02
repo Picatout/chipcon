@@ -265,6 +265,9 @@ uint8_t schip(uint8_t flags){
 					n=sram_read_byte(vms.ix++);
 				}
 				break;
+			case 0x903: // 9XY3 PIXI VX, VY  inverse le pixel aux coordonnées indiquées par VX,VY
+				plot(vms.var[x],vms.var[y],INVERT);
+				break;	
 			case 0xa00: // ANNN     I := NNN
 				vms.ix=caddr(vms.b1,vms.b2);  // chip-8 et schip adressse de 12 bits
 				vms.src_mem=RAM_MEM;

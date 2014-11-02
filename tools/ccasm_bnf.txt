@@ -26,11 +26,11 @@
 
 source_code ::= instruction_line*
 insttruction_line ::= mnemonic_instruction|directive_instruction|label
-mnemonic_instruction ::= sep* (label) sep+ mnemonic (mneno_arg_list) 
-mnemonic_arg_list ::= mnemo_arg|mmeno_arg [sep+ ',' sep+ mnemo_arg]*
+mnemonic_instruction ::=(label) mnemonic (mneno_arg_list) 
+mnemonic_arg_list ::= mnemo_arg|mmeno_arg [','mnemo_arg]*
 mnemo_arg ::= register|expression
-directive_instruction ::= sep* directive dir_arg_list*
-dir_arg_list ::= dir_arg|dir_arg [sep+ ',' sep+ dir_arg]*
+directive_instruction ::= directive dir_arg_list*
+dir_arg_list ::= dir_arg|dir_arg [','dir_arg]*
 dir_arg ::= string|expression
 expression ::= term|expression['+'|'-']term
 term ::= factor|term['*'|'/'|'%']factor
@@ -50,6 +50,7 @@ letter ::= ['A'..'Z']
 sep ::= ' '|'\t'
 ascii ::= ASCII set between [32-127]
 register ::= 'V[hex_digit]'|'R'|'DT'|'ST'|'I'|'[''I'']'
+comment ::= ';' text to end of line
 
 mnemonic ::= 'SCD'|'CLS'|'RET'|'SCR'|'SCL'|'EXIT'|'LOW'|'HIGH'|'JP'|'CALL'|
 			 'SE'|'SNE'|'LD'|'ADD'|'OR'|'AND'|'XOR'|'SUB'|'SHR'|'SUBN'|'SHL'|

@@ -41,6 +41,7 @@ Les instructions suivies de <b>**</b> sont spécifiques à CHIPcon.<br>
 <tr><td>9XY0</td><td>SNE VX, VY</td><td>Saute l'instruction suivante si VX <> VY </td></tr>
 <tr><td>9XY1**</td><td>TONE VX, VY</td><td>Fais entendre une note de la gamme tempérée. VX note entre 0-F. 0=DO4, F=RÉ5#. VY durée.</td>
 <tr><td>9XY2**</td><td>PRT VX, VY</td><td>imprime une chaîne texte à l'écran. VX coordonnée X et VY coordonnée Y. Le texte est pointé par I. I est incrémenté.</td>
+<tr><td>9XY3**</td><td>PIXI VX, VY</td><td>Inverse le pixel aux coordonnées indiquées par VX,VY.</td>
 <tr><td>ANNN</td><td>LD I, NNN</td><td>I := NNN </td></tr>
 <tr><td>BNNN</td><td>JP V0, NNN</td><td>saute à l'adresse NNN+V0 </td></tr>
 <tr><td>CXKK</td><td>RND VX, KK</td><td>VX := nombre aléatoire and KK </td></tr>

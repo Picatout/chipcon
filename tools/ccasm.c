@@ -69,14 +69,14 @@ unsigned char binary[MEM_SIZE];
 int inp; // pointeur d'analyse ligne d'entrée
 char line[256]; // contient la ligne à analyser
 
-#define KW_COUNT (27)
+#define KW_COUNT (28)
 
 const char *mnemonics[KW_COUNT]={"CLS","RET","SCR","SCL","EXIT","LOW","HIGH","SCD","JP","CALL",
 						 "SHR","SHL","SKP","SKNP","SE","SNE","ADD","SUB","SUBN","OR","AND","XOR",
-						 "RND","TONE","PRT","LD","DRW"};
+						 "RND","TONE","PRT","PIXI","LD","DRW"};
 
 typedef enum Mnemo {eCLS,eRET,eSCR,eSCL,eEXIT,eLOW,eHIGH,eSCD,eJP,eCALL,eSHR,eSHL,eSKP,eSKNP,eSE,eSNE,eADD,
-                    eSUB,eSUBN,eOR,eAND,eXOR,eRND,eTONE,ePRT,eLD,eDRW} mnemo_t;
+                    eSUB,eSUBN,eOR,eAND,eXOR,eRND,eTONE,ePRT,ePIXI,eLD,eDRW} mnemo_t;
 						 
 #define DIR_COUNT (4)						 
 const char *directives[]={"DB","DW","ASCII","EQU"};
@@ -422,6 +422,10 @@ void op2(unsigned code){
 	case ePRT: // PRT  9XY2
 		b1|=0x90;
 		b2|=2;
+		break;
+	case ePIXI:
+		b1|=0x90;
+		b2|=3;
 		break;
 	}
 op2_done:	
@@ -924,6 +928,7 @@ void parse_line(){
 				case eRND:
 				case eTONE:
 				case ePRT:
+				case ePIXI:
 					op2(i);
 					break;
 				case eDRW:

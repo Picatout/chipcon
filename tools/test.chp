@@ -41,6 +41,11 @@ call delay
 add v1, 255
 se v1,0
 jp loop
+pixi_test:
+rnd v4,127
+rnd v5,63
+pixi v4,v5
+jp pixi_test
 EXIT
 delay:
 ld v6, dt
