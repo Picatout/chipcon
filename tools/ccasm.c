@@ -530,9 +530,11 @@ void load(){
 				case 'R': // LD VX,R  FX85
 					b1|=0xf0;
 					b2=0x85;
+					break;
 				case 'K': // LD VX,K  FX0A
 					b1|=0xf0;
 					b2=0x0a;
+					break;
 				case '[':  // LD VX,[I] FX65
 					next_token();
 					if (!(tok_id==eSYMBOL && strlen(tok_value)==1 && tok_value[0]=='I')) error();
@@ -540,6 +542,7 @@ void load(){
 					if (tok_id!=eRBRACKET) error();
 					b1|=0xf0;
 					b2=0x65;
+					break;
 				default:
 					error();
 				}
@@ -663,6 +666,11 @@ void next_token(){
 				tok_value[i++]=line[inp];
 				state=5;	
 				break;
+			case ']':
+				tok_id=eRBRACKET;
+				tok_value[i++]=line[inp];
+				state=5;	
+				break;
 			case '(':
 				tok_id=eLPAREN;
 				tok_value[i++]=line[inp];
@@ -670,11 +678,6 @@ void next_token(){
 				break;
 			case ')':
 				tok_id=eRPAREN;
-				tok_value[i++]=line[inp];
-				state=5;	
-				break;
-			case ']':
-				tok_id=eRBRACKET;
 				tok_value[i++]=line[inp];
 				state=5;	
 				break;

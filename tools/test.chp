@@ -22,8 +22,7 @@ PRT V0,V1
 ;  V6 compteur délais
 LD V4, 15
 LD V5, 10
-next_tone:
-TONE V4, V5
+next_tone: TONE V4, V5
 ld v6, 10
 ld dt, v6
 call delay
@@ -33,8 +32,7 @@ jp next_tone
 ;défilement de l'écran
 ;vers le bas jusqu'à 
 ;ce que le message disparaisse.
-loop:
-SCD 1
+loop: SCD 1
 LD V6,10
 LD DT, V6
 call delay

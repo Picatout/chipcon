@@ -147,7 +147,7 @@ int main(int argc, char *argv[]){
 		b2=bytecode[pc];
 		decoded[pc++]=1;
 		if ((pc-2)>latest) latest=pc-2;
-		sprintf(line+strlen(line),"0x%03X\t0x%04X\t",pc-2,b1*256+b2);
+		sprintf(line+strlen(line),"#%03X\t#%04X\t",pc-2,b1*256+b2);
 		switch((b1&0xf0)>>4){
 		case 0:
 			if ((b2&0xf0)==0xc0){ // 00CN, (modes schip et xchip seulement) glisse l'affichage N lignes vers le bas  
@@ -211,7 +211,7 @@ int main(int argc, char *argv[]){
 				target[tx].addr=caddr(b1,b2);
 				target[tx++].done=NOT_DONE;
 			}
-			sprintf(line+strlen(line),"JP 0x%03X\n",caddr(b1,b2));
+			sprintf(line+strlen(line),"JP #%03X\n",caddr(b1,b2));
 			if ((decoded[caddr(b1,b2)]) && *dasm[caddr(b1,b2)]!=';'){
 							line=malloc(256);
 							sprintf(line,";---  JP target ---\n");
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]){
 			break;
 		case 2: // 2NNN  appelle la sous-routine à l'adresse NNN
 			if (search_for_target(caddr(b1,b2))==tx){target[tx].addr=caddr(b1,b2); target[tx++].done=NOT_DONE;}
-			sprintf(line+strlen(line),"CALL 0x%03X\n",caddr(b1,b2));
+			sprintf(line+strlen(line),"CALL #%03X\n",caddr(b1,b2));
 			previous=NOT_SKIP;
 			break;
 		case 3: // 3XKK     saute l'instruction suivante si VX == KK 
@@ -309,15 +309,15 @@ int main(int argc, char *argv[]){
 		case 0xA: // ANNN     I := NNN 
 			ix=caddr(b1,b2);
 			if (search_for_data(ix)==dx){data[dx].addr=ix;data[dx++].size=0;}
-			sprintf(line+strlen(line),"LD I, 0x%03X\n",ix);
+			sprintf(line+strlen(line),"LD I, #%03X\n",ix);
 			previous=LDI;
 			break;
 		case 0xB: // BNNN     saut à NNN+V0
-			sprintf(line+strlen(line),"JP V0, 0x%03X\n",caddr(b1,b2));
+			sprintf(line+strlen(line),"JP V0, #%03X\n",caddr(b1,b2));
 			previous=NOT_SKIP;
 			break;
 		case 0xC: //CXKK VX=random_number&KK
-			sprintf(line+strlen(line),"RND V%X, 0x%02X\n",r1(b1),b2);
+			sprintf(line+strlen(line),"RND V%X, #%02X\n",r1(b1),b2);
 			previous=NOT_SKIP;
 			break;
 		case 0xD: //DXYN dessine le sprite pointé par I
@@ -400,7 +400,7 @@ int main(int argc, char *argv[]){
 			break;
 		}//switch
 		if (unknown){
-			sprintf(line+strlen(line),".DB 0x%02X, 0x%02X  ; not opcode\n",b1,b2);
+			sprintf(line+strlen(line),".DB #%02X, #%02X  ; not opcode\n",b1,b2);
 			unknown=0;
 		}
 	} while (pc<size);
@@ -413,20 +413,22 @@ int main(int argc, char *argv[]){
 	fprintf(out,";-------------------------\n");
 	for (i=0;i<dx;i++){
 		if (!data[i].size){
+			fprintf(out,"#%03X\tDW\t",data[i].addr);
 			for (j=0;j<32;j+=2){
+				if (data[i].addr+j>size-1) break;
 				if (!decoded[data[i].addr+j]){
-					fprintf(out,"0x%03X\t\t\t.DW\t0x%04X\n",data[i].addr+j,
-				        (bytecode[data[i].addr+j]<<8)+bytecode[data[i].addr+j+1]);
+					fprintf(out,"#%04X",(bytecode[data[i].addr+j]<<8)+bytecode[data[i].addr+j+1]);
+					if (j<30) fprintf(out,", ");
 					decoded[data[i].addr+j]=1;
 					decoded[data[i].addr+j+1]=1;
-				}
+				}else break;
 			}
 		}else{
+			fprintf(out,"#%03X\tDB\t",data[i].addr);
 			for (j=0;j<data[i].size;j++){
-				if (!decoded[data[i].addr+j]){
-					fprintf(out,"0x%03X\t\t\t.DB\t0x%02X\n",data[i].addr+j,bytecode[data[i].addr+j]);
+					fprintf(out,"#%02X",bytecode[data[i].addr+j]);
+					if (j<(data[i].size-1)) fprintf(out,", ");
 					decoded[data[i].addr+j]=1;
-				}
 			}
 		}
 		fprintf(out,"\n");
@@ -436,7 +438,7 @@ int main(int argc, char *argv[]){
 	fprintf(out,";-------------------------\n");
 	for (i=latest+2;i<size;i++){
 		if (!decoded[i]){
-			fprintf(out,"0x%03X\t\t\t.DB 0x%02X\n",i,bytecode[i]);
+			fprintf(out,"#%03X\t\t\t.DB #%02X\n",i,bytecode[i]);
 		}
 	}
 	fputs("\n",out);
