@@ -39,7 +39,7 @@ typedef struct data_node{
 	struct data_node *next;
 }node_t;
 
-typedef enum token {eNONE,eSYMBOL,eNUMBER,eSTRING,eADDOP,eMULOP,eCOMMA,eLPAREN,eRPAREN,eLBRACKET,eRBRACKET} token_t;
+typedef enum token {eNONE,eSYMBOL,eLABEL,eNUMBER,eSTRING,eADDOP,eMULOP,eCOMMA,eLPAREN,eRPAREN,eLBRACKET,eRBRACKET} token_t;
 
 token_t tok_id;
 char tok_value[256];
@@ -119,7 +119,7 @@ bool identifier(char *name){
 }
 
 bool separator(char c){
-	strchr("()[]+-*/%,:",c);
+	strchr("()[]+-*/%,",c);
 }
 
 bool match_vx(char *w){
@@ -743,6 +743,10 @@ void next_token(){
 		case 4: // symbole alphanumérique
 			if (alnum(line[inp]) || line[inp]=='_'){
 				tok_value[i++]=toupper(line[inp]);
+			}else if (line[inp]==':'){
+				tok_id=eLABEL;
+				inp--;
+				state=5;
 			}else if (separator(line[inp])){
 				inp--;
 				state=5;
@@ -954,7 +958,7 @@ void parse_line(){
 					equate();
 					break;
 				}
-			}else if ((tok_id==eSYMBOL) && line[inp]==':'){
+			}else if (tok_id==eLABEL){
 				// label
 				inp++;
 				label_list=add_label(tok_value,pc);
