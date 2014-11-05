@@ -1,0 +1,46 @@
+﻿; sprite test
+	cls
+	ld i, sprite
+	ld v1, 56
+	ld v2, 24
+	drw v1,v2,0 ; centre
+	call delay
+	ld v1, 120
+	ld v2, 248
+	drw v1,v2,0 ; coin supérieur droit
+	call delay  
+	ld v1, 250
+	ld v2, 56
+	drw v1,v2,0 ; coin inférieur gauche
+	call delay
+	ld v1, 120
+	drw v1,v2,0  ; coin inférieur droit
+	call delay
+	ld v1, 248
+	ld v2, v1
+	drw v1,v2,0  ; coin supérieur gauche
+	ld v0, 5
+	ld v1, 10
+	tone v0,v1
+	tone v0,v1,wait
+	lock: 
+	jp lock
+	
+delay:
+	ld v0, 60
+	ld dt, v0
+b0:	
+	ld v0, dt
+	se v0, 0
+	jp b0
+	ret
+	
+	
+
+
+
+sprite:
+db 255,255,255,255,255,255,255,255
+db 255,255,255,255,255,255,255,255
+db 255,255,255,255,255,255,255,255
+db 255,255,255,255,255,255,255,255

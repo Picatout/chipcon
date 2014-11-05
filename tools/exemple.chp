@@ -1,0 +1,23 @@
+;programme hello world
+
+equ SCREEN_WIDTH 128
+equ SCREEN_HEIGH 64
+equ CHAR_HEIGH 8
+equ CHAR_WIDTH 6
+equ CHAR_PER_LINE  SCREEN_WIDTH/CHAR_WIDTH
+equ TEXT_LEN 12
+
+defn XPOS V3
+defn YPOS V4
+
+high
+CLS
+ld I, REG_INIT 
+ld V4,[i] ; initialisation registres V0..V4
+ld I, MSG
+prt XPOS,YPOS ; imprime message à l'écran
+exit
+REG_INIT:
+db 0, 0, CHAR_HEIGH*4, CHAR_WIDTH*(CHAR_PER_LINE-TEXT_LEN)/2
+MSG:
+ascii "hello world!"

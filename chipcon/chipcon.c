@@ -117,7 +117,7 @@ int16_t select_file(int16_t fcount){
 	while (1){
 		display_cursor(selected);
 		key=wait_key();
-		key_tone(key,6);
+		key_tone(key,6,false);
 		display_cursor(selected);
 		switch(key){
 		case 10: // 'A'
@@ -166,7 +166,7 @@ int16_t select_file(int16_t fcount){
 		default:
 			break;
 		}//switch
-		while (keypad_read()!=NO_KEY)key_tone(key,2);
+		while (keypad_read()!=NO_KEY)key_tone(key,2,false);
 	}//while	
 }
 

@@ -20,6 +20,7 @@ chipcon.d chipcon.o: .././chipcon.c .././hardware.h .././chipcon_config.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay_basic.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\math.h \
  .././tvout.h .././keypad.h .././sram.h .././text.h .././tone.h \
+ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stdbool.h \
  .././chip8.h .././splash.h .././filesys.h .././fat/fat.h \
  .././fat/fat_config.h .././fat/sd_raw_config.h .././fat/../hardware.h \
  .././fat/partition.h .././fat/partition_config.h .././fat/sd_raw.h \
@@ -79,6 +80,8 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-g
 .././text.h:
 
 .././tone.h:
+
+c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stdbool.h:
 
 .././chip8.h:
 

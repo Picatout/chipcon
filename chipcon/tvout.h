@@ -54,8 +54,8 @@ extern volatile uint8_t speed_delay;
 
 void tvout_init();
 void plot(int8_t x, int8_t y, optype op);
-int8_t put_sprite(uint8_t x, uint8_t y, uint8_t n, const uint8_t *sprite, int8_t memory);
-int8_t put_big_sprite(uint8_t x, uint8_t y,const uint8_t *sprite);
+int8_t put_sprite(int8_t x, int8_t y, uint8_t n, const uint8_t *sprite, int8_t memory);
+int8_t put_big_sprite(int8_t x, int8_t y,const uint8_t *sprite);
 void cls();
 void scroll_down(uint8_t lines);
 void scroll_up(uint8_t lines);

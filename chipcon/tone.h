@@ -26,7 +26,7 @@
 
 #ifndef TONE_H_
 #define TONE_H_
-
+#include <stdbool.h>
 #include "hardware.h"
 
 
@@ -36,7 +36,7 @@
 
 void tone_init();
 void tone(uint16_t freq, uint8_t length);
-void key_tone(uint8_t key, uint8_t length);
+void key_tone(uint8_t key, uint8_t length,bool wait_end);
 
 
 

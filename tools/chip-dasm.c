@@ -303,7 +303,12 @@ int main(int argc, char *argv[]){
 				break;
 			case 3:
 				sprintf(line+strlen(line),"PIXI V%X,V%X\n",r1(b1),r2(b2));
+				break;
+			case 5:
+				sprintf(line+strlen(line),"TONE V%X,V%X,WAIT\n",r1(b1),r2(b2));
+				break;
 			}
+	
 			previous=NOT_SKIP;
 			break;
 		case 0xA: // ANNN     I := NNN 

@@ -1,0 +1,43 @@
+#200	#00E0	CLS
+#202	#A23E	LD I, #23E
+#204	#6138	LD V1, 56
+#206	#6218	LD V2, 24
+#208	#D120	DRW V1, V2, 0
+#20A	#2232	CALL #232
+#20C	#6178	LD V1, 120
+#20E	#62F8	LD V2, 248
+#210	#D120	DRW V1, V2, 0
+#212	#2232	CALL #232
+#214	#61FA	LD V1, 250
+#216	#6238	LD V2, 56
+#218	#D120	DRW V1, V2, 0
+#21A	#2232	CALL #232
+#21C	#6178	LD V1, 120
+#21E	#D120	DRW V1, V2, 0
+#220	#2232	CALL #232
+#222	#61F8	LD V1, 248
+#224	#8210	LD V2, V1
+#226	#D120	DRW V1, V2, 0
+#228	#6005	LD V0, 5
+#22A	#610A	LD V1, 10
+#22C	#9011	TONE V0,V1
+#22E	#9015	TONE V0,V1,WAIT
+;---  JP target ---
+#230	#1230	JP #230
+;--- JP or CALL target ---
+#232	#603C	LD V0, 60
+#234	#F015	LD DT, V0
+;---  JP target ---
+#236	#F007	LD V0, DT
+#238	#3000	SE V0, 0
+#23A	#1236	JP #236
+#23C	#00EE	RET
+;-------------------------
+;-  LD I, NNN addresses  -
+;-------------------------
+#23E	DW	#FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF, #FFFF
+;-------------------------
+;-      NOT DECODED      -
+;-------------------------
+#25E			.DB #FF
+

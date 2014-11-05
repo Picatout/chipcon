@@ -438,7 +438,17 @@ void op2(unsigned code){
 	case eTONE: // TONE  9XY1
 		if (reg2){
 			b1|=0x90;
-			b2|=1;
+			next_token();
+			printf("%d\t%s\n",tok_id,tok_value);
+			if (tok_id==eNONE){
+				b2|=1;
+			}else if (tok_id==eCOMMA){
+				next_token();
+				printf("%d\t%s\n",tok_id,tok_value);
+				if (tok_id==eSYMBOL && !strcmp(tok_value,"WAIT")){
+					b2|=5;
+				}else error();
+			} else error();
 		}else error();
 		break;
 	case ePRT: // PRT  9XY2
@@ -844,7 +854,7 @@ void equate(){
 	if (tok_id==eSYMBOL){
 		symbol=search_symbol(tok_value);
 		if (!symbol){ symbol = add_symbol(tok_value,0);}
-		symbol->value = expression();
+		symbol->value=expression();
 		symbol_list=symbol;
 	}else{
 		error();
@@ -870,13 +880,19 @@ void define(){
 
 unsigned factor(){
 	unsigned n;
+	node_t *node;
 	
 	next_token();
 	switch(tok_id){
-	case (eNUMBER):
+	case eSYMBOL:
+		node=search_symbol(tok_value);
+		if (node) n=node->value; 
+		else error();
+		break;
+	case eNUMBER:
 		n=token_to_i();
 		break;
-	case (eLPAREN):
+	case eLPAREN:
 		n=expression();
 		next_token();
 		if (tok_id!=eRPAREN) error();
@@ -1059,16 +1075,28 @@ bool preprocess(){
 		if (tok_id==eNONE) return true;
 		if (!(tok_id==eSYMBOL || tok_id==eLABEL)) error();
 		i=search_word(tok_value,directives,DIR_COUNT);
-		if ((i<DIR_COUNT) && (i>2)){
+		if ((i<DIR_COUNT) && (i>1)){
 			switch(i){
+			case 2: // ASCII
+				strcpy(ppline,"ASCII \"");
+				pos=strlen(ppline);
+				next_token();
+				if (tok_id!=eSTRING) error();
+				tok_value[strlen(tok_value)+1]=0;
+				tok_value[strlen(tok_value)]='"';
+				strcpy(&ppline[pos],tok_value);
+				strcpy(line,ppline);
+				if (gen_ppf) fprintf(ppf,"%d\t\t%s\n",line_no,line);
+				break;
 			case 3:	 // EQU
 				equate();
+				completed=true;
 				break;
 			case 4: // DEFN
 				define();
+				completed=true;
 				break;
 			}//switch
-			completed=true;
 		}else{
 			if (gen_ppf) fprintf(ppf,"%d",line_no);
 			double_tab=true;
@@ -1078,11 +1106,13 @@ bool preprocess(){
 				}else if (tok_id==eSYMBOL && (n=search_symbol(tok_value))){
 					itoa(n->value,&ppline[pos],10);
 				}else{
-					if (tok_id==eLABEL){
+					switch (tok_id){
+					case eLABEL:
 						tok_value[strlen(tok_value)+1]=0;
 						tok_value[strlen(tok_value)]=':';
 						double_tab=false;
-					}	
+						break;
+					}//switch	
 					strcpy(&ppline[pos],tok_value);
 				}
 				pos = strlen(ppline);
@@ -1124,7 +1154,7 @@ int main(int argc, char **argv){
 	line_no=0;
 	while (pc<MEM_SIZE && fgets(line,256,src)){
 		line_no++;
-		line[strlen(line)-1]=0;
+		if (line[strlen(line)-1]<32) line[strlen(line)-1]=0;
 		inp=0;
 		if (!preprocess()){
 			inp=0;

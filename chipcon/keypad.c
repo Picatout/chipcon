@@ -116,10 +116,8 @@ uint8_t keypad_break(){
 	break_down=is_break();
 	if (break_down){
 		while (is_break()){
-			key_tone(0xe,1);
-			wait_tone_end();
-			key_tone(0xf,1);
-			wait_tone_end();
+			key_tone(0xe,1,true);
+			key_tone(0xf,1,true);
 		}
 	}//if 
 	set_row_high(KP_OUT4);

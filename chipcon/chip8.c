@@ -254,7 +254,7 @@ uint8_t schip(uint8_t flags){
 				if (vms.var[x]!=vms.var[y]) vms.pc+=2;
 				break;
 			case 0x901: // 9XY1  TONE VX, VY  joue une note de la gamme tempérée.
-				key_tone(vms.var[x],vms.var[y]);
+				key_tone(vms.var[x],vms.var[y],false);
 				break;
 			case 0x902: // 9XY2  PRT VX, VY  imprime le texte pointé par I. I est incrémenté.
 				select_font(FONT_ASCII);
@@ -267,7 +267,10 @@ uint8_t schip(uint8_t flags){
 				break;
 			case 0x903: // 9XY3 PIXI VX, VY  inverse le pixel aux coordonnées indiquées par VX,VY
 				plot(vms.var[x],vms.var[y],INVERT);
-				break;	
+				break;
+			case 0x905: // 9XY5 TONE VX, VY, WAIT  joue une note de la gamme tempérée attend la fin avant de poursuivre
+				key_tone(vms.var[x],vms.var[y],true);
+				break;
 			case 0xa00: // ANNN     I := NNN
 				vms.ix=caddr(vms.b1,vms.b2);  // chip-8 et schip adressse de 12 bits
 				vms.src_mem=RAM_MEM;
@@ -282,13 +285,13 @@ uint8_t schip(uint8_t flags){
 				n=vms.b2&0xf;
 				if (!n){
 					sram_load_block(vms.ix,32,block);
-					vms.var[15]=put_big_sprite(vms.var[x],vms.var[y],(const uint8_t*)block);
+					vms.var[15]=put_big_sprite((int8_t)vms.var[x],(int8_t)vms.var[y],(const uint8_t*)block);
 				}else{
 					if (vms.src_mem==FLASH_MEM){
-						vms.var[15]=put_sprite(vms.var[x],vms.var[y],n,(const uint8_t *)vms.ix,FLASH_MEM);
+						vms.var[15]=put_sprite((int8_t)vms.var[x],(int8_t)vms.var[y],n,(const uint8_t *)vms.ix,FLASH_MEM);
 					}else{
 						sram_load_block(vms.ix,n,block);
-						vms.var[15]=put_sprite(vms.var[x],vms.var[y],n,(const uint8_t*)block,RAM_MEM);
+						vms.var[15]=put_sprite((int8_t)vms.var[x],(int8_t)vms.var[y],n,(const uint8_t*)block,RAM_MEM);
 					}
 				}
 				break;

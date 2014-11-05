@@ -23,6 +23,7 @@
  *  Author: Jacques Deschênes
  */ 
 
+
 #include "tone.h"
 #include "tvout.h"
 
@@ -51,7 +52,8 @@ void tone(uint16_t freq, uint8_t length){
 
 PROGMEM const uint16_t SCALE[16]={523,554,587,622,659,698,740,784,831,880,932,988,1047,1109,1175,1245};
 	
-inline void key_tone(uint8_t key, uint8_t length){
+inline void key_tone(uint8_t key, uint8_t length,bool wait_end){
 	tone(pgm_read_word(&SCALE[key&15]),length);	
+	if (wait_end) wait_tone_end();
 }
 

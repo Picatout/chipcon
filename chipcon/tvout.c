@@ -53,9 +53,11 @@ void tvout_init(){
 
 static uint8_t video_buffer[HBYTES*VRES];
 
+// dessine un point à l'écran
 void plot(int8_t x, int8_t y, optype op){
 	int8_t xbyte,xbit;
 	
+	if ((x<0)||(x>=HRES)||(y<0)||(y>=VRES)) return;
 	xbyte= x/8;
 	xbit = 7-x%8;
 	switch (op){
@@ -72,37 +74,49 @@ void plot(int8_t x, int8_t y, optype op){
 }
 
 
-// dessine un sprite 8 pixels x n pixels
-// s'il y a collision retourne une valeur
-// non nulle.
-int8_t put_sprite(uint8_t x, uint8_t y, uint8_t n, const uint8_t *sprite, int8_t memory){
-	int8_t xbyte,xbyte2, shl, shr, row, collision;
+// dessine un sprite 8 pixels par n pixels
+// s'il y a collision retourne une valeur 1
+// autrement 0.
+int8_t put_sprite(int8_t x, int8_t y, uint8_t n, const uint8_t *sprite, int8_t memory){
+	int8_t xbyte, shl, shr, row, collision;
 	uint8_t sprite_row;
 
+	
 	// contrôle des limites
-	x&=HRES-1;
-	y&=VRES-1;
+	if ((x<-7)||(x>=HRES)||(y<-14)||y>=VRES){return;} 
 	collision=0;
-	shr= x&7;
-	shl=(8-shr)&7;
-	xbyte=x>>3;
-	xbyte2=(xbyte+1)&(HRES-1);
-	for (row=0;row<n;row++){
-		//xbyte=x>>3;
-		if (memory==RAM_MEM){
-			sprite_row=sprite[row];
-		}else{
-			sprite_row= pgm_read_byte(sprite+row);
+	if (x<0){
+		shl=-x;
+		for (row=0;row<n;row++){
+			if (y<0 || y>=VRES){y++;continue;}
+			if (memory==RAM_MEM){
+				sprite_row=sprite[row];
+			}else{
+				sprite_row= pgm_read_byte(sprite+row);
+			}
+			collision |= video_buffer[y*HBYTES] & (sprite_row<<shl);
+			video_buffer[y*HBYTES] ^= sprite_row<<shl;
+			y++;
+		}//for
+	}else{
+		shr= x&7;
+		shl=(8-shr)&7;
+		xbyte=x>>3;
+		for (row=0;row<n;row++){
+			if (y<0 || y>=VRES){y++;continue;}
+			if (memory==RAM_MEM){
+				sprite_row=sprite[row];
+				}else{
+				sprite_row= pgm_read_byte(sprite+row);
+			}
+			collision |= video_buffer[y*HBYTES+xbyte] & (sprite_row>>shr);
+			video_buffer[y*HBYTES+xbyte] ^= sprite_row>>shr;
+			if (shl && (xbyte+1<HBYTES)){
+				collision |= video_buffer[y*HBYTES+xbyte+1] & (sprite_row<<shl);
+				video_buffer[y*HBYTES+xbyte+1] ^= sprite_row<<shl;
+			}
+			y++;
 		}
-		collision |= video_buffer[y*HBYTES+xbyte] & (sprite_row>>shr);
-		video_buffer[y*HBYTES+xbyte] ^= sprite_row>>shr;
-		if (shl){
-			//xbyte=(xbyte+1)&(HBYTES-1);
-			collision |= video_buffer[y*HBYTES+xbyte2] & (sprite_row<<shl);
-			video_buffer[y*HBYTES+xbyte2] ^= sprite_row<<shl;
-		}
-		y++;
-		if (y==VRES) y=0;
 	}
 	if (collision) collision=1;
 	return collision;
@@ -110,43 +124,63 @@ int8_t put_sprite(uint8_t x, uint8_t y, uint8_t n, const uint8_t *sprite, int8_t
 
 //dessine un sprite 16x16pixels
 // le sprite est en mémoire RAM
-// s'il y a collision retourne une valeur
-// non nulle.
-int8_t put_big_sprite(uint8_t x, uint8_t y,const uint8_t *sprite){
+// s'il y a collision retourne 1,
+// autrement 0.
+int8_t put_big_sprite(int8_t x, int8_t y,const uint8_t *sprite){
 	int8_t xbyte, shl, shr, row, collision;
-	uint8_t x2, sprite_row;
+	uint8_t sprite_row;
 
 	// contrôle des limites
-	x&=HRES-1;
-	y&=VRES-1;
+	if ((x<-15)||(x>=HRES)||(y<-15)||(y>=VRES)) return;
 	collision=0;
-	x2=(x+8)&(HRES-1);
-	shr= x&7;
-	shl=(8-shr)&7;
-	for (row=0;row<32;row++){
-		xbyte=x>>3;
-		sprite_row=sprite[row];
-		collision |= video_buffer[y*HBYTES+xbyte] & (sprite_row>>shr);
-		video_buffer[y*HBYTES+xbyte] ^= sprite_row>>shr;
-		if (shl){
-			xbyte=(xbyte+1)&(HBYTES-1);
-			collision |= video_buffer[y*HBYTES+xbyte] & (sprite_row<<shl);
-			video_buffer[y*HBYTES+xbyte] ^= sprite_row<<shl;
+	if (x<-7){ // x {-7..-15}
+		shl=-x-8;
+		for (row=0;row<32;row+=2){
+			if ((y<0) || (y>= VRES)){y++; continue;}
+			sprite_row=sprite[row+1];
+			collision |= video_buffer[y*HBYTES] & (sprite_row<<shl);
+			video_buffer[y*HBYTES] ^= sprite_row<<shl;
+			y++;
 		}
-		row++;
-		shr=x2&7;
+	}else if (x<0){ // x {-1..-7}
+		shl=-x;
+		shr=8-shl;
+		for (row;row<32;row+=2){
+			if ((y<0) || (y>= VRES)){y++; continue;}
+			sprite_row=sprite[row];
+			collision|=video_buffer[y*HBYTES] & (sprite_row<<shl);
+			video_buffer[y*HBYTES] ^= sprite_row<<shl;
+			sprite_row=sprite[row+1];
+			collision|=video_buffer[y*HBYTES] & (sprite_row>>shr);
+			video_buffer[y*HBYTES] ^= sprite_row>>shr;
+			collision|=video_buffer[y*HBYTES+1] & (sprite_row<<shl);
+			video_buffer[y*HBYTES+1] ^= sprite_row<<shl;
+			y++;
+		}
+	}else{ // x {0..HRES-1}
+		shr= x&7;
 		shl=(8-shr)&7;
-		xbyte =x2>>3;
-		sprite_row=sprite[row];
-		collision |= video_buffer[y*HBYTES+xbyte] & (sprite_row>>shr);
-		video_buffer[y*HBYTES+xbyte] ^= (sprite_row>>shr);
-		if (shl){
-			xbyte =(xbyte+1)&(HBYTES-1);
-			collision |= video_buffer[y*HBYTES+xbyte] & (sprite_row<<shl);
-			video_buffer[y*HBYTES+xbyte] ^=(sprite_row<<shl);
+		xbyte=x>>3;
+		for (row=0;row<32;row+=2){
+			if ((y<0) || (y>=VRES)){y++; continue;}
+			sprite_row=sprite[row];
+			collision |= video_buffer[y*HBYTES+xbyte] & (sprite_row>>shr);
+			video_buffer[y*HBYTES+xbyte] ^= sprite_row>>shr;
+			if ((xbyte+1)<HBYTES){
+				if (shl){
+					collision |= video_buffer[y*HBYTES+xbyte+1] & (sprite_row<<shl);
+					video_buffer[y*HBYTES+xbyte+1] ^= sprite_row<<shl;
+				}
+				sprite_row=sprite[row+1];
+				collision |= video_buffer[y*HBYTES+xbyte+1] & (sprite_row>>shr);
+				video_buffer[y*HBYTES+xbyte+1] ^= (sprite_row>>shr);
+				if (shl && ((xbyte+2)<HBYTES)){
+					collision |= video_buffer[y*HBYTES+xbyte+2] & (sprite_row<<shl);
+					video_buffer[y*HBYTES+xbyte+2] ^=(sprite_row<<shl);
+				}
+			}
+			y++;
 		}
-		y++;
-		if (y==VRES) y=0;
 	}
 	if (collision) collision=1;
 	return collision;
