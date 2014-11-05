@@ -35,6 +35,7 @@ typedef struct data_node{
 		unsigned addr;
 		unsigned pc;
 		unsigned value;
+		char *defn;
 	};
 	struct data_node *next;
 }node_t;
@@ -48,16 +49,22 @@ char tok_value[256];
 node_t *label_list=NULL;
 node_t *forward_list=NULL;
 node_t *symbol_list=NULL;
+node_t *define_list=NULL;
 
 #define add_label(name,addr)   add_node(name,addr,label_list)
 #define add_forward_ref(name,pc) add_node(name,pc,forward_list)
 #define add_symbol(name,value)  add_node(name,value,symbol_list)
+#define add_define(name,str) add_node(name,(unsigned)str,define_list)
 #define search_label(name)   search_list(name,label_list)
 #define search_ref(name)  search_list(name,forward_list)
 #define search_symbol(name) search_list(name,symbol_list)
+#define search_define(name) search_list(name,define_list)
 
 
-FILE *bin;
+FILE *bin,  // fichier binaire généré par l'assembleur
+     *ppf;  // fichier optionnel généré par le pré-processeur
+	 
+bool gen_ppf=false;  // si vrai génère un fichier pré-prosessing
 
 int pc; // compteur ordinal
 int line_no; //no de ligne en cours d'analyse
@@ -78,8 +85,8 @@ const char *mnemonics[KW_COUNT]={"CLS","RET","SCR","SCL","EXIT","LOW","HIGH","SC
 typedef enum Mnemo {eCLS,eRET,eSCR,eSCL,eEXIT,eLOW,eHIGH,eSCD,eJP,eCALL,eSHR,eSHL,eSKP,eSKNP,eSE,eSNE,eADD,
                     eSUB,eSUBN,eOR,eAND,eXOR,eRND,eTONE,ePRT,ePIXI,eLD,eDRW} mnemo_t;
 						 
-#define DIR_COUNT (4)						 
-const char *directives[]={"DB","DW","ASCII","EQU"};
+#define DIR_COUNT (5)						 
+const char *directives[]={"DB","DW","ASCII","EQU","DEFN"};
 
 
 int search_word(char *target, const char *list[], int list_count){
@@ -393,39 +400,58 @@ void op2(unsigned code){
 		}		
 		break;
 	case eSUB: // SUB  8XY5
-		b1|=0x80;
-		b2|=5;
+		if (reg2){
+			b1|=0x80;
+			b2|=5;
+		}else error();
 		break;
 	case eSUBN: // SUBN  8XY7
-		b1|=0x80;
-		b2|=7;
+		if (reg2){
+			b1|=0x80;
+			b2|=7;
+		} else error();
 		break;
 	case eOR: // OR 8XY1
-		b1|=0x80;
-		b2|=1;
+		if (reg2){
+			b1|=0x80;
+			b2|=1;
+		}else error();
 		break; 
 	case eAND: // AND 8XY2
-		b1|=0x80;
-		b2|=2;
+		if (reg2){
+			b1|=0x80;
+			b2|=2;
+		}else error();
 		break;
 	case eXOR: // XOR  8XY3
-		b1|=0x80;
-		b2|=3;
+		if (reg2){
+			b1|=0x80;
+			b2|=3;
+		}else error();
 		break;
 	case eRND: // RND CXKK
-		b1|=0xC0;
+		if (!reg2)
+			b1|=0xC0;
+		else 
+			error();	
 		break;
 	case eTONE: // TONE  9XY1
-		b1|=0x90;
-		b2|=1;
+		if (reg2){
+			b1|=0x90;
+			b2|=1;
+		}else error();
 		break;
 	case ePRT: // PRT  9XY2
-		b1|=0x90;
-		b2|=2;
+		if (reg2){
+			b1|=0x90;
+			b2|=2;
+		}else error();
 		break;
 	case ePIXI:
-		b1|=0x90;
-		b2|=3;
+		if (reg2){
+			b1|=0x90;
+			b2|=3;
+		}else error();
 		break;
 	}
 op2_done:	
@@ -443,6 +469,21 @@ void draw(){
 	if (tok_id!=eCOMMA) error();
 	n=expression();
 	b2|=n&0xf;
+	store_code(b1,b2);
+}
+
+// LD [I],VX FX55  
+void load_indirect(){
+	unsigned b1,b2;
+	
+	next_token();
+	if (!(tok_id==eSYMBOL && strlen(tok_value)==1 && tok_value[0]=='I')) error();
+	next_token();
+	if (tok_id!=eRBRACKET) error();
+	next_token();
+	if (tok_id!=eCOMMA) error();
+	b1=0xF0|parse_vx();
+	b2=0x55;
 	store_code(b1,b2);
 }
 
@@ -467,20 +508,15 @@ void load(){
 	
 	next_token();
 	if (tok_id==eLBRACKET){
-		next_token();
-		if (!(tok_id==eSYMBOL && strlen(tok_value)==1 && tok_value[0]=='I')) error();
-		next_token();
-		if (tok_id!=eRBRACKET) error();
-	}else if (!((tok_id==eSYMBOL) && ((strlen(tok_value)==1)||(strlen(tok_value)==2)))) error();
+		load_indirect();
+		goto load_done;
+	}
+	if (!((tok_id==eSYMBOL) && ((strlen(tok_value)==1)||(strlen(tok_value)==2)))) error();
 	if (strlen(tok_value)==1){
 		c=tok_value[0];
 		next_token();
 		if (tok_id!=eCOMMA) error();
-		switch (c){
-		case ']': //LD [I],VX  FX55
-			b1=0xf0|parse_vx();
-			b2=0x55;
-			break;
+		switch (c){ // 2ième argument
 		case 'I': // LD I,label  ANNN
 			b1=0xa0;
 			next_token();
@@ -510,15 +546,17 @@ void load(){
 			error();
 		}
 		goto load_done;
-	}else if (strlen(tok_value)==2){
+	}
+	if (strlen(tok_value)==2){
 		if (tok_value[0]=='V' && hex(tok_value[1])){
+			// LD VX, ...
 			c=tok_value[1];
 			b1=c<='9'?c-'0':c-'A'+10;
 			next_token();
 			if (tok_id!=eCOMMA) error();
 			mark=inp;
 			next_token();
-			if (tok_id==eNUMBER || ((tok_id==eSYMBOL) && (search_symbol(tok_value)))){
+			if (tok_id==eLPAREN || tok_id==eNUMBER){
 				inp=mark;
 				b2=expression()&0xff;
 				b1|=0x60;
@@ -526,7 +564,7 @@ void load(){
 			}
 			if (tok_id==eLBRACKET || (tok_id==eSYMBOL  && strlen(tok_value)==1)){
 				c=tok_value[0];
-				switch (c){
+				switch (c){ // LD VX, R|K|[I]
 				case 'R': // LD VX,R  FX85
 					b1|=0xf0;
 					b2=0x85;
@@ -548,7 +586,7 @@ void load(){
 				}
 				goto load_done;
 			}
-			if (tok_id==eSYMBOL && strlen(tok_value)==2){
+			if (tok_id==eSYMBOL && strlen(tok_value)==2){  // LD VX, DT|VY
 				if (!strcmp(tok_value,"DT")){ // LD VX,DT FX07
 					b1|=0xf0;
 					b2=0x07;
@@ -583,16 +621,17 @@ void load(){
 				error();
 			}
 		}
-	}else error();
+	}
 load_done:	
 	store_code(b1,b2);
 }
 
 void usage(){
 	puts("CHIPcon assembler");
-	puts("USAGE: ccasm source binary");
+	puts("USAGE: ccasm source binary [-p pp_file]");
 	puts("'source' is CHIPcon source code file.");
 	puts("'binary' is generated binary file to be executed on CHIPcon.");
+	puts("'-p' cette option genere un fichier de pre-processing nomme 'pp_file'.");
 	exit (EXIT_FAILURE);
 }
 
@@ -714,7 +753,7 @@ void next_token(){
 			}//switch
 			break;
 		case 1: // nombre hexadécimal
-			if (hex(line[inp])){
+			if (hex(toupper(line[inp]))){
 				tok_value[i++]=toupper(line[inp]);
 			}else if (separator(line[inp])){
 				inp--;
@@ -812,23 +851,30 @@ void equate(){
 	}
 }
 
+void define(){
+	char *defn_str;
+	unsigned i, start;
+	next_token();
+	if (tok_id!=eSYMBOL) error();
+	skip_white();
+	start=inp;
+	while (line[inp] && line[inp]!= ';') inp++;
+	if (inp>start){
+		line[inp]=0;
+		defn_str=malloc(strlen(&line[start])+1);
+		for (i=0;line[start+i];i++){ *(defn_str+i)=toupper(line[start+i]);}
+		*(defn_str+i)=0;
+		define_list=add_define(tok_value,defn_str);
+	}
+}
+
 unsigned factor(){
 	unsigned n;
-	node_t *symbol;
 	
 	next_token();
 	switch(tok_id){
 	case (eNUMBER):
 		n=token_to_i();
-		break;
-	case (eSYMBOL):
-		symbol=search_symbol(tok_value);
-		if (symbol){
-			n=symbol->value;
-		}else{
-			puts("Unknown symbol");
-			error();
-		}
 		break;
 	case (eLPAREN):
 		n=expression();
@@ -900,11 +946,13 @@ unsigned expression(){
 	return n;
 }
 
-void parse_line(){
+
+void assemble_line(){
 	int i;
 		next_token();
 		while (tok_id){
-			if ((tok_id==eSYMBOL) && (i=search_word(tok_value,mnemonics,KW_COUNT))<KW_COUNT){
+			if (!(tok_id==eSYMBOL || tok_id==eLABEL)) error();
+			if ((i=search_word(tok_value,mnemonics,KW_COUNT))<KW_COUNT){
 				//operation code
 				switch(i){
 				case eCLS:
@@ -945,22 +993,20 @@ void parse_line(){
 					load();
 					break;
 				}
-			}else if ((tok_id==eSYMBOL) && (i=search_word(tok_value,directives,DIR_COUNT))<DIR_COUNT){
-				// assembler directive
+			}else if ((i=search_word(tok_value,directives,DIR_COUNT))<DIR_COUNT){
+				// directive d'assembleur
+				// les directives 'EQU' et 'DEFN' sont traité par preprocess() 
 				switch(i){
-				case 0:
+				case 0: // DB
 					data_byte();
 					break;
-				case 1:
+				case 1: // DW
 					data_word();
 					break;
-				case 2:
+				case 2:  // ASCII
 					data_ascii();
 					break;
-				case 3:	
-					equate();
-					break;
-				}
+				}//switch 
 			}else if (tok_id==eLABEL){
 				// label
 				inp++;
@@ -998,13 +1044,81 @@ void fix_forward_ref(){
 	}
 }
 
+// traitement des directives et substitution des DEFN
+// retourne 'true' si l'analyse de cette ligne est complétée.
+// sinon 'false'
+bool preprocess(){
+	char ppline[256];
+	unsigned i,pos=0;
+	node_t *n;
+	bool completed=false;
+	bool double_tab;
+	
+	if (strlen(line)){
+		next_token();
+		if (tok_id==eNONE) return true;
+		if (!(tok_id==eSYMBOL || tok_id==eLABEL)) error();
+		i=search_word(tok_value,directives,DIR_COUNT);
+		if ((i<DIR_COUNT) && (i>2)){
+			switch(i){
+			case 3:	 // EQU
+				equate();
+				break;
+			case 4: // DEFN
+				define();
+				break;
+			}//switch
+			completed=true;
+		}else{
+			if (gen_ppf) fprintf(ppf,"%d",line_no);
+			double_tab=true;
+			while (tok_id){
+				if (tok_id==eSYMBOL && (n=search_define(tok_value))){
+					strcpy(&ppline[pos],n->defn);
+				}else if (tok_id==eSYMBOL && (n=search_symbol(tok_value))){
+					itoa(n->value,&ppline[pos],10);
+				}else{
+					if (tok_id==eLABEL){
+						tok_value[strlen(tok_value)+1]=0;
+						tok_value[strlen(tok_value)]=':';
+						double_tab=false;
+					}	
+					strcpy(&ppline[pos],tok_value);
+				}
+				pos = strlen(ppline);
+				ppline[pos++]=' ';
+				next_token();
+			}//while
+			ppline[pos]=0;
+			strcpy(line,ppline);
+			completed=false;
+			if (gen_ppf){
+				if (double_tab) fprintf(ppf,"\t");
+				fprintf(ppf,"\t%s\n",line);
+			}
+		}
+	}else completed=true;
+	return completed;
+}
+
 int main(int argc, char **argv){
 	FILE *src;
+	char *ppf_name;
 	
 	if (argc < 3) usage();
 	if (!(src=fopen(argv[1],"r"))){ printf("Failed to open %s\n",argv[1]); exit(EXIT_FAILURE);}
 	if (!(bin=fopen(argv[2],"wb"))) {printf("Failed to open %s\n",argv[2]); exit(EXIT_FAILURE);}
-     
+    if (argc>3 && argv[3][0]=='-' && argv[3][1]=='p'){
+		if (strlen(argv[3])>2){
+			ppf_name=malloc(strlen(argv[3])-1);
+			strcpy(ppf_name,argv[3]+2);
+		}else if (argc==5){
+			ppf_name=malloc(strlen(argv[4])+1);
+			strcpy(ppf_name,argv[4]);
+		}else usage();
+		ppf=fopen(ppf_name,"w");
+		if (!ppf) printf("failed to create %s file.\n",ppf_name); else gen_ppf=true;
+	}	
 	pc=ORG;
 	memset(line,0,256);
 	line_no=0;
@@ -1012,7 +1126,10 @@ int main(int argc, char **argv){
 		line_no++;
 		line[strlen(line)-1]=0;
 		inp=0;
-		if (strlen(line)) parse_line();
+		if (!preprocess()){
+			inp=0;
+			assemble_line();
+		}
 		memset(line,0,256);
 	}
 	if (pc>4095 && !feof(src)) memory_overflow();
@@ -1023,6 +1140,7 @@ int main(int argc, char **argv){
 		fputc(binary[i],bin);
 	}
 	fclose(bin);
-	printf("Total lines read: %d\ncode size: %d\n",line_no, pc);
+	if (ppf) fclose(ppf);
+	printf("Total lines read: %d\ncode size: %d\n",line_no, pc-ORG);
 	return EXIT_SUCCESS;
 }

@@ -1,0 +1,229 @@
+;---------------------------------------------------------------------------
+; Copyright 2014, Jacques Deschênes
+; This file is part of CHIPcon.
+;
+;     CHIPcon is free software: you can redistribute it and/or modify
+;     it under the terms of the GNU General Public License as published by
+;     the Free Software Foundation, either version 3 of the License, or
+;     (at your option) any later version.
+;
+;     CHIPcon is distributed in the hope that it will be useful,
+;     but WITHOUT ANY WARRANTY; without even the implied warranty of
+;     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;     GNU General Public License for more details.
+;
+;     You should have received a copy of the GNU General Public License
+;     along with CHIPcon.  If not, see <http://www.gnu.org/licenses/>.
+;
+;--------------------------------------------------------------------------
+; fichier source pour l'assembleur de CHIPcon 
+;
+; NOM: LEM
+; DESCRIPION: Jeux qui consiste à faire alunir le LEM sur la surface de la lune.
+;             clone d'un jeux datant des années 197x
+; AUTEUR: Jacques Deschênes
+; CRÉATION: 2014-10-30
+;--------------------------------------------------------------------------
+
+defn xpos VE	; coordonnée x du LEM
+defn ypos VD    ; coordonnée y du LEM
+defn hspeed VC  ; vitesse horizontale du LEM
+defn vspeed VB  ; vitesse verticale du LEM
+defn fuel VA    ; niveau de carburant
+defn carry VF   ; utilisé comme indicateur booléen par plusieurs codes opérationnels.
+defn minus1 255 ; addionner ce nombre à un VX revient à y soustraire 1
+defn minus2 254 ; addionner ce nombre à un VX revient à y soustraire 2
+
+equ SCREEN_WIDTH 128 ; nombre de pixels horizontalement
+equ SCREEN_HEIGH 64  ; nombre de pixels verticalement
+equ LANDING_PAD  16  ; largeur de la plateforme d'alunissage
+equ LEM_WIDTH 16     ; largeur du LEM
+equ K_RIGHT_JET 4    ; touche de contrôle du jet de droite
+equ K_LEFT_JET  6    ; touche de contrôle du jet de gauche
+equ K_UP_JET    2    ; touche de contrôle du jet vertical
+
+	high
+	cls
+;position initiale du LEM
+;centre haut de l'écran
+	ld xpos,(SCREEN_WIDTH-LANDING_PAD)/2  
+	ld ypos,0  
+; vitesses initiales nulles 
+	ld hspeed,0
+	ld vspeed,0
+;réservoir carburant plein
+	ld fuel, 100
+; dessine la surface de la lune
+	call moonscape
+; dessine LEM et imprime niveau carburant
+	call drw_lem
+	call prt_fuel_level
+;boucle principale
+main:
+	sne fuel,0 
+	jp move_lem ; plus de carburant
+; lecture clavier
+	ld v0, K_RIGHT_JET
+	sknp v0 ; jet de droite allumé
+	jp right_jet
+	ld v0, K_LEFT_JET
+	sknp v0 ; jet de gauche allumé
+	jp left_jet
+	ld v0, K_UP_JET
+	sknp v0 ; fusée principale allumée
+	jp up_jet
+	jp move_lem
+right_jet:
+	add hspeed,minus1  ; vx -= 1
+	add fuel,minus1  ; fuel -= 1
+	jp move_lem
+; accélaration vers la droite
+left_jet:
+	add hspeed, 1   ; vc += 1
+	add fuel, minus1 ; fuel -= 1
+	jp move_lem
+;accélaration vers le haut
+up_jet:
+	add vspeed, minus2  
+	se fuel, 1
+	add fuel, minus1  
+	add fuel, minus1   
+	; déplacement LEM
+move_lem:
+	call prt_fuel_level ; efface LEM
+	call drw_lem ; efface niveau carburant
+; mise à jour position LEM
+	add xpos, hspeed  
+;	ld  v0, SCREEN_WIDTH-LEM_WIDTH
+;	sub v0, ve
+;	se carry, 1
+;	jp lost_in_space
+	add ypos, vspeed 
+	add vspeed, 1  ; gravitée
+	call drw_lem
+	sne carry, 1
+	jp collision
+; affiche le niveau de carburant
+	call prt_fuel_level
+	sne fuel, 0
+	jp fuel_empty
+; délais
+	ld v0,10
+	call delay 
+	jp main
+; réservoir vide
+fuel_empty:
+	call prt_fuel_level
+	ld v0, 10
+	ld v1, 5
+	tone v0,v1
+	ld v0, 5
+	call delay
+	call prt_fuel_level
+	ld v0, 5
+	tone v0,v1
+	call delay
+	jp main
+
+;délais
+; v0 = nombre de frame
+delay:
+	ld dt,v0
+dly_loop:
+	ld v0, dt
+	se v0, 0
+	jp dly_loop
+	ret
+	
+lost_in_space:
+; il y a eu collision avec le sol	
+collision:
+	ld v0,vspeed
+	ld v3, 3
+	
+	exit
+	
+; dessine le LEM
+drw_lem:
+	ld I, LEM
+	DRW VE,VD,0
+	ret
+
+;dessine la surface de la lune
+moonscape:
+	ld v0,0
+	ld v1,SCREEN_HEIGH-1 ; y
+	rnd v2,#F8 ; position gauche de la zone d'alunissage
+	ld v3,SCREEN_WIDTH-LANDING_PAD
+	sub v3,v2
+	se carry,1
+	ld v2,SCREEN_WIDTH-LANDING_PAD
+	ld v4,LANDING_PAD
+	add v4,v2
+scape_loop:
+	ld v3,v0
+	sub v3,v2
+	se carry,1
+	jp rand_y
+	ld v3,v0
+	sub v3,v4
+	se carry,1
+	jp put_pixel
+rand_y:
+	sne v1,SCREEN_HEIGH-1
+	add v1,minus1
+	sne v1, SCREEN_HEIGH/2
+	add v1,1
+	rnd v3,3
+	shr v3
+	se v3,0
+	add v1,254
+	add v1,1
+put_pixel:
+	pixi v0,v1
+	add v0,1
+	se v0, SCREEN_WIDTH
+	jp scape_loop
+	ret
+
+; affiche le niveau de carburant
+prt_fuel_level:
+	ld v4,0
+	ld I, BCD
+	ld B, VA
+	ld V1,0
+	ld V2,0
+prt_fuel_loop:	
+	ld I, BCD
+	add i, v4
+	ld V0,[I]
+	ld LF,V0
+	drw v1,v2,10
+	add v1,8
+	add v4,1
+	se v4,3
+	jp prt_fuel_loop
+	ret
+	
+; véhicule d'alunissage	
+LEM:
+dw	$......1111......
+dw  $.....11..11.....
+dw  $...1111111111...
+dw  $..111111111111..
+dw	$..1..........1..
+dw	$1.1.11111111.1.1
+dw	$.11.11....11.11.
+dw	$..1.11....11.1..
+dw  $.11.11111111.11.
+dw	$1.1..........1.1
+dw	$..111111111111..
+dw	$..111111111111..
+dw	$...1..1.1..1....
+dw	$..1..1...1..1...
+dw	$.11.........11..
+dw  $11...........11.
+
+; espace variable BCD
+BCD:
+db	0,0,0
