@@ -31,8 +31,7 @@ defn hspeed VC  ; vitesse horizontale du LEM
 defn vspeed VB  ; vitesse verticale du LEM
 defn fuel VA    ; niveau de carburant
 defn carry VF   ; utilisé comme indicateur booléen par plusieurs codes opérationnels.
-defn minus1 255 ; addionner ce nombre à un VX revient à y soustraire 1
-defn minus2 254 ; addionner ce nombre à un VX revient à y soustraire 2
+
 
 equ SCREEN_WIDTH 128 ; nombre de pixels horizontalement
 equ SCREEN_HEIGH 64  ; nombre de pixels verticalement
@@ -74,20 +73,20 @@ main:
 	jp up_jet
 	jp move_lem
 right_jet:
-	add hspeed,minus1  ; vx -= 1
-	add fuel,minus1  ; fuel -= 1
+	add hspeed,-1  
+	add fuel,-1  
 	jp move_lem
 ; accélaration vers la droite
 left_jet:
-	add hspeed, 1   ; vc += 1
-	add fuel, minus1 ; fuel -= 1
+	add hspeed, 1   
+	add fuel, -1 
 	jp move_lem
 ;accélaration vers le haut
 up_jet:
-	add vspeed, minus2  
+	add vspeed, -2  
 	se fuel, 1
-	add fuel, minus1  
-	add fuel, minus1   
+	add fuel, -1  
+	add fuel, -1   
 	; déplacement LEM
 move_lem:
 	call prt_fuel_level ; efface LEM
@@ -171,7 +170,7 @@ scape_loop:
 	jp put_pixel
 rand_y:
 	sne v1,SCREEN_HEIGH-1
-	add v1,minus1
+	add v1,-1
 	sne v1, SCREEN_HEIGH/2
 	add v1,1
 	rnd v3,3

@@ -439,12 +439,10 @@ void op2(unsigned code){
 		if (reg2){
 			b1|=0x90;
 			next_token();
-			printf("%d\t%s\n",tok_id,tok_value);
 			if (tok_id==eNONE){
 				b2|=1;
 			}else if (tok_id==eCOMMA){
 				next_token();
-				printf("%d\t%s\n",tok_id,tok_value);
 				if (tok_id==eSYMBOL && !strcmp(tok_value,"WAIT")){
 					b2|=5;
 				}else error();
@@ -522,7 +520,7 @@ void load(){
 		goto load_done;
 	}
 	if (!((tok_id==eSYMBOL) && ((strlen(tok_value)==1)||(strlen(tok_value)==2)))) error();
-	if (strlen(tok_value)==1){
+	if (strlen(tok_value)==1){ // LD I|R|B|F, ...
 		c=tok_value[0];
 		next_token();
 		if (tok_id!=eCOMMA) error();
@@ -566,7 +564,7 @@ void load(){
 			if (tok_id!=eCOMMA) error();
 			mark=inp;
 			next_token();
-			if (tok_id==eLPAREN || tok_id==eNUMBER){
+			if (tok_id==eLPAREN || tok_id==eNUMBER||tok_id==eADDOP){
 				inp=mark;
 				b2=expression()&0xff;
 				b1|=0x60;
@@ -881,9 +879,15 @@ void define(){
 unsigned factor(){
 	unsigned n;
 	node_t *node;
+	char c;
 	
 	next_token();
 	switch(tok_id){
+	case eADDOP:
+		c=tok_value[0];
+		n=factor();
+		if (c=='-') n=-n;
+		break;
 	case eSYMBOL:
 		node=search_symbol(tok_value);
 		if (node) n=node->value; 
@@ -1116,7 +1120,7 @@ bool preprocess(){
 					strcpy(&ppline[pos],tok_value);
 				}
 				pos = strlen(ppline);
-				ppline[pos++]=' ';
+				if (tok_id!=eADDOP) ppline[pos++]=' ';
 				next_token();
 			}//while
 			ppline[pos]=0;
