@@ -50,6 +50,7 @@ static vm_state_t vms;
 // stockage temporaire sprite
 static uint8_t block[32];
 
+
 void print_vms(const char *msg){
 	screen_save();
 	cls();
@@ -82,6 +83,8 @@ void print_vms(const char *msg){
 	screen_restore();
 }
 
+#if FW_DEBUG
+
 #define MAX_BREAK  (10)
 
 static uint16_t break_points[MAX_BREAK]={0,0,0,0,0,0,0,0,0,0};
@@ -102,6 +105,7 @@ void clr_break_point(uint16_t addr){
 	}
 }
 
+
 static uint8_t is_break_point(uint16_t addr){
 	uint8_t i;
 	for (i=0;i<MAX_BREAK;i++){
@@ -111,7 +115,7 @@ static uint8_t is_break_point(uint16_t addr){
 	}
 	return 0;	
 }
-
+#endif
 
 // machine virtuelle SCHIP
 uint8_t schip(uint8_t flags){

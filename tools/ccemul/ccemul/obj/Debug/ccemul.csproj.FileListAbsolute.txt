@@ -5,3 +5,10 @@ C:\Users\Jacques\Documents\GitHub\chipcon\ccemul\ccemul\ccemul\obj\Debug\ccemul.
 C:\Users\Jacques\Documents\GitHub\chipcon\ccemul\ccemul\ccemul\obj\Debug\ccemul.pdb
 C:\Users\Jacques\Documents\GitHub\chipcon\ccemul\ccemul\ccemul\obj\Debug\ccemul.MainForm.resources
 C:\Users\Jacques\Documents\GitHub\chipcon\ccemul\ccemul\ccemul\obj\Debug\ccemul.csproj.GenerateResource.Cache
+C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\bin\Debug\ccemul.exe
+C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\bin\Debug\ccemul.pdb
+C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.csprojResolveAssemblyReference.cache
+C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.MainForm.resources
+C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.csproj.GenerateResource.Cache
+C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.exe
+C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.pdb

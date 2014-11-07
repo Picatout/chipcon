@@ -83,7 +83,7 @@ int8_t put_sprite(int8_t x, int8_t y, uint8_t n, const uint8_t *sprite, int8_t m
 
 	
 	// contrôle des limites
-	if ((x<-7)||(x>=HRES)||(y<-14)||y>=VRES){return;} 
+	if ((x<-7)||(x>=HRES)||(y<-14)||y>=VRES){return 0;} 
 	collision=0;
 	if (x<0){
 		shl=-x;
@@ -131,7 +131,7 @@ int8_t put_big_sprite(int8_t x, int8_t y,const uint8_t *sprite){
 	uint8_t sprite_row;
 
 	// contrôle des limites
-	if ((x<-15)||(x>=HRES)||(y<-15)||(y>=VRES)) return;
+	if ((x<-15)||(x>=HRES)||(y<-15)||(y>=VRES)) return 0;
 	collision=0;
 	if (x<-7){ // x {-7..-15}
 		shl=-x-8;
@@ -145,7 +145,7 @@ int8_t put_big_sprite(int8_t x, int8_t y,const uint8_t *sprite){
 	}else if (x<0){ // x {-1..-7}
 		shl=-x;
 		shr=8-shl;
-		for (row;row<32;row+=2){
+		for (row=0;row<32;row+=2){
 			if ((y<0) || (y>= VRES)){y++; continue;}
 			sprite_row=sprite[row];
 			collision|=video_buffer[y*HBYTES] & (sprite_row<<shl);

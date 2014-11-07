@@ -59,10 +59,11 @@ typedef struct vm_state{
 	}vm_state_t;
 
 
+void print_vms(const char *msg);
 	
 uint8_t schip(uint8_t flags);
-void print_vms(const char *msg);
+#if FW_DEBUG
 void set_break_point(uint16_t addr);
 void clr_break_point(uint16_t addr);
-
+#endif
 #endif /* CHIP8_H_ */

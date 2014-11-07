@@ -36,13 +36,19 @@ namespace ccemul
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this.trackBar1 = new System.Windows.Forms.TrackBar();
+			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			this.menuStrip1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -69,20 +75,21 @@ namespace ccemul
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.openToolStripMenuItem.Text = "Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItemClick);
 			// 
 			// resetToolStripMenuItem
 			// 
 			this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-			this.resetToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+			this.resetToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.resetToolStripMenuItem.Text = "Reset game";
+			this.resetToolStripMenuItem.Click += new System.EventHandler(this.ResetToolStripMenuItemClick);
 			// 
 			// quitToolStripMenuItem
 			// 
 			this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-			this.quitToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+			this.quitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.quitToolStripMenuItem.Text = "Quit";
 			this.quitToolStripMenuItem.Click += new System.EventHandler(this.QuitToolStripMenuItemClick);
 			// 
@@ -91,21 +98,57 @@ namespace ccemul
 			this.openFileDialog1.FileName = "openFileDialog1";
 			this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialog1FileOk);
 			// 
+			// timer1
+			// 
+			this.timer1.Interval = 16;
+			this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
+			// 
+			// trackBar1
+			// 
+			this.trackBar1.Location = new System.Drawing.Point(0, 52);
+			this.trackBar1.Maximum = 255;
+			this.trackBar1.Minimum = 1;
+			this.trackBar1.Name = "trackBar1";
+			this.trackBar1.Orientation = System.Windows.Forms.Orientation.Vertical;
+			this.trackBar1.Size = new System.Drawing.Size(42, 285);
+			this.trackBar1.TabIndex = 3;
+			this.trackBar1.Value = 1;
+			// 
+			// pictureBox1
+			// 
+			this.pictureBox1.InitialImage = null;
+			this.pictureBox1.Location = new System.Drawing.Point(64, 52);
+			this.pictureBox1.Name = "pictureBox1";
+			this.pictureBox1.Size = new System.Drawing.Size(562, 269);
+			this.pictureBox1.TabIndex = 4;
+			this.pictureBox1.TabStop = false;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(638, 333);
+			this.Controls.Add(this.pictureBox1);
+			this.Controls.Add(this.trackBar1);
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
 			this.MaximizeBox = false;
 			this.Name = "MainForm";
-			this.Text = "ccemul";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.Text = "CHIPcon emulator";
+			this.Load += new System.EventHandler(this.MainFormLoad);
+			this.Shown += new System.EventHandler(this.MainFormShown);
+			this.Paint += new System.Windows.Forms.PaintEventHandler(this.MainFormPaint);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.PictureBox pictureBox1;
+		private System.Windows.Forms.TrackBar trackBar1;
+		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.OpenFileDialog openFileDialog1;
 		private System.Windows.Forms.ToolStripMenuItem quitToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem;
