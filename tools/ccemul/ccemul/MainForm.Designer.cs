@@ -54,7 +54,7 @@ namespace ccemul
 			// menuStrip1
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.toolStripMenuItem1});
+			this.toolStripMenuItem1});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(638, 24);
@@ -64,9 +64,9 @@ namespace ccemul
 			// toolStripMenuItem1
 			// 
 			this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.openToolStripMenuItem,
-									this.resetToolStripMenuItem,
-									this.quitToolStripMenuItem});
+			this.openToolStripMenuItem,
+			this.resetToolStripMenuItem,
+			this.quitToolStripMenuItem});
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
 			this.toolStripMenuItem1.Size = new System.Drawing.Size(40, 20);
 			this.toolStripMenuItem1.Text = "Files";
@@ -75,21 +75,21 @@ namespace ccemul
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
 			this.openToolStripMenuItem.Text = "Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItemClick);
 			// 
 			// resetToolStripMenuItem
 			// 
 			this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-			this.resetToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.resetToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
 			this.resetToolStripMenuItem.Text = "Reset game";
 			this.resetToolStripMenuItem.Click += new System.EventHandler(this.ResetToolStripMenuItemClick);
 			// 
 			// quitToolStripMenuItem
 			// 
 			this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-			this.quitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.quitToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
 			this.quitToolStripMenuItem.Text = "Quit";
 			this.quitToolStripMenuItem.Click += new System.EventHandler(this.QuitToolStripMenuItemClick);
 			// 
@@ -113,6 +113,7 @@ namespace ccemul
 			this.trackBar1.Size = new System.Drawing.Size(42, 285);
 			this.trackBar1.TabIndex = 3;
 			this.trackBar1.Value = 1;
+			this.trackBar1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TrackBar1KeyDown);
 			// 
 			// pictureBox1
 			// 
@@ -145,6 +146,7 @@ namespace ccemul
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.TrackBar trackBar1;

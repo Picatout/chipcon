@@ -17,6 +17,10 @@ namespace ccemul
 	{
 		const int ORG=512;
 		internal TVout tv;
+		internal Text text;
+		internal Tone tone;
+		internal Keypad kpad;
+		
 		Random rnd=new Random();
 		internal byte speed;
 		
@@ -32,6 +36,9 @@ namespace ccemul
 
 		internal ChipConVM()
 		{
+			tv=new TVout();
+			tone=new Tone();
+			kpad=new Keypad();
 			sp=0;
 			pc=ORG;
 			dt=0;

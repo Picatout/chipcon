@@ -21,20 +21,19 @@ namespace ccemul
 	/// </summary>
 	/// 
 	
-	internal enum eOP {eWHITE,eBLACK,eINVERT};
-
 	
-
 	public partial class MainForm : Form
 	{
 
 		// affichage		
 		// machine virtuelle CHIPcon
-		ChipConVM  vm;
+		//internal ChipConVM  vm;
+		internal ChipConVM vm;
 		
 		// test sprites
-		byte[] sprite = new byte[8] {0xaa,0x55,0xaa,0x55,0xaa,0x55,0xaa,0x55};
+		byte[] sprite = new byte[8] {0xaa,0xaa,0xaa,0xaa,0xaa,0xaa,0xaa,0xaa};
 		
+
 		public MainForm()
 		{
 			//
@@ -45,7 +44,7 @@ namespace ccemul
 			// TODO: Add constructor code after the InitializeComponent() call.
 			//
 			vm = new ChipConVM();
-			vm.tv=new TVout();
+			vm.text = new Text(this);
 			pictureBox1.Image=vm.tv.display;
 			vm.tv.cls();
 		}
@@ -83,9 +82,12 @@ namespace ccemul
 
 			timer1.Enabled=true;
 			vm.speed=(byte)trackBar1.Value;
-			vm.tv.putSprite(64,32,8,8, sprite);
+			vm.tv.putSprite(64,32,9,5, sprite);
+			//for (uint i=0;i<16;i++){vm.tone.key_tone(i,10,true);}
+			vm.text.print(vm.text.str2byte("012345678901234567890"));
+			Focus();
 			vm.Run();
-			
+	
 		}
 		
 		
@@ -97,11 +99,12 @@ namespace ccemul
 			if (vm.dt>0) vm.dt--;
 			if (vm.st>0) vm.st--;
 			vm.tv.FrameCounter++;
-			if (vm.speed==0)
+			//if (vm.tv.FrameCounter%20==0){vm.tv.scrollRight(8);}
+			/*if (vm.speed==0)
 			{
 				vm.speed=(byte)trackBar1.Value;
 				vm.Run();
-			}
+			}*/
 			if (timer1.Interval==16) timer1.Interval=17; else timer1.Interval=16;
 			//timer1.Enabled=true;
 		}
@@ -115,6 +118,24 @@ namespace ccemul
 		{
 			vm.Reset();
 		}
+	
+		
+		void TextBox1KeyDown(object sender, KeyEventArgs e)
+		{
+			
+		}
+	
+		void TrackBar1KeyDown(object sender, KeyEventArgs e)
+		{
+			byte k;
+			if ((k=vm.kpad.hexKey((byte)e.KeyValue))<16)
+				vm.text.print_hex(k,2);
+			else 
+				vm.text.print_hex((byte)e.KeyValue,2);
+		}
 	}
+	
+	internal enum eOP {eWHITE,eBLACK,eINVERT};
+
 	
 }

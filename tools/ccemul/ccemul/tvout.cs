@@ -82,11 +82,10 @@ namespace ccemul
 		{
 			byte row;
 			bool collision=false;
-			int i;
+			int i=7;
 			for (int y0=0;y0<height;y0++)
 			{
 				if (y+y0<0 || y+y0>=VRES) continue;
-				i=7;
 				for (int x0=0;x0<width;x0++)
 				{
 					if (x+x0<0 || x+x0>=HRES) continue;
@@ -106,23 +105,42 @@ namespace ccemul
 		
 		internal void scrollDown(int n)
 		{
-			
+		    Rectangle r = new Rectangle(0, 0,HRES*PIXEL_SIZE,(VRES-n)*PIXEL_SIZE);
+		    System.Drawing.Imaging.PixelFormat f = display.PixelFormat;
+		    Bitmap tmpBmp = display.Clone(r,f);
+		    g.Clear(Color.Black);
+		    g.DrawImage(tmpBmp,new Point(0,n*PIXEL_SIZE));
+		    tmpBmp.Dispose();
 		}
 		
 		internal void scrollUp(int n)
 		{
-			
-			
+		    Rectangle r = new Rectangle(0,n*PIXEL_SIZE,HRES*PIXEL_SIZE,(VRES-n)*PIXEL_SIZE);
+		    System.Drawing.Imaging.PixelFormat f = display.PixelFormat;
+		    Bitmap tmpBmp = display.Clone(r,f);
+		    g.Clear(Color.Black);
+		    g.DrawImage(tmpBmp,new Point(0,0));
+		    tmpBmp.Dispose();
 		}
 		
 		internal void scrollLeft(int n)
 		{
-		
+			Rectangle r = new Rectangle(n*PIXEL_SIZE,0,(HRES-n)*PIXEL_SIZE,VRES*PIXEL_SIZE);
+		    System.Drawing.Imaging.PixelFormat f = display.PixelFormat;
+		    Bitmap tmpBmp = display.Clone(r,f);
+		    g.Clear(Color.Black);
+		    g.DrawImage(tmpBmp,new Point(0,0));
+		    tmpBmp.Dispose();
 		}
 		
 		internal void scrollRight(int n)
 		{
-			
+			Rectangle r = new Rectangle(0,0,(HRES-n)*PIXEL_SIZE,VRES*PIXEL_SIZE);
+		    System.Drawing.Imaging.PixelFormat f = display.PixelFormat;
+		    Bitmap tmpBmp = display.Clone(r,f);
+		    g.Clear(Color.Black);
+		    g.DrawImage(tmpBmp,new Point(n*PIXEL_SIZE,0));
+		    tmpBmp.Dispose();
 		}
 		
 	}
