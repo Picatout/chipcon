@@ -32,7 +32,8 @@ namespace ccemul
 		
 		// test sprites
 		byte[] sprite = new byte[8] {0xaa,0xaa,0xaa,0xaa,0xaa,0xaa,0xaa,0xaa};
-		
+		//trace flag
+		bool trace=false;
 
 		public MainForm()
 		{
@@ -47,6 +48,7 @@ namespace ccemul
 			vm.text = new Text(this);
 			pictureBox1.Image=vm.tv.display;
 			vm.tv.cls();
+			traceToolStripMenuItem.Checked=trace;
 		}
 		
 		void ToolStripMenuItem1Click(object sender, EventArgs e)
@@ -61,8 +63,23 @@ namespace ccemul
 		
 		void OpenToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			Stream file;
-			file=openFileDialog1.OpenFile();
+			byte[] data;
+			
+            openFileDialog1.Filter = "CHIPcon binary|*.bin|SCHIP files|*.SC,*.CH8|All Files (*.*)|*.*";
+            openFileDialog1.FilterIndex = 1;
+            openFileDialog1.Multiselect = false;
+            DialogResult result=openFileDialog1.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                System.IO.Stream fileStream = openFileDialog1.OpenFile();
+                data= new byte[Math.Min(3584,fileStream.Length)];
+                using (System.IO.BinaryReader reader = new System.IO.BinaryReader(fileStream))
+                {
+                	reader.Read(data,0,(int)data.Length);
+                }
+                fileStream.Close();
+                vm.load(data);
+            }
 		}
 		
 		void OpenFileDialog1FileOk(object sender, System.ComponentModel.CancelEventArgs e)
@@ -81,32 +98,41 @@ namespace ccemul
 		{
 
 			timer1.Enabled=true;
-			vm.speed=(byte)trackBar1.Value;
-			vm.tv.putSprite(64,32,9,5, sprite);
-			//for (uint i=0;i<16;i++){vm.tone.key_tone(i,10,true);}
-			vm.text.print(vm.text.str2byte("012345678901234567890"));
-			Focus();
-			vm.Run();
-	
 		}
 		
 		
-
+		void displayVMState()
+		{
+			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("PC={0,3:X} ",vm.pc));
+			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("I={0,3:X} ",vm.ix));
+			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("sp={0} ",vm.sp));
+			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("DT={0} ",vm.dt));
+			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("opCode={0,4:X} ",(vm.code[vm.pc]<<8)+vm.code[vm.pc+1]));
+			textBox1.Invalidate();
+			
+		}
 		
 		void Timer1Tick(object sender, EventArgs e)
 		{
 			pictureBox1.Invalidate();
 			if (vm.dt>0) vm.dt--;
 			if (vm.st>0) vm.st--;
-			vm.tv.FrameCounter++;
-			//if (vm.tv.FrameCounter%20==0){vm.tv.scrollRight(8);}
-			/*if (vm.speed==0)
+			if (vm.Running && vm.speed==0){
+				if (trace)
+				{
+					textBox1.Text="";
+					displayVMState();
+					vm.speed=1;
+				}else
+					vm.speed=(byte)trackBar1.Value;
+			}
+			if (vm.ccVM()==ChipConVM.CHIP_BAD_OPCODE)
 			{
-				vm.speed=(byte)trackBar1.Value;
-				vm.Run();
-			}*/
-			if (timer1.Interval==16) timer1.Interval=17; else timer1.Interval=16;
-			//timer1.Enabled=true;
+				
+				textBox1.Text="opcode error:\r\n";
+				displayVMState();
+			}
+			//if (timer1.Interval==16) timer1.Interval=17; else timer1.Interval=16;
 		}
 		
 		void MainFormPaint(object sender, PaintEventArgs e)
@@ -127,15 +153,16 @@ namespace ccemul
 	
 		void TrackBar1KeyDown(object sender, KeyEventArgs e)
 		{
-			byte k;
-			if ((k=vm.kpad.hexKey((byte)e.KeyValue))<16)
-				vm.text.print_hex(k,2);
-			else 
-				vm.text.print_hex((byte)e.KeyValue,2);
+			if (vm.Running && vm.kpad.hexKey((byte)e.KeyValue)) vm.tone.play_tone(1000,2,false);
+		}
+
+		void TraceToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			trace=!trace;
+			traceToolStripMenuItem.Checked=trace;
 		}
 	}
 	
-	internal enum eOP {eWHITE,eBLACK,eINVERT};
 
 	
 }

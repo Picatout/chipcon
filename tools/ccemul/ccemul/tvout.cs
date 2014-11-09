@@ -15,6 +15,7 @@ namespace ccemul
 	/// contrôle l'affichage de l'émulateur
 	/// </summary>
 
+	internal enum eOP {eWHITE,eBLACK,eINVERT};
 
 	internal class TVout 
 	{
@@ -23,8 +24,6 @@ namespace ccemul
 		internal const byte VRES=64;
 		internal const byte HRES=128;		
 			
-		internal uint FrameCounter=0;
-		
 		Graphics g;
 		
 		internal Bitmap display;
@@ -48,7 +47,6 @@ namespace ccemul
 			y*=PIXEL_SIZE;
 			Rectangle r= new Rectangle(x,y,PIXEL_SIZE,PIXEL_SIZE);
 			Brush b;
-			
 			switch (op){
 				case eOP.eWHITE:
 					b =new SolidBrush(Color.White);
@@ -83,6 +81,7 @@ namespace ccemul
 			byte row;
 			bool collision=false;
 			int i=7;
+			Color c;
 			for (int y0=0;y0<height;y0++)
 			{
 				if (y+y0<0 || y+y0>=VRES) continue;
@@ -93,7 +92,12 @@ namespace ccemul
 					if ((row&(1<<i))==(1<<i))
 					{
 						plot(x+x0,y+y0,eOP.eINVERT);
-						collision=true;
+						lock(display)
+						{
+							c=display.GetPixel((x+x0)*PIXEL_SIZE,(y+y0)*PIXEL_SIZE);
+						}
+						if (c.B==255 && c.G==255 && c.R==255) collision=true;
+
 					}
 					i--;
 					if (i<0) i=7;

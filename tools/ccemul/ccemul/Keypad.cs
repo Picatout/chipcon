@@ -8,7 +8,6 @@
  */
 using System;
 using System.Threading;
-using System.Windows.Input;
 	
 namespace ccemul
 {
@@ -17,25 +16,7 @@ namespace ccemul
 	/// </summary>
 	public class Keypad
 	{
-		Key[] kpad=new Key[16]
-		{
-		Key.X,
-		Key.D1,
-		Key.D2,
-		Key.D3,
-		Key.Q,
-		Key.W,
-		Key.E,
-		Key.A,
-		Key.S,
-		Key.D,
-		Key.D4,
-		Key.R,
-		Key.F,
-		Key.V,
-		Key.Z,
-		Key.C
-		};
+		private KeyMessageFilter m_filter = new KeyMessageFilter();
 		
 		byte[] hkeys=new byte[16]
 		{
@@ -57,26 +38,35 @@ namespace ccemul
 		67, // C
 		};
 		
+		byte[] key_queue=new byte[256];
+		byte queueHead=0, queueTail=0;
+		
 		public Keypad()
 		{
 		}
-		
+
+/*		
 		byte keypad_read()
 		{
 			return 0;
 		}
-		
-		byte wait_key()
+*/		
+		internal byte waitKey()
 		{
-			return 0;
+			while (queueHead==queueTail);
+			return key_queue[queueTail++];
 		}
 
-		internal byte hexKey(byte k)
+		internal bool hexKey(byte k)
 		{
 			byte i=0;
 			
-			for (i=0;i<16;i++) if (hkeys[i]==k) break;
-			return i;
+			for (i=0;i<16;i++) if (hkeys[i]==k)
+			{				
+				key_queue[queueHead++]=i;
+				return true;
+			}
+			return false;
 		}
 		
 		/*
@@ -90,10 +80,18 @@ namespace ccemul
 			return 0;
 		}
 */		
-		bool key_down(byte k)
+		internal bool keyDown(byte k)
 		{
-			return Keyboard.IsKeyDown(kpad[k]);
+			while (queueHead!=queueTail)
+			{
+				if (key_queue[queueTail]==k)
+				{
+					queueTail++;
+					return true;
+				}
+				queueTail++;
+			}
+			return false;
 		}
-		
 	}
 }

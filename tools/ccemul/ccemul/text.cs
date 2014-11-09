@@ -21,11 +21,11 @@ namespace ccemul
 	{
 
 		// police 4x5 hex
-		const byte SHEX_HEIGHT=6;
-		const byte SHEX_WIDTH=4;
-		const byte FONT_SHEX=0;
+		internal const byte SHEX_HEIGHT=6;
+		internal const byte SHEX_WIDTH=4;
+		internal const byte FONT_SHEX=0;
 		
-		byte[] font_hex_4x6=new byte[16*SHEX_HEIGHT] {
+		internal byte[] font_hex_4x6=new byte[16*SHEX_HEIGHT] {
 		0xe0,0xa0,0xa0,0xa0,0xe0,0x00, //0
 		0xc0,0x40,0x40,0x40,0xe0,0x00, //1
 		0xe0,0x20,0xe0,0x80,0xe0,0x00, //2
@@ -45,11 +45,11 @@ namespace ccemul
 		};
 		
 		// police 8x10 hex
-		const byte LHEX_HEIGHT=10;
-		const byte LHEX_WIDTH=8;
-		const byte FONT_LHEX=1;
+		internal const byte LHEX_HEIGHT=10;
+		internal const byte LHEX_WIDTH=8;
+		internal const byte FONT_LHEX=1;
 		
-		byte[] font_hex_8x10=new byte[16*LHEX_HEIGHT]{
+		internal byte[] font_hex_8x10=new byte[16*LHEX_HEIGHT]{
 		0x7c,0x82,0x86,0x8a,0x92,0xa2,0xc2,0x82,0x7c,0x00, // 0
 		0x08,0x18,0x28,0x08,0x08,0x08,0x08,0x08,0x3e,0x00, // 1
 		0x38,0x44,0x82,0x04,0x08,0x10,0x20,0x40,0xfe,0x00, // 2
@@ -69,19 +69,19 @@ namespace ccemul
 		};
 		
 		// police 6x8
-		const byte FONT_SIZE=101;
-		const byte CHAR_HEIGHT=8;
-		const byte CHAR_WIDTH=6;
-		const byte FONT_ASCII=2;
+		internal const byte FONT_SIZE=101;
+		internal const byte CHAR_HEIGHT=8;
+		internal const byte CHAR_WIDTH=6;
+		internal const byte FONT_ASCII=2;
 		
-		const byte RECTANGLE=127;
-		const byte RIGHT_ARROW= 128;
-		const byte LEFT_ARROW=129;
-		const byte UP_ARROW=130;
-		const byte DOWN_ARROW=131;
-		const byte CIRCLE=132;
+		internal const byte RECTANGLE=127;
+		internal const byte RIGHT_ARROW= 128;
+		internal const byte LEFT_ARROW=129;
+		internal const byte UP_ARROW=130;
+		internal const byte DOWN_ARROW=131;
+		internal const byte CIRCLE=132;
 		
-		byte[] font_6x8= new byte[FONT_SIZE*CHAR_HEIGHT]{
+		internal byte[] font_6x8= new byte[FONT_SIZE*CHAR_HEIGHT]{
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // espace
 		0x20,0x20,0x20,0x20,0x20,0x00,0x20,0x00, // !
 		0x50,0x50,0x50,0x00,0x00,0x00,0x00,0x00, // "

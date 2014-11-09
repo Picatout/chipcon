@@ -1,0 +1,2101 @@
+#200	#120E	JP #20E
+;--- JP or CALL target ---
+#20E	#00FF	HIGH
+#210	#60FE	LD V0, 254
+#212	#6100	LD V1, 0
+#214	#AA10	LD I, #A10
+#216	#F155	LD [I], V1
+#218	#224C	CALL #24C
+#21A	#235C	CALL #35C
+#21C	#6500	LD V5, 0
+#21E	#6A01	LD VA, 1
+#220	#6B00	LD VB, 0
+#222	#6D00	LD VD, 0
+#224	#6E00	LD VE, 0
+;---  JP target ---
+#226	#2368	CALL #368
+#228	#3F00	SE VF, 0
+#22A	#13C6	JP #3C6
+#22C	#45FD	SNE V5, 253
+#22E	#12D0	JP #2D0
+;---  JP target ---
+#230	#47CC	SNE V7, 204
+#232	#227A	CALL #27A
+#234	#41FB	SNE V1, 251
+#236	#14D0	JP #4D0
+#238	#41FC	SNE V1, 252
+#23A	#1568	JP #568
+#23C	#41FA	SNE V1, 250
+#23E	#15E0	JP #5E0
+#240	#41F9	SNE V1, 249
+#242	#162C	JP #62C
+#244	#6002	LD V0, 2
+#246	#37CC	SE V7, 204
+#248	#24C6	CALL #4C6
+#24A	#1226	JP #226
+;--- JP or CALL target ---
+#24C	#6E00	LD VE, 0
+;---  JP target ---
+#24E	#A7F2	LD I, #7F2
+#250	#FE1E	ADD I, VE
+#252	#602E	LD V0, 46
+#254	#F055	LD [I], V0
+#256	#7009	ADD V0, 9
+#258	#617C	LD V1, 124
+#25A	#AAE8	LD I, #AE8
+#25C	#D104	DRW V1, V0, 4
+#25E	#6001	LD V0, 1
+#260	#24C0	CALL #4C0
+#262	#6002	LD V0, 2
+#264	#24C6	CALL #4C6
+#266	#3E1F	SE VE, 31
+#268	#00FC	SCRL
+#26A	#7E01	ADD VE, 1
+#26C	#3E20	SE VE, 32
+#26E	#124E	JP #24E
+#270	#6004	LD V0, 4
+#272	#6104	LD V1, 4
+#274	#AAF8	LD I, #AF8
+#276	#D010	DRW V0, V1, 0
+#278	#00EE	RET
+;--- JP or CALL target ---
+#27A	#4B00	SNE VB, 0
+#27C	#22E6	CALL #2E6
+#27E	#7BFF	ADD VB, 255
+#280	#AA12	LD I, #A12
+#282	#F165	LD V1, [I]
+#284	#A7F2	LD I, #7F2
+#286	#FE1E	ADD I, VE
+#288	#F055	LD [I], V0
+#28A	#7E01	ADD VE, 1
+#28C	#621F	LD V2, 31
+#28E	#8E22	AND VE, V2
+#290	#41FE	SNE V1, 254
+#292	#12A4	JP #2A4
+#294	#41FF	SNE V1, 255
+#296	#12AE	JP #2AE
+#298	#7009	ADD V0, 9
+#29A	#627C	LD V2, 124
+#29C	#AAE8	LD I, #AE8
+#29E	#FD1E	ADD I, VD
+#2A0	#D204	DRW V2, V0, 4
+#2A2	#00EE	RET
+;--- JP or CALL target ---
+#2A4	#7007	ADD V0, 7
+#2A6	#617C	LD V1, 124
+#2A8	#AB38	LD I, #B38
+#2AA	#D104	DRW V1, V0, 4
+#2AC	#00EE	RET
+;--- JP or CALL target ---
+#2AE	#6100	LD V1, 0
+#2B0	#4B02	SNE VB, 2
+#2B2	#6108	LD V1, 8
+#2B4	#4B01	SNE VB, 1
+#2B6	#6110	LD V1, 16
+#2B8	#4B00	SNE VB, 0
+#2BA	#6118	LD V1, 24
+#2BC	#AB18	LD I, #B18
+#2BE	#F11E	ADD I, V1
+#2C0	#617C	LD V1, 124
+#2C2	#7001	ADD V0, 1
+#2C4	#D108	DRW V1, V0, 8
+#2C6	#7008	ADD V0, 8
+#2C8	#AAE8	LD I, #AE8
+#2CA	#FD1E	ADD I, VD
+#2CC	#D104	DRW V1, V0, 4
+#2CE	#00EE	RET
+;--- JP or CALL target ---
+#2D0	#47CC	SNE V7, 204
+#2D2	#73FC	ADD V3, 252
+#2D4	#AD5C	LD I, #D5C
+#2D6	#D340	DRW V3, V4, 0
+#2D8	#3300	SE V3, 0
+#2DA	#73FC	ADD V3, 252
+#2DC	#3300	SE V3, 0
+#2DE	#D340	DRW V3, V4, 0
+#2E0	#4300	SNE V3, 0
+#2E2	#6500	LD V5, 0
+#2E4	#1230	JP #230
+;--- JP or CALL target ---
+#2E6	#AA10	LD I, #A10
+#2E8	#F165	LD V1, [I]
+#2EA	#7002	ADD V0, 2
+#2EC	#40FE	SNE V0, 254
+#2EE	#231A	CALL #31A
+#2F0	#F055	LD [I], V0
+#2F2	#A812	LD I, #812
+#2F4	#4101	SNE V1, 1
+#2F6	#A910	LD I, #910
+#2F8	#F01E	ADD I, V0
+#2FA	#F165	LD V1, [I]
+#2FC	#AA12	LD I, #A12
+#2FE	#F155	LD [I], V1
+#300	#62F0	LD V2, 240
+#302	#8217	SUBN V2, V1
+#304	#4F00	SNE VF, 0
+#306	#1316	JP #316
+#308	#41FE	SNE V1, 254
+#30A	#1324	JP #324
+#30C	#41FF	SNE V1, 255
+#30E	#1328	JP #328
+#310	#41FD	SNE V1, 253
+#312	#132C	JP #32C
+#314	#1358	JP #358
+;--- JP or CALL target ---
+#316	#8B10	LD VB, V1
+#318	#00EE	RET
+;--- JP or CALL target ---
+#31A	#6101	LD V1, 1
+#31C	#6000	LD V0, 0
+#31E	#AA10	LD I, #A10
+#320	#F155	LD [I], V1
+#322	#00EE	RET
+;--- JP or CALL target ---
+#324	#6B0C	LD VB, 12
+#326	#00EE	RET
+;--- JP or CALL target ---
+#328	#6B04	LD VB, 4
+#32A	#00EE	RET
+;--- JP or CALL target ---
+#32C	#6B01	LD VB, 1
+#32E	#65FD	LD V5, 253
+#330	#8400	LD V4, V0
+#332	#74F9	ADD V4, 249
+#334	#6070	LD V0, 112
+#336	#ABDC	LD I, #BDC
+#338	#D040	DRW V0, V4, 0
+#33A	#6004	LD V0, 4
+#33C	#24C0	CALL #4C0
+#33E	#6360	LD V3, 96
+#340	#AD5C	LD I, #D5C
+#342	#D340	DRW V3, V4, 0
+#344	#6002	LD V0, 2
+#346	#24C0	CALL #4C0
+#348	#6002	LD V0, 2
+#34A	#24C6	CALL #4C6
+#34C	#6001	LD V0, 1
+#34E	#24C0	CALL #4C0
+#350	#6070	LD V0, 112
+#352	#ABDC	LD I, #BDC
+#354	#D040	DRW V0, V4, 0
+#356	#00EE	RET
+;--- JP or CALL target ---
+#358	#6B01	LD VB, 1
+#35A	#00EE	RET
+;--- JP or CALL target ---
+#35C	#6600	LD V6, 0
+#35E	#682E	LD V8, 46
+#360	#6C00	LD VC, 0
+#362	#AA68	LD I, #A68
+#364	#D680	DRW V6, V8, 0
+#366	#00EE	RET
+;--- JP or CALL target ---
+#368	#6700	LD V7, 0
+#36A	#242E	CALL #42E
+#36C	#23DE	CALL #3DE
+#36E	#82C0	LD V2, VC
+#370	#600C	LD V0, 12
+#372	#E0A1	SKNP V0
+#374	#2466	CALL #466
+#376	#6003	LD V0, 3
+#378	#E0A1	SKNP V0
+#37A	#2486	CALL #486
+#37C	#8060	LD V0, V6
+#37E	#37CC	SE V7, 204
+#380	#8674	ADD V6, V7
+#382	#8180	LD V1, V8
+#384	#8894	ADD V8, V9
+#386	#AA68	LD I, #A68
+#388	#F21E	ADD I, V2
+#38A	#D010	DRW V0, V1, 0
+#38C	#47CC	SNE V7, 204
+#38E	#00FC	SCRL
+#390	#AA68	LD I, #A68
+#392	#FC1E	ADD I, VC
+#394	#D680	DRW V6, V8, 0
+#396	#00EE	RET
+;--- JP or CALL target ---
+#398	#6700	LD V7, 0
+#39A	#242E	CALL #42E
+#39C	#23DE	CALL #3DE
+#39E	#82C0	LD V2, VC
+#3A0	#600C	LD V0, 12
+#3A2	#E0A1	SKNP V0
+#3A4	#2466	CALL #466
+#3A6	#47CC	SNE V7, 204
+#3A8	#6704	LD V7, 4
+#3AA	#6003	LD V0, 3
+#3AC	#E0A1	SKNP V0
+#3AE	#2486	CALL #486
+#3B0	#8060	LD V0, V6
+#3B2	#8674	ADD V6, V7
+#3B4	#8180	LD V1, V8
+#3B6	#8894	ADD V8, V9
+#3B8	#AA68	LD I, #A68
+#3BA	#F21E	ADD I, V2
+#3BC	#D010	DRW V0, V1, 0
+#3BE	#AA68	LD I, #A68
+#3C0	#FC1E	ADD I, VC
+#3C2	#D680	DRW V6, V8, 0
+#3C4	#00EE	RET
+;--- JP or CALL target ---
+#3C6	#6100	LD V1, 0
+;---  JP target ---
+#3C8	#D680	DRW V6, V8, 0
+#3CA	#6002	LD V0, 2
+#3CC	#24C0	CALL #4C0
+#3CE	#6002	LD V0, 2
+#3D0	#24C6	CALL #4C6
+#3D2	#7101	ADD V1, 1
+#3D4	#3107	SE V1, 7
+#3D6	#13C8	JP #3C8
+#3D8	#601E	LD V0, 30
+#3DA	#24C6	CALL #4C6
+#3DC	#00FD	EXIT
+;--- JP or CALL target ---
+#3DE	#600A	LD V0, 10
+#3E0	#E09E	SKP V0
+#3E2	#140C	JP #40C
+#3E4	#4A00	SNE VA, 0
+#3E6	#00EE	RET
+#3E8	#4A01	SNE VA, 1
+#3EA	#23FE	CALL #3FE
+#3EC	#6A02	LD VA, 2
+#3EE	#69FC	LD V9, 252
+#3F0	#AA0E	LD I, #A0E
+#3F2	#F065	LD V0, [I]
+#3F4	#5800	SE V8, V0
+#3F6	#00EE	RET
+#3F8	#6A00	LD VA, 0
+#3FA	#69FE	LD V9, 254
+#3FC	#00EE	RET
+;--- JP or CALL target ---
+#3FE	#6002	LD V0, 2
+#400	#24C0	CALL #4C0
+#402	#8080	LD V0, V8
+#404	#70EC	ADD V0, 236
+#406	#AA0E	LD I, #A0E
+#408	#F055	LD [I], V0
+#40A	#00EE	RET
+;--- JP or CALL target ---
+#40C	#4A02	SNE VA, 2
+#40E	#1428	JP #428
+#410	#8060	LD V0, V6
+#412	#2452	CALL #452
+#414	#9800	SNE  V8, V0
+#416	#1424	JP #424
+;--- JP or CALL target ---
+#424	#6A01	LD VA, 1
+#426	#00EE	RET
+;--- JP or CALL target ---
+#428	#6A00	LD VA, 0
+#42A	#69FE	LD V9, 254
+#42C	#00EE	RET
+;--- JP or CALL target ---
+#42E	#4A02	SNE VA, 2
+#430	#00EE	RET
+#432	#6004	LD V0, 4
+#434	#49FE	SNE V9, 254
+#436	#6002	LD V0, 2
+#438	#8900	LD V9, V0
+#43A	#8060	LD V0, V6
+#43C	#2452	CALL #452
+#43E	#9800	SNE  V8, V0
+#440	#6900	LD V9, 0
+#442	#8060	LD V0, V6
+#444	#700C	ADD V0, 12
+#446	#2452	CALL #452
+#448	#9800	SNE  V8, V0
+#44A	#6900	LD V9, 0
+#44C	#4904	SNE V9, 4
+#44E	#6A00	LD VA, 0
+#450	#00EE	RET
+;--- JP or CALL target ---
+#452	#8056	SHR V0
+#454	#8056	SHR V0
+#456	#80E4	ADD V0, VE
+#458	#611F	LD V1, 31
+#45A	#8012	AND V0, V1
+#45C	#A7F2	LD I, #7F2
+#45E	#F01E	ADD I, V0
+#460	#F065	LD V0, [I]
+#462	#8100	LD V1, V0
+#464	#00EE	RET
+;--- JP or CALL target ---
+#466	#6000	LD V0, 0
+#468	#4C00	SNE VC, 0
+#46A	#6020	LD V0, 32
+#46C	#8C00	LD VC, V0
+#46E	#8060	LD V0, V6
+#470	#7010	ADD V0, 16
+#472	#2452	CALL #452
+#474	#8085	SUB V0, V8
+#476	#4F00	SNE VF, 0
+#478	#00EE	RET
+#47A	#6704	LD V7, 4
+#47C	#4638	SNE V6, 56
+#47E	#67CC	LD V7, 204
+#480	#9180	SNE  V1, V8
+#482	#14B2	JP #4B2
+;--- JP or CALL target ---
+#486	#6040	LD V0, 64
+#488	#4C40	SNE VC, 64
+#48A	#6060	LD V0, 96
+#48C	#8C00	LD VC, V0
+#48E	#4600	SNE V6, 0
+#490	#00EE	RET
+#492	#8060	LD V0, V6
+#494	#70FC	ADD V0, 252
+#496	#2452	CALL #452
+#498	#8085	SUB V0, V8
+#49A	#4F00	SNE VF, 0
+#49C	#00EE	RET
+#49E	#67FC	LD V7, 252
+#4A0	#9180	SNE  V1, V8
+#4A2	#14A6	JP #4A6
+;--- JP or CALL target ---
+#4A6	#8060	LD V0, V6
+#4A8	#2452	CALL #452
+#4AA	#8087	SUBN V0, V8
+#4AC	#4F00	SNE VF, 0
+#4AE	#69FC	LD V9, 252
+#4B0	#00EE	RET
+;--- JP or CALL target ---
+#4B2	#8060	LD V0, V6
+#4B4	#700C	ADD V0, 12
+#4B6	#2452	CALL #452
+#4B8	#8087	SUBN V0, V8
+#4BA	#4F00	SNE VF, 0
+#4BC	#69FC	LD V9, 252
+#4BE	#00EE	RET
+;--- JP or CALL target ---
+#4C0	#F018	LD ST, V0
+#4C2	#805E	SHL V0
+#4C4	#14C6	JP #4C6
+;--- JP or CALL target ---
+#4C6	#F015	LD DT, V0
+;---  JP target ---
+#4C8	#F007	LD V0, DT
+#4CA	#3000	SE V0, 0
+#4CC	#14C8	JP #4C8
+#4CE	#00EE	RET
+;--- JP or CALL target ---
+#4D0	#24E2	CALL #4E2
+#4D2	#24F6	CALL #4F6
+;---  JP target ---
+#4D4	#2398	CALL #398
+#4D6	#3F00	SE VF, 0
+#4D8	#13C6	JP #3C6
+#4DA	#2510	CALL #510
+#4DC	#4670	SNE V6, 112
+#4DE	#153C	JP #53C
+#4E0	#14D4	JP #4D4
+;--- JP or CALL target ---
+#4E2	#6001	LD V0, 1
+#4E4	#24C0	CALL #4C0
+#4E6	#AA68	LD I, #A68
+#4E8	#FC1E	ADD I, VC
+#4EA	#D680	DRW V6, V8, 0
+#4EC	#76FC	ADD V6, 252
+#4EE	#D680	DRW V6, V8, 0
+#4F0	#3600	SE V6, 0
+#4F2	#14E2	JP #4E2
+#4F4	#00EE	RET
+;--- JP or CALL target ---
+#4F6	#6309	LD V3, 9
+#4F8	#6425	LD V4, 37
+#4FA	#6504	LD V5, 4
+#4FC	#6018	LD V0, 24
+#4FE	#AB3C	LD I, #B3C
+#500	#D030	DRW V0, V3, 0
+#502	#7014	ADD V0, 20
+#504	#D040	DRW V0, V4, 0
+#506	#7014	ADD V0, 20
+#508	#D030	DRW V0, V3, 0
+#50A	#7014	ADD V0, 20
+#50C	#D040	DRW V0, V4, 0
+#50E	#00EE	RET
+;--- JP or CALL target ---
+#510	#4309	SNE V3, 9
+#512	#6504	LD V5, 4
+#514	#4325	SNE V3, 37
+#516	#65FC	LD V5, 252
+#518	#AB3C	LD I, #B3C
+#51A	#6018	LD V0, 24
+#51C	#8130	LD V1, V3
+#51E	#8354	ADD V3, V5
+#520	#D010	DRW V0, V1, 0
+#522	#D030	DRW V0, V3, 0
+#524	#6040	LD V0, 64
+#526	#D010	DRW V0, V1, 0
+#528	#D030	DRW V0, V3, 0
+#52A	#602C	LD V0, 44
+#52C	#8140	LD V1, V4
+#52E	#8455	SUB V4, V5
+#530	#D010	DRW V0, V1, 0
+#532	#D040	DRW V0, V4, 0
+#534	#6054	LD V0, 84
+#536	#D010	DRW V0, V1, 0
+#538	#D040	DRW V0, V4, 0
+#53A	#00EE	RET
+;--- JP or CALL target ---
+#53C	#7D04	ADD VD, 4
+;---  JP target ---
+#53E	#00FC	SCRL
+#540	#A7F2	LD I, #7F2
+#542	#FE1E	ADD I, VE
+#544	#602A	LD V0, 42
+#546	#F055	LD [I], V0
+#548	#7009	ADD V0, 9
+#54A	#617C	LD V1, 124
+#54C	#AAE8	LD I, #AE8
+#54E	#FD1E	ADD I, VD
+#550	#D104	DRW V1, V0, 4
+#552	#6001	LD V0, 1
+#554	#24C0	CALL #4C0
+#556	#6002	LD V0, 2
+#558	#24C6	CALL #4C6
+#55A	#7E01	ADD VE, 1
+#55C	#4E20	SNE VE, 32
+#55E	#6E00	LD VE, 0
+#560	#76FC	ADD V6, 252
+#562	#3600	SE V6, 0
+#564	#153E	JP #53E
+#566	#1226	JP #226
+;--- JP or CALL target ---
+#568	#24E2	CALL #4E2
+#56A	#257A	CALL #57A
+;---  JP target ---
+#56C	#258C	CALL #58C
+#56E	#2398	CALL #398
+#570	#3F00	SE VF, 0
+#572	#13C6	JP #3C6
+#574	#4670	SNE V6, 112
+#576	#153C	JP #53C
+#578	#156C	JP #56C
+;--- JP or CALL target ---
+#57A	#6070	LD V0, 112
+#57C	#610F	LD V1, 15
+#57E	#62FE	LD V2, 254
+#580	#6300	LD V3, 0
+#582	#AA14	LD I, #A14
+#584	#F355	LD [I], V3
+#586	#AB5C	LD I, #B5C
+#588	#D010	DRW V0, V1, 0
+#58A	#00EE	RET
+;--- JP or CALL target ---
+#58C	#AA14	LD I, #A14
+#58E	#F365	LD V3, [I]
+#590	#8420	LD V4, V2
+#592	#4202	SNE V2, 2
+#594	#64FE	LD V4, 254
+#596	#42FE	SNE V2, 254
+#598	#6402	LD V4, 2
+#59A	#4111	SNE V1, 17
+#59C	#25CC	CALL #5CC
+#59E	#4121	SNE V1, 33
+#5A0	#25D4	CALL #5D4
+#5A2	#8240	LD V2, V4
+#5A4	#8430	LD V4, V3
+#5A6	#7320	ADD V3, 32
+#5A8	#4380	SNE V3, 128
+#5AA	#6300	LD V3, 0
+#5AC	#AB5C	LD I, #B5C
+#5AE	#F41E	ADD I, V4
+#5B0	#8410	LD V4, V1
+#5B2	#8124	ADD V1, V2
+#5B4	#8500	LD V5, V0
+#5B6	#70FC	ADD V0, 252
+#5B8	#D540	DRW V5, V4, 0
+#5BA	#AB5C	LD I, #B5C
+#5BC	#F31E	ADD I, V3
+#5BE	#3500	SE V5, 0
+#5C0	#D010	DRW V0, V1, 0
+#5C2	#AA14	LD I, #A14
+#5C4	#F355	LD [I], V3
+#5C6	#3500	SE V5, 0
+#5C8	#00EE	RET
+#5CA	#157A	JP #57A
+;--- JP or CALL target ---
+#5CC	#6404	LD V4, 4
+#5CE	#42FC	SNE V2, 252
+#5D0	#64FE	LD V4, 254
+#5D2	#00EE	RET
+;--- JP or CALL target ---
+#5D4	#64FC	LD V4, 252
+#5D6	#4204	SNE V2, 4
+#5D8	#6402	LD V4, 2
+#5DA	#4402	SNE V4, 2
+#5DC	#F418	LD ST, V4
+#5DE	#00EE	RET
+;--- JP or CALL target ---
+#5E0	#25F0	CALL #5F0
+;---  JP target ---
+#5E2	#25FC	CALL #5FC
+#5E4	#2398	CALL #398
+#5E6	#3F00	SE VF, 0
+#5E8	#13C6	JP #3C6
+#5EA	#3670	SE V6, 112
+#5EC	#15E2	JP #5E2
+#5EE	#153C	JP #53C
+;--- JP or CALL target ---
+#5F0	#6370	LD V3, 112
+#5F2	#640F	LD V4, 15
+#5F4	#6500	LD V5, 0
+#5F6	#AD7C	LD I, #D7C
+#5F8	#D340	DRW V3, V4, 0
+#5FA	#00EE	RET
+;--- JP or CALL target ---
+#5FC	#8030	LD V0, V3
+#5FE	#700C	ADD V0, 12
+#600	#2452	CALL #452
+#602	#71F9	ADD V1, 249
+#604	#5410	SE V4, V1
+#606	#2622	CALL #622
+#608	#8030	LD V0, V3
+#60A	#73FC	ADD V3, 252
+#60C	#AD7C	LD I, #D7C
+#60E	#F51E	ADD I, V5
+#610	#7520	ADD V5, 32
+#612	#D010	DRW V0, V1, 0
+#614	#AD7C	LD I, #D7C
+#616	#F51E	ADD I, V5
+#618	#3000	SE V0, 0
+#61A	#D340	DRW V3, V4, 0
+#61C	#3000	SE V0, 0
+#61E	#00EE	RET
+#620	#15F0	JP #5F0
+;--- JP or CALL target ---
+#622	#8140	LD V1, V4
+#624	#7404	ADD V4, 4
+#626	#6002	LD V0, 2
+#628	#F018	LD ST, V0
+#62A	#00EE	RET
+;--- JP or CALL target ---
+#62C	#24E2	CALL #4E2
+#62E	#265C	CALL #65C
+#630	#6E00	LD VE, 0
+#632	#2668	CALL #668
+;---  JP target ---
+#634	#2748	CALL #748
+#636	#3F00	SE VF, 0
+#638	#13C6	JP #3C6
+#63A	#4670	SNE V6, 112
+#63C	#17D6	JP #7D6
+#63E	#2646	CALL #646
+#640	#6003	LD V0, 3
+#642	#24C6	CALL #4C6
+#644	#1634	JP #634
+;--- JP or CALL target ---
+#646	#4D00	SNE VD, 0
+#648	#16D0	JP #6D0
+#64A	#4D02	SNE VD, 2
+#64C	#16F6	JP #6F6
+#64E	#4D04	SNE VD, 4
+#650	#16A8	JP #6A8
+#652	#4D06	SNE VD, 6
+#654	#1680	JP #680
+#656	#4D08	SNE VD, 8
+#658	#172E	JP #72E
+#65A	#1740	JP #740
+;--- JP or CALL target ---
+#65C	#6368	LD V3, 104
+#65E	#6427	LD V4, 39
+#660	#6500	LD V5, 0
+#662	#ABDC	LD I, #BDC
+#664	#D340	DRW V3, V4, 0
+#666	#00EE	RET
+;--- JP or CALL target ---
+#668	#6B00	LD VB, 0
+#66A	#6500	LD V5, 0
+#66C	#AA54	LD I, #A54
+#66E	#FE1E	ADD I, VE
+#670	#F065	LD V0, [I]
+#672	#8D00	LD VD, V0
+#674	#7E01	ADD VE, 1
+#676	#4E14	SNE VE, 20
+#678	#6E00	LD VE, 0
+#67A	#4D08	SNE VD, 8
+#67C	#171C	JP #71C
+#67E	#00EE	RET
+;--- JP or CALL target ---
+#680	#6427	LD V4, 39
+#682	#8250	LD V2, V5
+#684	#7520	ADD V5, 32
+#686	#4540	SNE V5, 64
+#688	#6500	LD V5, 0
+#68A	#8030	LD V0, V3
+#68C	#7304	ADD V3, 4
+#68E	#ACDC	LD I, #CDC
+#690	#F21E	ADD I, V2
+#692	#4048	SNE V0, 72
+#694	#ABDC	LD I, #BDC
+#696	#D040	DRW V0, V4, 0
+#698	#ACDC	LD I, #CDC
+#69A	#F51E	ADD I, V5
+#69C	#4368	SNE V3, 104
+#69E	#ABDC	LD I, #BDC
+#6A0	#D340	DRW V3, V4, 0
+#6A2	#3368	SE V3, 104
+#6A4	#00EE	RET
+#6A6	#1668	JP #668
+;--- JP or CALL target ---
+#6A8	#6427	LD V4, 39
+#6AA	#8250	LD V2, V5
+#6AC	#7520	ADD V5, 32
+#6AE	#4540	SNE V5, 64
+#6B0	#6500	LD V5, 0
+#6B2	#8030	LD V0, V3
+#6B4	#73FC	ADD V3, 252
+#6B6	#AD1C	LD I, #D1C
+#6B8	#F21E	ADD I, V2
+#6BA	#4068	SNE V0, 104
+#6BC	#ABDC	LD I, #BDC
+#6BE	#D040	DRW V0, V4, 0
+#6C0	#AD1C	LD I, #D1C
+#6C2	#F51E	ADD I, V5
+#6C4	#4348	SNE V3, 72
+#6C6	#ABDC	LD I, #BDC
+#6C8	#D340	DRW V3, V4, 0
+#6CA	#3348	SE V3, 72
+#6CC	#00EE	RET
+#6CE	#1668	JP #668
+;--- JP or CALL target ---
+#6D0	#AA18	LD I, #A18
+#6D2	#FB1E	ADD I, VB
+#6D4	#F265	LD V2, [I]
+#6D6	#ABDC	LD I, #BDC
+#6D8	#F51E	ADD I, V5
+#6DA	#D340	DRW V3, V4, 0
+#6DC	#ABDC	LD I, #BDC
+#6DE	#F21E	ADD I, V2
+#6E0	#D010	DRW V0, V1, 0
+#6E2	#8300	LD V3, V0
+#6E4	#8410	LD V4, V1
+#6E6	#8520	LD V5, V2
+#6E8	#6001	LD V0, 1
+#6EA	#4520	SNE V5, 32
+#6EC	#24C0	CALL #4C0
+#6EE	#7B03	ADD VB, 3
+#6F0	#3B1E	SE VB, 30
+#6F2	#00EE	RET
+#6F4	#1668	JP #668
+;--- JP or CALL target ---
+#6F6	#AA36	LD I, #A36
+#6F8	#FB1E	ADD I, VB
+#6FA	#F265	LD V2, [I]
+#6FC	#ABDC	LD I, #BDC
+#6FE	#F51E	ADD I, V5
+#700	#D340	DRW V3, V4, 0
+#702	#ABDC	LD I, #BDC
+#704	#F21E	ADD I, V2
+#706	#D010	DRW V0, V1, 0
+#708	#8300	LD V3, V0
+#70A	#8410	LD V4, V1
+#70C	#8520	LD V5, V2
+#70E	#6001	LD V0, 1
+#710	#4520	SNE V5, 32
+#712	#24C0	CALL #4C0
+#714	#7B03	ADD VB, 3
+#716	#3B1E	SE VB, 30
+#718	#00EE	RET
+#71A	#1668	JP #668
+;--- JP or CALL target ---
+#71C	#8530	LD V5, V3
+#71E	#75F0	ADD V5, 240
+#720	#AD5C	LD I, #D5C
+#722	#D540	DRW V5, V4, 0
+#724	#6001	LD V0, 1
+#726	#24C0	CALL #4C0
+#728	#6001	LD V0, 1
+#72A	#24C0	CALL #4C0
+#72C	#00EE	RET
+;--- JP or CALL target ---
+#72E	#8050	LD V0, V5
+#730	#75FC	ADD V5, 252
+#732	#AD5C	LD I, #D5C
+#734	#D040	DRW V0, V4, 0
+#736	#3000	SE V0, 0
+#738	#D540	DRW V5, V4, 0
+#73A	#3000	SE V0, 0
+#73C	#00EE	RET
+#73E	#1668	JP #668
+;--- JP or CALL target ---
+#740	#7501	ADD V5, 1
+#742	#3506	SE V5, 6
+#744	#00EE	RET
+#746	#1668	JP #668
+;--- JP or CALL target ---
+#748	#6700	LD V7, 0
+#74A	#27A4	CALL #7A4
+#74C	#2772	CALL #772
+#74E	#82C0	LD V2, VC
+#750	#600C	LD V0, 12
+#752	#E0A1	SKNP V0
+#754	#27BA	CALL #7BA
+#756	#6003	LD V0, 3
+#758	#E0A1	SKNP V0
+#75A	#27C6	CALL #7C6
+#75C	#8060	LD V0, V6
+#75E	#8674	ADD V6, V7
+#760	#8180	LD V1, V8
+#762	#8894	ADD V8, V9
+#764	#AA68	LD I, #A68
+#766	#F21E	ADD I, V2
+#768	#D010	DRW V0, V1, 0
+#76A	#AA68	LD I, #A68
+#76C	#FC1E	ADD I, VC
+#76E	#D680	DRW V6, V8, 0
+#770	#00EE	RET
+;--- JP or CALL target ---
+#772	#600A	LD V0, 10
+#774	#E09E	SKP V0
+#776	#1790	JP #790
+#778	#4A00	SNE VA, 0
+#77A	#00EE	RET
+#77C	#6002	LD V0, 2
+#77E	#4A01	SNE VA, 1
+#780	#24C0	CALL #4C0
+#782	#6A02	LD VA, 2
+#784	#69FC	LD V9, 252
+#786	#381A	SE V8, 26
+#788	#00EE	RET
+#78A	#6A00	LD VA, 0
+#78C	#69FE	LD V9, 254
+#78E	#00EE	RET
+;--- JP or CALL target ---
+#790	#4A02	SNE VA, 2
+#792	#179E	JP #79E
+#794	#482E	SNE V8, 46
+#796	#179A	JP #79A
+#798	#00EE	RET
+;--- JP or CALL target ---
+#79A	#6A01	LD VA, 1
+#79C	#00EE	RET
+;--- JP or CALL target ---
+#79E	#6A00	LD VA, 0
+#7A0	#69FE	LD V9, 254
+#7A2	#00EE	RET
+;--- JP or CALL target ---
+#7A4	#4A02	SNE VA, 2
+#7A6	#00EE	RET
+#7A8	#6004	LD V0, 4
+#7AA	#49FE	SNE V9, 254
+#7AC	#6002	LD V0, 2
+#7AE	#8900	LD V9, V0
+#7B0	#482E	SNE V8, 46
+#7B2	#6900	LD V9, 0
+#7B4	#4904	SNE V9, 4
+#7B6	#6A00	LD VA, 0
+#7B8	#00EE	RET
+;--- JP or CALL target ---
+#7BA	#6000	LD V0, 0
+#7BC	#4C00	SNE VC, 0
+#7BE	#6020	LD V0, 32
+#7C0	#8C00	LD VC, V0
+#7C2	#6704	LD V7, 4
+#7C4	#00EE	RET
+;--- JP or CALL target ---
+#7C6	#6040	LD V0, 64
+#7C8	#4C40	SNE VC, 64
+#7CA	#6060	LD V0, 96
+#7CC	#8C00	LD VC, V0
+#7CE	#4600	SNE V6, 0
+#7D0	#00EE	RET
+#7D2	#67FC	LD V7, 252
+#7D4	#00EE	RET
+;--- JP or CALL target ---
+#7D6	#6001	LD V0, 1
+#7D8	#F075	LD R, V0
+#7DA	#6002	LD V0, 2
+#7DC	#24C0	CALL #4C0
+#7DE	#24C6	CALL #4C6
+#7E0	#6004	LD V0, 4
+#7E2	#24C0	CALL #4C0
+#7E4	#24C6	CALL #4C6
+#7E6	#6008	LD V0, 8
+#7E8	#24C0	CALL #4C0
+#7EA	#601E	LD V0, 30
+#7EC	#24C6	CALL #4C6
+#7EE	#00E0	CLS
+#7F0	#00FD	EXIT
+;-------------------------
+;-  LD I, NNN addresses  -
+;-------------------------
+#A10	DB	#FE
+#7F2	DW	#0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000, #0000
+#AE8	DB	#F0, #00, #F0, #50
+#AF8	DW	#0080, #00C0, #00E0, #00F0, #FFF8, #FFFC, #FFFE, #FFFF, #FFFE, #FFFC, #FFF8, #00F0, #00E0, #00C0, #0080, #0000
+#A68	DW	#0011, #000A, #780E, #DDDB, #BFFF, #FFEE, #7AE0, #A550, #A550, #0000, #0000, #0000, #0000, #0000, #0000, #0000
+#D5C	DW	#3C00, #6B00, #D540, #AAA8, #D555, #AAA8, #D540, #6B00, #3C00, #0000, #0000, #0000, #0000, #0000, #0000, #0000
+#A12	DB	#00
+#A0E	DW	#0000, 
+#812	DW	#2A04, #2604, #2204, #1E04, #1A04, #1608, #2EFE, #1608, #1A04, #1E04, #2204, #2604, #2A10, #2AFD, #2203, #22FF
+#910	DB	#2E
+#B38	DB	#20, #30, #70, #F0
+#B18	DW	#F080, #B0A0, #B0A0, #8080, #F000, #10A0, #30A0, #0000, #F000, #20A0, #A0A0, #0000, #F010, #D0B0, #B0D0, #1010
+#B3C	DW	#0000, #0000, #0000, #0000, #001F, #0021, #0031, #00C1, #032D, #7C8D, #8201, #FFFF, #7FFF, #0000, #0000, #0000
+#A14	DB	#00, #00, #00
+#B5C	DW	#19C0, #2620, #4010, #8008, #8108, #4088, #2044, #2042, #4042, #8082, #8002, #400C, #2070, #1080, #0F00, #0000
+#D7C	DW	#0000, #07C0, #1830, #2008, #4004, #4C64, #9EF2, #96B2, #8C62, #8002, #8002, #4384, #4444, #2008, #1830, #07C0
+#BDC	DW	#01F0, #0208, #0288, #7608, #F208, #59F0, #5440, #53C0, #7060, #0050, #0048, #00A4, #0120, #0A10, #0408, #0010
+#A54	DW	#000A, #0806, #0408, #020A, #0800, #0608, #0A00, #0208, #0402, #0A08, 
+#A18	DB	#68, #27
+#A36	DB	#48, #27
+#D1C	DW	#01F0, #0208, #0288, #7608, #F208, #59F0, #5440, #53E0, #7050, #0048, #0048, #00A0, #0110, #0A08, #0404, #0008
+#CDC	DW	#0F80, #1040, #1140, #106E, #104F, #0F9A, #022A, #07CA, #0A0E, #1200, #1200, #0500, #0880, #1050, #2020, #1000
+;-------------------------
+;-      NOT DECODED      -
+;-------------------------
+#832			.DB #22
+#833			.DB #08
+#834			.DB #26
+#835			.DB #10
+#836			.DB #2E
+#837			.DB #FE
+#838			.DB #26
+#839			.DB #04
+#83A			.DB #2A
+#83B			.DB #04
+#83C			.DB #2A
+#83D			.DB #FF
+#83E			.DB #2A
+#83F			.DB #06
+#840			.DB #2A
+#841			.DB #FF
+#842			.DB #2A
+#843			.DB #06
+#844			.DB #26
+#845			.DB #0A
+#846			.DB #26
+#847			.DB #06
+#848			.DB #2E
+#849			.DB #FE
+#84A			.DB #26
+#84B			.DB #04
+#84C			.DB #22
+#84D			.DB #04
+#84E			.DB #1E
+#84F			.DB #03
+#850			.DB #1E
+#851			.DB #FD
+#852			.DB #1A
+#853			.DB #04
+#854			.DB #16
+#855			.DB #08
+#856			.DB #1A
+#857			.DB #FF
+#858			.DB #32
+#859			.DB #FE
+#85A			.DB #2A
+#85B			.DB #06
+#85C			.DB #2A
+#85D			.DB #1C
+#85E			.DB #26
+#85F			.DB #04
+#860			.DB #26
+#861			.DB #FC
+#862			.DB #1E
+#863			.DB #04
+#864			.DB #2E
+#865			.DB #FE
+#866			.DB #1A
+#867			.DB #05
+#868			.DB #16
+#869			.DB #04
+#86A			.DB #2E
+#86B			.DB #FE
+#86C			.DB #26
+#86D			.DB #08
+#86E			.DB #26
+#86F			.DB #FF
+#870			.DB #26
+#871			.DB #FF
+#872			.DB #1A
+#873			.DB #04
+#874			.DB #16
+#875			.DB #08
+#876			.DB #16
+#877			.DB #FD
+#878			.DB #2E
+#879			.DB #0E
+#87A			.DB #16
+#87B			.DB #08
+#87C			.DB #2E
+#87D			.DB #FE
+#87E			.DB #16
+#87F			.DB #04
+#880			.DB #2E
+#881			.DB #FE
+#882			.DB #16
+#883			.DB #03
+#884			.DB #2E
+#885			.DB #FE
+#886			.DB #16
+#887			.DB #04
+#888			.DB #16
+#889			.DB #FD
+#88A			.DB #2E
+#88B			.DB #FE
+#88C			.DB #26
+#88D			.DB #08
+#88E			.DB #2E
+#88F			.DB #06
+#890			.DB #2A
+#891			.DB #04
+#892			.DB #26
+#893			.DB #04
+#894			.DB #22
+#895			.DB #04
+#896			.DB #1E
+#897			.DB #04
+#898			.DB #1A
+#899			.DB #04
+#89A			.DB #16
+#89B			.DB #04
+#89C			.DB #32
+#89D			.DB #FF
+#89E			.DB #32
+#89F			.DB #FF
+#8A0			.DB #32
+#8A1			.DB #FF
+#8A2			.DB #32
+#8A3			.DB #FF
+#8A4			.DB #2E
+#8A5			.DB #08
+#8A6			.DB #1E
+#8A7			.DB #04
+#8A8			.DB #22
+#8A9			.DB #04
+#8AA			.DB #26
+#8AB			.DB #04
+#8AC			.DB #2A
+#8AD			.DB #04
+#8AE			.DB #32
+#8AF			.DB #FE
+#8B0			.DB #2E
+#8B1			.DB #04
+#8B2			.DB #2E
+#8B3			.DB #FD
+#8B4			.DB #2A
+#8B5			.DB #04
+#8B6			.DB #16
+#8B7			.DB #03
+#8B8			.DB #2A
+#8B9			.DB #1C
+#8BA			.DB #26
+#8BB			.DB #04
+#8BC			.DB #26
+#8BD			.DB #FB
+#8BE			.DB #32
+#8BF			.DB #FE
+#8C0			.DB #2A
+#8C1			.DB #04
+#8C2			.DB #26
+#8C3			.DB #04
+#8C4			.DB #22
+#8C5			.DB #04
+#8C6			.DB #1E
+#8C7			.DB #04
+#8C8			.DB #1A
+#8C9			.DB #04
+#8CA			.DB #16
+#8CB			.DB #04
+#8CC			.DB #1A
+#8CD			.DB #FF
+#8CE			.DB #22
+#8CF			.DB #FF
+#8D0			.DB #2A
+#8D1			.DB #FF
+#8D2			.DB #26
+#8D3			.DB #04
+#8D4			.DB #1E
+#8D5			.DB #04
+#8D6			.DB #32
+#8D7			.DB #FE
+#8D8			.DB #16
+#8D9			.DB #03
+#8DA			.DB #32
+#8DB			.DB #FE
+#8DC			.DB #1E
+#8DD			.DB #03
+#8DE			.DB #32
+#8DF			.DB #FE
+#8E0			.DB #16
+#8E1			.DB #03
+#8E2			.DB #16
+#8E3			.DB #FD
+#8E4			.DB #32
+#8E5			.DB #FE
+#8E6			.DB #1E
+#8E7			.DB #03
+#8E8			.DB #32
+#8E9			.DB #FE
+#8EA			.DB #16
+#8EB			.DB #03
+#8EC			.DB #2E
+#8ED			.DB #FF
+#8EE			.DB #2E
+#8EF			.DB #FF
+#8F0			.DB #2E
+#8F1			.DB #FF
+#8F2			.DB #2E
+#8F3			.DB #08
+#8F4			.DB #2A
+#8F5			.DB #04
+#8F6			.DB #16
+#8F7			.DB #06
+#8F8			.DB #2E
+#8F9			.DB #04
+#8FA			.DB #2A
+#8FB			.DB #04
+#8FC			.DB #26
+#8FD			.DB #04
+#8FE			.DB #22
+#8FF			.DB #04
+#900			.DB #1E
+#901			.DB #04
+#902			.DB #1A
+#903			.DB #04
+#904			.DB #16
+#905			.DB #08
+#906			.DB #16
+#907			.DB #FA
+#908			.DB #2E
+#909			.DB #04
+#90A			.DB #2E
+#90B			.DB #FD
+#90C			.DB #22
+#90D			.DB #03
+#90E			.DB #1E
+#90F			.DB #04
+#911			.DB #02
+#912			.DB #26
+#913			.DB #02
+#914			.DB #16
+#915			.DB #03
+#916			.DB #1A
+#917			.DB #02
+#918			.DB #26
+#919			.DB #05
+#91A			.DB #26
+#91B			.DB #FF
+#91C			.DB #2E
+#91D			.DB #06
+#91E			.DB #1A
+#91F			.DB #03
+#920			.DB #1E
+#921			.DB #03
+#922			.DB #22
+#923			.DB #06
+#924			.DB #26
+#925			.DB #04
+#926			.DB #26
+#927			.DB #FD
+#928			.DB #16
+#929			.DB #06
+#92A			.DB #32
+#92B			.DB #FE
+#92C			.DB #32
+#92D			.DB #FF
+#92E			.DB #2E
+#92F			.DB #06
+#930			.DB #1A
+#931			.DB #03
+#932			.DB #16
+#933			.DB #03
+#934			.DB #1E
+#935			.DB #02
+#936			.DB #22
+#937			.DB #02
+#938			.DB #26
+#939			.DB #06
+#93A			.DB #1A
+#93B			.DB #04
+#93C			.DB #1E
+#93D			.DB #06
+#93E			.DB #1E
+#93F			.DB #FD
+#940			.DB #32
+#941			.DB #FE
+#942			.DB #26
+#943			.DB #04
+#944			.DB #16
+#945			.DB #03
+#946			.DB #22
+#947			.DB #03
+#948			.DB #1A
+#949			.DB #05
+#94A			.DB #1A
+#94B			.DB #FF
+#94C			.DB #16
+#94D			.DB #03
+#94E			.DB #16
+#94F			.DB #FD
+#950			.DB #2E
+#951			.DB #06
+#952			.DB #1E
+#953			.DB #02
+#954			.DB #1A
+#955			.DB #02
+#956			.DB #16
+#957			.DB #04
+#958			.DB #32
+#959			.DB #FE
+#95A			.DB #1E
+#95B			.DB #04
+#95C			.DB #1E
+#95D			.DB #FD
+#95E			.DB #2E
+#95F			.DB #08
+#960			.DB #2E
+#961			.DB #FF
+#962			.DB #2A
+#963			.DB #06
+#964			.DB #16
+#965			.DB #04
+#966			.DB #1A
+#967			.DB #01
+#968			.DB #16
+#969			.DB #01
+#96A			.DB #1A
+#96B			.DB #01
+#96C			.DB #16
+#96D			.DB #01
+#96E			.DB #1A
+#96F			.DB #01
+#970			.DB #16
+#971			.DB #01
+#972			.DB #1A
+#973			.DB #01
+#974			.DB #16
+#975			.DB #01
+#976			.DB #1A
+#977			.DB #01
+#978			.DB #16
+#979			.DB #01
+#97A			.DB #1A
+#97B			.DB #01
+#97C			.DB #16
+#97D			.DB #01
+#97E			.DB #1A
+#97F			.DB #01
+#980			.DB #16
+#981			.DB #01
+#982			.DB #1A
+#983			.DB #01
+#984			.DB #16
+#985			.DB #01
+#986			.DB #1A
+#987			.DB #01
+#988			.DB #16
+#989			.DB #01
+#98A			.DB #1A
+#98B			.DB #01
+#98C			.DB #16
+#98D			.DB #01
+#98E			.DB #1A
+#98F			.DB #01
+#990			.DB #16
+#991			.DB #01
+#992			.DB #1A
+#993			.DB #01
+#994			.DB #16
+#995			.DB #04
+#996			.DB #1A
+#997			.DB #04
+#998			.DB #1A
+#999			.DB #FD
+#99A			.DB #16
+#99B			.DB #04
+#99C			.DB #32
+#99D			.DB #FE
+#99E			.DB #32
+#99F			.DB #FF
+#9A0			.DB #2E
+#9A1			.DB #05
+#9A2			.DB #2A
+#9A3			.DB #02
+#9A4			.DB #26
+#9A5			.DB #03
+#9A6			.DB #22
+#9A7			.DB #02
+#9A8			.DB #1E
+#9A9			.DB #03
+#9AA			.DB #1A
+#9AB			.DB #02
+#9AC			.DB #16
+#9AD			.DB #03
+#9AE			.DB #1A
+#9AF			.DB #02
+#9B0			.DB #1E
+#9B1			.DB #FF
+#9B2			.DB #2E
+#9B3			.DB #06
+#9B4			.DB #22
+#9B5			.DB #02
+#9B6			.DB #16
+#9B7			.DB #08
+#9B8			.DB #16
+#9B9			.DB #FD
+#9BA			.DB #2E
+#9BB			.DB #06
+#9BC			.DB #16
+#9BD			.DB #03
+#9BE			.DB #2E
+#9BF			.DB #06
+#9C0			.DB #16
+#9C1			.DB #03
+#9C2			.DB #2E
+#9C3			.DB #06
+#9C4			.DB #16
+#9C5			.DB #03
+#9C6			.DB #2E
+#9C7			.DB #06
+#9C8			.DB #16
+#9C9			.DB #03
+#9CA			.DB #16
+#9CB			.DB #FF
+#9CC			.DB #16
+#9CD			.DB #02
+#9CE			.DB #2E
+#9CF			.DB #06
+#9D0			.DB #16
+#9D1			.DB #03
+#9D2			.DB #1E
+#9D3			.DB #FE
+#9D4			.DB #1A
+#9D5			.DB #05
+#9D6			.DB #1E
+#9D7			.DB #04
+#9D8			.DB #22
+#9D9			.DB #03
+#9DA			.DB #26
+#9DB			.DB #02
+#9DC			.DB #2A
+#9DD			.DB #01
+#9DE			.DB #2E
+#9DF			.DB #05
+#9E0			.DB #2E
+#9E1			.DB #FF
+#9E2			.DB #2A
+#9E3			.DB #04
+#9E4			.DB #2E
+#9E5			.DB #04
+#9E6			.DB #2E
+#9E7			.DB #FF
+#9E8			.DB #22
+#9E9			.DB #04
+#9EA			.DB #2E
+#9EB			.DB #05
+#9EC			.DB #2A
+#9ED			.DB #FF
+#9EE			.DB #2E
+#9EF			.DB #06
+#9F0			.DB #2E
+#9F1			.DB #FF
+#9F2			.DB #2E
+#9F3			.DB #05
+#9F4			.DB #2E
+#9F5			.DB #FF
+#9F6			.DB #2E
+#9F7			.DB #05
+#9F8			.DB #2E
+#9F9			.DB #FF
+#9FA			.DB #2A
+#9FB			.DB #04
+#9FC			.DB #32
+#9FD			.DB #FE
+#9FE			.DB #2E
+#9FF			.DB #03
+#A00			.DB #2E
+#A01			.DB #FD
+#A02			.DB #2E
+#A03			.DB #FF
+#A04			.DB #1A
+#A05			.DB #04
+#A06			.DB #1E
+#A07			.DB #FE
+#A08			.DB #1A
+#A09			.DB #04
+#A0A			.DB #2E
+#A0B			.DB #22
+#A0C			.DB #2E
+#A0D			.DB #F9
+#A11			.DB #00
+#A13			.DB #00
+#A17			.DB #00
+#A1A			.DB #20
+#A1B			.DB #64
+#A1C			.DB #1D
+#A1D			.DB #40
+#A1E			.DB #60
+#A1F			.DB #15
+#A20			.DB #60
+#A21			.DB #5C
+#A22			.DB #0F
+#A23			.DB #80
+#A24			.DB #58
+#A25			.DB #11
+#A26			.DB #A0
+#A27			.DB #54
+#A28			.DB #0F
+#A29			.DB #C0
+#A2A			.DB #50
+#A2B			.DB #15
+#A2C			.DB #E0
+#A2D			.DB #4C
+#A2E			.DB #1D
+#A2F			.DB #40
+#A30			.DB #48
+#A31			.DB #27
+#A32			.DB #20
+#A33			.DB #48
+#A34			.DB #27
+#A35			.DB #00
+#A38			.DB #20
+#A39			.DB #4C
+#A3A			.DB #1D
+#A3B			.DB #40
+#A3C			.DB #50
+#A3D			.DB #15
+#A3E			.DB #E0
+#A3F			.DB #54
+#A40			.DB #0F
+#A41			.DB #C0
+#A42			.DB #58
+#A43			.DB #11
+#A44			.DB #A0
+#A45			.DB #5C
+#A46			.DB #0F
+#A47			.DB #80
+#A48			.DB #60
+#A49			.DB #15
+#A4A			.DB #60
+#A4B			.DB #64
+#A4C			.DB #1D
+#A4D			.DB #40
+#A4E			.DB #68
+#A4F			.DB #27
+#A50			.DB #20
+#A51			.DB #68
+#A52			.DB #27
+#A53			.DB #00
+#A88			.DB #00
+#A89			.DB #11
+#A8A			.DB #00
+#A8B			.DB #0A
+#A8C			.DB #78
+#A8D			.DB #0E
+#A8E			.DB #DD
+#A8F			.DB #DB
+#A90			.DB #BF
+#A91			.DB #FF
+#A92			.DB #FF
+#A93			.DB #EE
+#A94			.DB #39
+#A95			.DB #F0
+#A96			.DB #52
+#A97			.DB #A8
+#A98			.DB #52
+#A99			.DB #A8
+#A9A			.DB #00
+#A9B			.DB #00
+#A9C			.DB #00
+#A9D			.DB #00
+#A9E			.DB #00
+#A9F			.DB #00
+#AA0			.DB #00
+#AA1			.DB #00
+#AA2			.DB #00
+#AA3			.DB #00
+#AA4			.DB #00
+#AA5			.DB #00
+#AA6			.DB #00
+#AA7			.DB #00
+#AA8			.DB #88
+#AA9			.DB #00
+#AAA			.DB #50
+#AAB			.DB #00
+#AAC			.DB #70
+#AAD			.DB #1E
+#AAE			.DB #DB
+#AAF			.DB #BB
+#AB0			.DB #FF
+#AB1			.DB #FD
+#AB2			.DB #77
+#AB3			.DB #FF
+#AB4			.DB #07
+#AB5			.DB #5E
+#AB6			.DB #0A
+#AB7			.DB #A5
+#AB8			.DB #0A
+#AB9			.DB #A5
+#ABA			.DB #00
+#ABB			.DB #00
+#ABC			.DB #00
+#ABD			.DB #00
+#ABE			.DB #00
+#ABF			.DB #00
+#AC0			.DB #00
+#AC1			.DB #00
+#AC2			.DB #00
+#AC3			.DB #00
+#AC4			.DB #00
+#AC5			.DB #00
+#AC6			.DB #00
+#AC7			.DB #00
+#AC8			.DB #88
+#AC9			.DB #00
+#ACA			.DB #50
+#ACB			.DB #00
+#ACC			.DB #70
+#ACD			.DB #1E
+#ACE			.DB #DB
+#ACF			.DB #BB
+#AD0			.DB #FF
+#AD1			.DB #FD
+#AD2			.DB #77
+#AD3			.DB #FF
+#AD4			.DB #0F
+#AD5			.DB #9C
+#AD6			.DB #15
+#AD7			.DB #4A
+#AD8			.DB #15
+#AD9			.DB #4A
+#ADA			.DB #00
+#ADB			.DB #00
+#ADC			.DB #00
+#ADD			.DB #00
+#ADE			.DB #00
+#ADF			.DB #00
+#AE0			.DB #00
+#AE1			.DB #00
+#AE2			.DB #00
+#AE3			.DB #00
+#AE4			.DB #00
+#AE5			.DB #00
+#AE6			.DB #00
+#AE7			.DB #00
+#AEC			.DB #E0
+#AED			.DB #B0
+#AEE			.DB #E0
+#AEF			.DB #B0
+#AF0			.DB #F0
+#AF1			.DB #20
+#AF2			.DB #80
+#AF3			.DB #F0
+#AF4			.DB #F0
+#AF5			.DB #90
+#AF6			.DB #90
+#AF7			.DB #F0
+#B7C			.DB #00
+#B7D			.DB #00
+#B7E			.DB #01
+#B7F			.DB #E0
+#B80			.DB #02
+#B81			.DB #10
+#B82			.DB #1C
+#B83			.DB #10
+#B84			.DB #20
+#B85			.DB #08
+#B86			.DB #40
+#B87			.DB #08
+#B88			.DB #83
+#B89			.DB #88
+#B8A			.DB #84
+#B8B			.DB #44
+#B8C			.DB #88
+#B8D			.DB #02
+#B8E			.DB #40
+#B8F			.DB #02
+#B90			.DB #40
+#B91			.DB #02
+#B92			.DB #80
+#B93			.DB #02
+#B94			.DB #80
+#B95			.DB #04
+#B96			.DB #43
+#B97			.DB #08
+#B98			.DB #24
+#B99			.DB #90
+#B9A			.DB #18
+#B9B			.DB #60
+#B9C			.DB #00
+#B9D			.DB #00
+#B9E			.DB #00
+#B9F			.DB #F0
+#BA0			.DB #01
+#BA1			.DB #08
+#BA2			.DB #0E
+#BA3			.DB #04
+#BA4			.DB #30
+#BA5			.DB #02
+#BA6			.DB #40
+#BA7			.DB #01
+#BA8			.DB #41
+#BA9			.DB #01
+#BAA			.DB #42
+#BAB			.DB #02
+#BAC			.DB #42
+#BAD			.DB #04
+#BAE			.DB #22
+#BAF			.DB #04
+#BB0			.DB #11
+#BB1			.DB #02
+#BB2			.DB #10
+#BB3			.DB #81
+#BB4			.DB #10
+#BB5			.DB #01
+#BB6			.DB #08
+#BB7			.DB #02
+#BB8			.DB #04
+#BB9			.DB #64
+#BBA			.DB #03
+#BBB			.DB #98
+#BBC			.DB #06
+#BBD			.DB #18
+#BBE			.DB #09
+#BBF			.DB #24
+#BC0			.DB #10
+#BC1			.DB #C2
+#BC2			.DB #20
+#BC3			.DB #01
+#BC4			.DB #40
+#BC5			.DB #01
+#BC6			.DB #40
+#BC7			.DB #02
+#BC8			.DB #40
+#BC9			.DB #02
+#BCA			.DB #40
+#BCB			.DB #11
+#BCC			.DB #22
+#BCD			.DB #21
+#BCE			.DB #11
+#BCF			.DB #C1
+#BD0			.DB #10
+#BD1			.DB #02
+#BD2			.DB #10
+#BD3			.DB #04
+#BD4			.DB #08
+#BD5			.DB #38
+#BD6			.DB #08
+#BD7			.DB #40
+#BD8			.DB #07
+#BD9			.DB #80
+#BDA			.DB #00
+#BDB			.DB #00
+#BFC			.DB #00
+#BFD			.DB #00
+#BFE			.DB #00
+#BFF			.DB #00
+#C00			.DB #03
+#C01			.DB #E0
+#C02			.DB #04
+#C03			.DB #10
+#C04			.DB #05
+#C05			.DB #10
+#C06			.DB #0C
+#C07			.DB #10
+#C08			.DB #04
+#C09			.DB #10
+#C0A			.DB #3B
+#C0B			.DB #E0
+#C0C			.DB #78
+#C0D			.DB #80
+#C0E			.DB #2F
+#C0F			.DB #C0
+#C10			.DB #28
+#C11			.DB #A0
+#C12			.DB #28
+#C13			.DB #90
+#C14			.DB #3B
+#C15			.DB #90
+#C16			.DB #02
+#C17			.DB #80
+#C18			.DB #02
+#C19			.DB #E0
+#C1A			.DB #06
+#C1B			.DB #20
+#C1C			.DB #01
+#C1D			.DB #F0
+#C1E			.DB #02
+#C1F			.DB #08
+#C20			.DB #02
+#C21			.DB #88
+#C22			.DB #76
+#C23			.DB #08
+#C24			.DB #F2
+#C25			.DB #08
+#C26			.DB #59
+#C27			.DB #F2
+#C28			.DB #54
+#C29			.DB #44
+#C2A			.DB #53
+#C2B			.DB #F8
+#C2C			.DB #70
+#C2D			.DB #40
+#C2E			.DB #00
+#C2F			.DB #40
+#C30			.DB #00
+#C31			.DB #40
+#C32			.DB #00
+#C33			.DB #A0
+#C34			.DB #01
+#C35			.DB #10
+#C36			.DB #0A
+#C37			.DB #08
+#C38			.DB #04
+#C39			.DB #04
+#C3A			.DB #00
+#C3B			.DB #08
+#C3C			.DB #04
+#C3D			.DB #00
+#C3E			.DB #0A
+#C3F			.DB #00
+#C40			.DB #11
+#C41			.DB #20
+#C42			.DB #20
+#C43			.DB #A0
+#C44			.DB #49
+#C45			.DB #20
+#C46			.DB #22
+#C47			.DB #40
+#C48			.DB #15
+#C49			.DB #80
+#C4A			.DB #19
+#C4B			.DB #80
+#C4C			.DB #42
+#C4D			.DB #40
+#C4E			.DB #FC
+#C4F			.DB #20
+#C50			.DB #50
+#C51			.DB #1F
+#C52			.DB #A8
+#C53			.DB #11
+#C54			.DB #14
+#C55			.DB #10
+#C56			.DB #08
+#C57			.DB #10
+#C58			.DB #00
+#C59			.DB #30
+#C5A			.DB #00
+#C5B			.DB #00
+#C5C			.DB #00
+#C5D			.DB #00
+#C5E			.DB #04
+#C5F			.DB #00
+#C60			.DB #02
+#C61			.DB #02
+#C62			.DB #79
+#C63			.DB #05
+#C64			.DB #85
+#C65			.DB #08
+#C66			.DB #85
+#C67			.DB #10
+#C68			.DB #87
+#C69			.DB #E0
+#C6A			.DB #A5
+#C6B			.DB #10
+#C6C			.DB #85
+#C6D			.DB #08
+#C6E			.DB #79
+#C6F			.DB #04
+#C70			.DB #12
+#C71			.DB #02
+#C72			.DB #04
+#C73			.DB #04
+#C74			.DB #1F
+#C75			.DB #80
+#C76			.DB #18
+#C77			.DB #80
+#C78			.DB #1F
+#C79			.DB #80
+#C7A			.DB #08
+#C7B			.DB #00
+#C7C			.DB #10
+#C7D			.DB #00
+#C7E			.DB #20
+#C7F			.DB #20
+#C80			.DB #10
+#C81			.DB #50
+#C82			.DB #08
+#C83			.DB #80
+#C84			.DB #05
+#C85			.DB #00
+#C86			.DB #02
+#C87			.DB #00
+#C88			.DB #02
+#C89			.DB #00
+#C8A			.DB #02
+#C8B			.DB #0E
+#C8C			.DB #1F
+#C8D			.DB #CA
+#C8E			.DB #22
+#C8F			.DB #2A
+#C90			.DB #4F
+#C91			.DB #9A
+#C92			.DB #10
+#C93			.DB #4F
+#C94			.DB #10
+#C95			.DB #6E
+#C96			.DB #11
+#C97			.DB #40
+#C98			.DB #10
+#C99			.DB #40
+#C9A			.DB #0F
+#C9B			.DB #80
+#C9C			.DB #00
+#C9D			.DB #10
+#C9E			.DB #01
+#C9F			.DB #F8
+#CA0			.DB #01
+#CA1			.DB #18
+#CA2			.DB #01
+#CA3			.DB #F8
+#CA4			.DB #20
+#CA5			.DB #20
+#CA6			.DB #40
+#CA7			.DB #48
+#CA8			.DB #20
+#CA9			.DB #9E
+#CAA			.DB #10
+#CAB			.DB #A1
+#CAC			.DB #08
+#CAD			.DB #A5
+#CAE			.DB #07
+#CAF			.DB #E1
+#CB0			.DB #08
+#CB1			.DB #A1
+#CB2			.DB #10
+#CB3			.DB #A1
+#CB4			.DB #A0
+#CB5			.DB #9E
+#CB6			.DB #40
+#CB7			.DB #40
+#CB8			.DB #00
+#CB9			.DB #20
+#CBA			.DB #00
+#CBB			.DB #00
+#CBC			.DB #14
+#CBD			.DB #00
+#CBE			.DB #0E
+#CBF			.DB #20
+#CC0			.DB #14
+#CC1			.DB #50
+#CC2			.DB #2D
+#CC3			.DB #88
+#CC4			.DB #55
+#CC5			.DB #24
+#CC6			.DB #24
+#CC7			.DB #82
+#CC8			.DB #02
+#CC9			.DB #44
+#CCA			.DB #01
+#CCB			.DB #A8
+#CCC			.DB #01
+#CCD			.DB #90
+#CCE			.DB #02
+#CCF			.DB #40
+#CD0			.DB #84
+#CD1			.DB #38
+#CD2			.DB #F8
+#CD3			.DB #00
+#CD4			.DB #08
+#CD5			.DB #00
+#CD6			.DB #08
+#CD7			.DB #00
+#CD8			.DB #08
+#CD9			.DB #00
+#CDA			.DB #18
+#CDB			.DB #00
+#CFC			.DB #0F
+#CFD			.DB #80
+#CFE			.DB #10
+#CFF			.DB #40
+#D00			.DB #11
+#D01			.DB #40
+#D02			.DB #10
+#D03			.DB #6E
+#D04			.DB #10
+#D05			.DB #4F
+#D06			.DB #0F
+#D07			.DB #9A
+#D08			.DB #02
+#D09			.DB #2A
+#D0A			.DB #07
+#D0B			.DB #CA
+#D0C			.DB #06
+#D0D			.DB #0E
+#D0E			.DB #06
+#D0F			.DB #00
+#D10			.DB #03
+#D11			.DB #00
+#D12			.DB #02
+#D13			.DB #00
+#D14			.DB #02
+#D15			.DB #00
+#D16			.DB #06
+#D17			.DB #00
+#D18			.DB #0A
+#D19			.DB #00
+#D1A			.DB #07
+#D1B			.DB #00
+#D3C			.DB #01
+#D3D			.DB #F0
+#D3E			.DB #02
+#D3F			.DB #08
+#D40			.DB #02
+#D41			.DB #88
+#D42			.DB #76
+#D43			.DB #08
+#D44			.DB #F2
+#D45			.DB #08
+#D46			.DB #59
+#D47			.DB #F0
+#D48			.DB #54
+#D49			.DB #40
+#D4A			.DB #53
+#D4B			.DB #E0
+#D4C			.DB #70
+#D4D			.DB #60
+#D4E			.DB #00
+#D4F			.DB #60
+#D50			.DB #00
+#D51			.DB #C0
+#D52			.DB #00
+#D53			.DB #40
+#D54			.DB #00
+#D55			.DB #40
+#D56			.DB #00
+#D57			.DB #60
+#D58			.DB #00
+#D59			.DB #50
+#D5A			.DB #00
+#D5B			.DB #E0
+#D9C			.DB #00
+#D9D			.DB #00
+#D9E			.DB #07
+#D9F			.DB #C0
+#DA0			.DB #18
+#DA1			.DB #30
+#DA2			.DB #20
+#DA3			.DB #08
+#DA4			.DB #40
+#DA5			.DB #C4
+#DA6			.DB #41
+#DA7			.DB #E4
+#DA8			.DB #81
+#DA9			.DB #A2
+#DAA			.DB #8C
+#DAB			.DB #C2
+#DAC			.DB #9E
+#DAD			.DB #02
+#DAE			.DB #9A
+#DAF			.DB #1A
+#DB0			.DB #8C
+#DB1			.DB #22
+#DB2			.DB #40
+#DB3			.DB #44
+#DB4			.DB #40
+#DB5			.DB #84
+#DB6			.DB #20
+#DB7			.DB #88
+#DB8			.DB #18
+#DB9			.DB #30
+#DBA			.DB #07
+#DBB			.DB #C0
+#DBC			.DB #00
+#DBD			.DB #00
+#DBE			.DB #07
+#DBF			.DB #C0
+#DC0			.DB #18
+#DC1			.DB #30
+#DC2			.DB #20
+#DC3			.DB #08
+#DC4			.DB #46
+#DC5			.DB #04
+#DC6			.DB #4F
+#DC7			.DB #04
+#DC8			.DB #8D
+#DC9			.DB #12
+#DCA			.DB #86
+#DCB			.DB #22
+#DCC			.DB #80
+#DCD			.DB #22
+#DCE			.DB #86
+#DCF			.DB #22
+#DD0			.DB #8F
+#DD1			.DB #12
+#DD2			.DB #4D
+#DD3			.DB #04
+#DD4			.DB #46
+#DD5			.DB #04
+#DD6			.DB #20
+#DD7			.DB #08
+#DD8			.DB #18
+#DD9			.DB #30
+#DDA			.DB #07
+#DDB			.DB #C0
+#DDC			.DB #00
+#DDD			.DB #00
+#DDE			.DB #07
+#DDF			.DB #C0
+#DE0			.DB #18
+#DE1			.DB #30
+#DE2			.DB #20
+#DE3			.DB #88
+#DE4			.DB #40
+#DE5			.DB #84
+#DE6			.DB #4C
+#DE7			.DB #44
+#DE8			.DB #9A
+#DE9			.DB #22
+#DEA			.DB #9E
+#DEB			.DB #1A
+#DEC			.DB #8C
+#DED			.DB #02
+#DEE			.DB #81
+#DEF			.DB #82
+#DF0			.DB #83
+#DF1			.DB #42
+#DF2			.DB #43
+#DF3			.DB #C4
+#DF4			.DB #41
+#DF5			.DB #84
+#DF6			.DB #20
+#DF7			.DB #08
+#DF8			.DB #18
+#DF9			.DB #30
+#DFA			.DB #07
+#DFB			.DB #C0
+#DFC			.DB #00
+#DFD			.DB #00
+#DFE			.DB #07
+#DFF			.DB #C0
+#E00			.DB #18
+#E01			.DB #30
+#E02			.DB #20
+#E03			.DB #08
+#E04			.DB #44
+#E05			.DB #44
+#E06			.DB #43
+#E07			.DB #84
+#E08			.DB #80
+#E09			.DB #02
+#E0A			.DB #80
+#E0B			.DB #02
+#E0C			.DB #8C
+#E0D			.DB #62
+#E0E			.DB #9A
+#E0F			.DB #D2
+#E10			.DB #9E
+#E11			.DB #F2
+#E12			.DB #4C
+#E13			.DB #64
+#E14			.DB #40
+#E15			.DB #04
+#E16			.DB #20
+#E17			.DB #08
+#E18			.DB #18
+#E19			.DB #30
+#E1A			.DB #07
+#E1B			.DB #C0
+#E1C			.DB #00
+#E1D			.DB #00
+#E1E			.DB #07
+#E1F			.DB #C0
+#E20			.DB #18
+#E21			.DB #30
+#E22			.DB #22
+#E23			.DB #08
+#E24			.DB #42
+#E25			.DB #04
+#E26			.DB #44
+#E27			.DB #64
+#E28			.DB #88
+#E29			.DB #B2
+#E2A			.DB #B0
+#E2B			.DB #F2
+#E2C			.DB #80
+#E2D			.DB #62
+#E2E			.DB #83
+#E2F			.DB #02
+#E30			.DB #85
+#E31			.DB #82
+#E32			.DB #47
+#E33			.DB #84
+#E34			.DB #43
+#E35			.DB #04
+#E36			.DB #20
+#E37			.DB #08
+#E38			.DB #18
+#E39			.DB #30
+#E3A			.DB #07
+#E3B			.DB #C0
+#E3C			.DB #00
+#E3D			.DB #00
+#E3E			.DB #07
+#E3F			.DB #C0
+#E40			.DB #18
+#E41			.DB #30
+#E42			.DB #20
+#E43			.DB #08
+#E44			.DB #40
+#E45			.DB #C4
+#E46			.DB #41
+#E47			.DB #64
+#E48			.DB #91
+#E49			.DB #E2
+#E4A			.DB #88
+#E4B			.DB #C2
+#E4C			.DB #88
+#E4D			.DB #02
+#E4E			.DB #88
+#E4F			.DB #C2
+#E50			.DB #91
+#E51			.DB #62
+#E52			.DB #41
+#E53			.DB #E4
+#E54			.DB #40
+#E55			.DB #C4
+#E56			.DB #20
+#E57			.DB #08
+#E58			.DB #18
+#E59			.DB #30
+#E5A			.DB #07
+#E5B			.DB #C0
+#E5C			.DB #00
+#E5D			.DB #00
+#E5E			.DB #07
+#E5F			.DB #C0
+#E60			.DB #18
+#E61			.DB #30
+#E62			.DB #20
+#E63			.DB #08
+#E64			.DB #43
+#E65			.DB #04
+#E66			.DB #47
+#E67			.DB #84
+#E68			.DB #85
+#E69			.DB #82
+#E6A			.DB #83
+#E6B			.DB #02
+#E6C			.DB #80
+#E6D			.DB #62
+#E6E			.DB #B0
+#E6F			.DB #F2
+#E70			.DB #88
+#E71			.DB #B2
+#E72			.DB #44
+#E73			.DB #64
+#E74			.DB #42
+#E75			.DB #04
+#E76			.DB #22
+#E77			.DB #08
+#E78			.DB #18
+#E79			.DB #30
+#E7A			.DB #07
+#E7B			.DB #C0
+#E7C			.DB #FF
+

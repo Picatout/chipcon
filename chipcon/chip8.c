@@ -117,7 +117,7 @@ static uint8_t is_break_point(uint16_t addr){
 }
 #endif
 
-// machine virtuelle SCHIP
+// machine virtuelle CHIPcon
 uint8_t schip(uint8_t flags){
 	uint8_t x,y,n,ipf;
 	uint16_t code;

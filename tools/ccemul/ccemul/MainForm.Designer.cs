@@ -40,12 +40,14 @@ namespace ccemul
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.traceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.trackBar1 = new System.Windows.Forms.TrackBar();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
+			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -65,6 +67,7 @@ namespace ccemul
 			// 
 			this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.openToolStripMenuItem,
+			this.traceToolStripMenuItem,
 			this.resetToolStripMenuItem,
 			this.quitToolStripMenuItem});
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
@@ -75,21 +78,28 @@ namespace ccemul
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
 			this.openToolStripMenuItem.Text = "Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItemClick);
+			// 
+			// traceToolStripMenuItem
+			// 
+			this.traceToolStripMenuItem.Name = "traceToolStripMenuItem";
+			this.traceToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+			this.traceToolStripMenuItem.Text = "Trace";
+			this.traceToolStripMenuItem.Click += new System.EventHandler(this.TraceToolStripMenuItemClick);
 			// 
 			// resetToolStripMenuItem
 			// 
 			this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-			this.resetToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
-			this.resetToolStripMenuItem.Text = "Reset game";
+			this.resetToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+			this.resetToolStripMenuItem.Text = "Reset";
 			this.resetToolStripMenuItem.Click += new System.EventHandler(this.ResetToolStripMenuItemClick);
 			// 
 			// quitToolStripMenuItem
 			// 
 			this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-			this.quitToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+			this.quitToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
 			this.quitToolStripMenuItem.Text = "Quit";
 			this.quitToolStripMenuItem.Click += new System.EventHandler(this.QuitToolStripMenuItemClick);
 			// 
@@ -107,12 +117,12 @@ namespace ccemul
 			// 
 			this.trackBar1.Location = new System.Drawing.Point(0, 52);
 			this.trackBar1.Maximum = 255;
-			this.trackBar1.Minimum = 1;
+			this.trackBar1.Minimum = 5;
 			this.trackBar1.Name = "trackBar1";
 			this.trackBar1.Orientation = System.Windows.Forms.Orientation.Vertical;
 			this.trackBar1.Size = new System.Drawing.Size(42, 285);
 			this.trackBar1.TabIndex = 3;
-			this.trackBar1.Value = 1;
+			this.trackBar1.Value = 5;
 			this.trackBar1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TrackBar1KeyDown);
 			// 
 			// pictureBox1
@@ -124,11 +134,23 @@ namespace ccemul
 			this.pictureBox1.TabIndex = 4;
 			this.pictureBox1.TabStop = false;
 			// 
+			// textBox1
+			// 
+			this.textBox1.Enabled = false;
+			this.textBox1.Location = new System.Drawing.Point(12, 343);
+			this.textBox1.Multiline = true;
+			this.textBox1.Name = "textBox1";
+			this.textBox1.ReadOnly = true;
+			this.textBox1.Size = new System.Drawing.Size(614, 83);
+			this.textBox1.TabIndex = 5;
+			this.textBox1.TabStop = false;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(638, 333);
+			this.ClientSize = new System.Drawing.Size(638, 438);
+			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.pictureBox1);
 			this.Controls.Add(this.trackBar1);
 			this.Controls.Add(this.menuStrip1);
@@ -157,5 +179,7 @@ namespace ccemul
 		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
 		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem traceToolStripMenuItem;
+		private System.Windows.Forms.TextBox textBox1;
 	}
 }
