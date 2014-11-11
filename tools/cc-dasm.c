@@ -16,8 +16,8 @@
 *     along with CHIPcon.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-*  nom: chi-dasm.c
-*  Description: déassembleur pour programme CHIP-8 et SCHIP
+*  nom: cc-dasm.c
+*  Description: déassembleur pour programme CHIPcon (supporte programme SCHIP)
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -114,9 +114,9 @@ int load_bytecode(char *name){
 }
 
 void usage(){
-	puts("de-assemmble SCHIP programs.");
-	puts("USAGE: chip-dasm chip_file asm_file");
-	puts("chip_file is binary CHIP-8 or SCHIP file.");
+	puts("de-assemmble CHIPcon and SCHIP/CHIP-8 programs.");
+	puts("USAGE: cc-dasm chip_file asm_file");
+	puts("chip_file is binary CHIPcon, CHIP-8 or SCHIP file.");
 	puts("asm_file  is name of output file.");
 	exit(EXIT_FAILURE);
 }
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]){
 					previous=NOT_SKIP;
 					break;
 				case 0xFC: // 00FC, (modes schip et xchip seulement) glisse l'affichage vers la gauche de 4 pixels
-					sprintf(line+strlen(line),"SCRL\n");
+					sprintf(line+strlen(line),"SCL\n");
 					previous=NOT_SKIP;
 					break;
 				case 0xFD:// 00FD, (modes schip et xchip seulement) sortie de l'interpréteur.

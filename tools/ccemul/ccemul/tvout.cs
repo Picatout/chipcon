@@ -87,16 +87,18 @@ namespace ccemul
 				if (y+y0<0 || y+y0>=VRES) continue;
 				for (int x0=0;x0<width;x0++)
 				{
-					if (x+x0<0 || x+x0>=HRES) continue;
+					if (x+x0<0 || x+x0>=HRES)
+					{
+						i--;
+						if (i<0) i=7;
+						continue;
+					}
 					row=sprite[(y0*width+x0)/8];
 					if ((row&(1<<i))==(1<<i))
 					{
-						plot(x+x0,y+y0,eOP.eINVERT);
-						lock(display)
-						{
-							c=display.GetPixel((x+x0)*PIXEL_SIZE,(y+y0)*PIXEL_SIZE);
-						}
+						c=display.GetPixel((x+x0)*PIXEL_SIZE,(y+y0)*PIXEL_SIZE);
 						if (c.B==255 && c.G==255 && c.R==255) collision=true;
+						plot(x+x0,y+y0,eOP.eINVERT);
 
 					}
 					i--;

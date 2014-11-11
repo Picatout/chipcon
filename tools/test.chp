@@ -1,0 +1,44 @@
+defn xpos vd
+defn ypos ve
+defn key v2
+defn digit_ix v3
+defn digit_count v4
+
+; test
+	HIGH
+	CLS
+	LD xpos, 0
+	LD ypos, 0
+	LD v2, 16
+	LD F, v2
+	LD I, MSG
+	PRT xpos, ypos
+	LD key, K
+	LD I, OK
+	add ypos, 8
+	prt xpos,ypos
+	add ypos, 8
+	ld digit_count,2
+	LD I, bcd
+	LD B, key
+	ld digit_ix,0
+b1:
+	add digit_ix,1
+	LD I, bcd
+	add i,digit_ix
+	LD v0, [i]
+	LD F, v0
+	drw xpos,ypos,5
+	add xpos,4
+	add digit_count,-1
+	se digit_count, 0
+	jp b1
+	exit
+
+bcd:
+	db 0,0,0
+
+msg:
+	ascii "any key..."
+ok:
+	ascii "ok"

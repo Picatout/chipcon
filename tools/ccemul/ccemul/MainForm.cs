@@ -27,6 +27,19 @@ namespace ccemul
 
 		// affichage		
 		// machine virtuelle CHIPcon
+		
+		//message d'erreur machine virtuelle
+		internal String[] error_msg= new String[7]
+		{
+		 "VM normal exit",
+		 "VM invalid operation code",
+		 "Invalid character value for selected font",
+		 "Invalid tone value, range is 0-15",
+		 "Program counter out of bound",
+		 "Stack underflow",
+		 "Stack overflow"
+		};
+		
 		//internal ChipConVM  vm;
 		internal ChipConVM vm;
 		
@@ -102,22 +115,34 @@ namespace ccemul
 		
 		
 		void displayVMState()
-		{
-			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("PC={0,3:X} ",vm.pc));
-			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("I={0,3:X} ",vm.ix));
-			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("sp={0} ",vm.sp));
-			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("DT={0} ",vm.dt));
-			textBox1.Text=textBox1.Text.Insert(textBox1.TextLength,string.Format("opCode={0,4:X} ",(vm.code[vm.pc]<<8)+vm.code[vm.pc+1]));
+		{   
+			ushort prevPC=(ushort)(vm.pc-2);
+			ushort code=(ushort)((vm.code[prevPC]<<8)|vm.code[prevPC+1]);
+			textBox1.AppendText(string.Format("PC={0:X}, ",prevPC));
+			textBox1.AppendText(string.Format("opCode={0:X} ({1:S})\t",code,dasm.deassemble(prevPC,code)));
+			textBox1.AppendText(string.Format("I={0:X}, ",vm.ix));
+			textBox1.AppendText(string.Format("sp={0}, ",vm.sp));
+			textBox1.AppendText(string.Format("DT={0}, ",vm.dt));
+			textBox1.AppendText(string.Format("ST={0}\r\n",vm.st));
+			for (int i=0;i<16;i++){
+				textBox1.AppendText(string.Format("var[{0:D}]={1:D}, ",i,vm.var[i]));
+			}
+			textBox1.AppendText("\r\n");
+			for (int i=0;i<16;i++){
+				textBox1.AppendText(string.Format("rpl[{0:D}]={0:D}, ",i,vm.rpl[i]));
+			}
 			textBox1.Invalidate();
 			
 		}
 		
 		void Timer1Tick(object sender, EventArgs e)
 		{
+			vm_error error;
+			
 			pictureBox1.Invalidate();
 			if (vm.dt>0) vm.dt--;
 			if (vm.st>0) vm.st--;
-			if (vm.Running && vm.speed==0){
+			if (vm.fRunning && vm.speed==0){
 				if (trace)
 				{
 					textBox1.Text="";
@@ -125,12 +150,14 @@ namespace ccemul
 					vm.speed=1;
 				}else
 					vm.speed=(byte)trackBar1.Value;
-			}
-			if (vm.ccVM()==ChipConVM.CHIP_BAD_OPCODE)
-			{
-				
-				textBox1.Text="opcode error:\r\n";
-				displayVMState();
+				if ((error=vm.ccVM())!=vm_error.VM_OK)
+				{
+					
+					textBox1.Text=String.Format("VM error:{0:S}\r\n",error_msg[(int)error]);
+					displayVMState();
+				}else if (!vm.fRunning){
+					textBox1.Text="Game existed normally";
+				}
 			}
 			//if (timer1.Interval==16) timer1.Interval=17; else timer1.Interval=16;
 		}
@@ -143,6 +170,8 @@ namespace ccemul
 		void ResetToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			vm.Reset();
+			textBox1.Text="Restarted";
+			vm.Resume();
 		}
 	
 		
@@ -153,13 +182,41 @@ namespace ccemul
 	
 		void TrackBar1KeyDown(object sender, KeyEventArgs e)
 		{
-			if (vm.Running && vm.kpad.hexKey((byte)e.KeyValue)) vm.tone.play_tone(1000,2,false);
+			if (vm.fRunning) vm.kpad.hexKeyDown((byte)e.KeyValue);
 		}
 
 		void TraceToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			trace=!trace;
 			traceToolStripMenuItem.Checked=trace;
+		}
+		
+		void TrackBar1KeyUp(object sender, KeyEventArgs e)
+		{
+			if (vm.fRunning) vm.kpad.hexKeyUp((byte)e.KeyValue);
+		}
+		void AboutToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			FormAbout about=new FormAbout();
+			about.Show();
+		}
+		void ToolStripButton2Click(object sender, EventArgs e)
+		{
+			vm.fRunning=false;
+			textBox1.Text="Paused\r\n";
+			displayVMState();
+		}
+		void ToolStripButton3Click(object sender, EventArgs e)
+		{
+			vm.fRunning=false;
+			vm.Reset();
+			textBox1.Text="Stopped\r\n";
+			
+		}
+		void ToolStripButton4Click(object sender, EventArgs e)
+		{
+			vm.fRunning=true;
+			textBox1.Text="Resumed";
 		}
 	}
 	

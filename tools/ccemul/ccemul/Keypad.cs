@@ -38,32 +38,55 @@ namespace ccemul
 		67, // C
 		};
 		
-		byte[] key_queue=new byte[256];
-		byte queueHead=0, queueTail=0;
+		internal ushort keys_state=0; // état des touches
+		internal bool fWaitKey=false;
 		
 		public Keypad()
 		{
 		}
 
-/*		
-		byte keypad_read()
+		
+		internal byte keypadRead()
 		{
-			return 0;
+			for (byte i=0;i<16;i++){
+				if ((keys_state & (1<<i))==(1<<i))
+				{
+					//keys_state &=(ushort)(~(1<<i)&0xffff);
+					return i;
+				}
+			}
+			return 255;
 		}
-*/		
+		
 		internal byte waitKey()
 		{
-			while (queueHead==queueTail);
-			return key_queue[queueTail++];
+			if (keys_state==0)
+			{
+				fWaitKey=true;
+				return 255;
+			}else
+				return keypadRead();
 		}
 
-		internal bool hexKey(byte k)
+		internal bool hexKeyDown(byte k)
+		{
+			byte i;
+			
+			for (i=0;i<16;i++) if (hkeys[i]==k)
+			{				
+				keys_state|=(ushort)(1<<i);
+				return true;
+			}
+			return false;
+		}
+		
+		internal bool hexKeyUp(byte k)
 		{
 			byte i=0;
 			
 			for (i=0;i<16;i++) if (hkeys[i]==k)
 			{				
-				key_queue[queueHead++]=i;
+				keys_state &=(ushort)(~(1<<i)&0xffff);
 				return true;
 			}
 			return false;
@@ -82,16 +105,7 @@ namespace ccemul
 */		
 		internal bool keyDown(byte k)
 		{
-			while (queueHead!=queueTail)
-			{
-				if (key_queue[queueTail]==k)
-				{
-					queueTail++;
-					return true;
-				}
-				queueTail++;
-			}
-			return false;
+			return (keys_state & (1<<k))==(1<<k);
 		}
 	}
 }

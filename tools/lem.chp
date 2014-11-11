@@ -73,24 +73,29 @@ main:
 	jp up_jet
 	jp move_lem
 right_jet:
+	call prt_fuel_level
 	add hspeed,-1  
 	add fuel,-1  
-	jp move_lem
+	jp update_fuel
 ; accélaration vers la droite
 left_jet:
+	call prt_fuel_level
 	add hspeed, 1   
 	add fuel, -1 
-	jp move_lem
+	jp update_fuel
 ;accélaration vers le haut
 up_jet:
+	call prt_fuel_level
 	add vspeed, -2  
 	se fuel, 1
 	add fuel, -1  
 	add fuel, -1   
+update_fuel:
+	call prt_fuel_level
 	; déplacement LEM
 move_lem:
-	call prt_fuel_level ; efface LEM
-	call drw_lem ; efface niveau carburant
+	call prt_fuel_level ; efface niveau de carburant
+	call drw_lem ; efface LEM
 ; mise à jour position LEM
 	add xpos, hspeed  
 ;	ld  v0, SCREEN_WIDTH-LEM_WIDTH
@@ -137,6 +142,7 @@ dly_loop:
 lost_in_space:
 ; il y a eu collision avec le sol	
 collision:
+	call prt_fuel_level
 	ld v0,vspeed
 	ld v3, 3
 	

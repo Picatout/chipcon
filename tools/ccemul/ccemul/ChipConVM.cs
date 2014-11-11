@@ -14,11 +14,15 @@ namespace ccemul
 	/// <summary>
 	/// Description of ChipCon.
 	/// </summary>
+	/// 
+	
+	enum vm_error {VM_OK,BAD_OPCODE,INVALID_CHAR_VALUE,INVALID_TONE_VALUE,
+		           PC_OUT_OF_BOUND,STACK_UNDERFLOW,STACK_OVERFLOW}
+
 	internal class ChipConVM
 	{
 		const int ORG=512;
-		internal const byte CHIP_EXIT_OK=0;
-		internal const byte CHIP_BAD_OPCODE=1;
+		const int STACK_SIZE=32;
 		
 		internal TVout tv;
 		internal Text text;
@@ -27,28 +31,27 @@ namespace ccemul
 		
 		Random rnd=new Random();
 		internal byte speed;
-		
 		internal byte dt; // durée délais jeux
 		internal byte st; // durée tonalité
 		bool codeInStore=false;
-		internal bool Running=false;
+		internal bool fRunning=false;
 		internal ushort pc; // compteur ordinal
-		internal ushort sp; // pointeur de pile
+		internal short sp; // pointeur de pile
 		internal ushort ix; // registre pointeur de donnée
-		internal ushort[] stack=new ushort[32]; //pile des retours
+		internal ushort[] stack=new ushort[STACK_SIZE]; //pile des retours
 		internal byte[] var=new byte[16];  // variables
 		internal byte[] rpl=new byte[16];  // sauvegarde des variables
 		internal byte[] code= new byte[4096]; // espace de code programme.
 		byte[] block= new byte[32]; // transfert sprite
 		byte font_char=0;
-		
+		byte kx;
 		
 		internal ChipConVM()
 		{
 			tv=new TVout();
 			tone=new Tone();
 			kpad=new Keypad();
-			sp=0;
+			sp=-1;
 			pc=ORG;
 			dt=0;
 			st=0;
@@ -58,19 +61,33 @@ namespace ccemul
 		{
 			for (int i=0;i<program.Length;i++) code[i+ORG]=program[i];
 			codeInStore=true;
-			sp=0;
+			sp=-1;
 			pc=ORG;
 			dt=0;
 			st=0;
-			Running=true;
+			tv.cls();
+			text.set_cursor(0,0);
+			text.select_font(Text.FONT_ASCII);
+			speed=0;
+			fRunning=true;
 		}
 		
 		// machine virtuelle CHIPcon
-		internal byte ccVM()
+		internal vm_error ccVM()
 		{
 			byte x,y,n,b1,b2;
 			ushort addr,opCode;
-				
+			
+			if (kpad.fWaitKey){
+				var[kx]=kpad.keypadRead();
+				if (var[kx]<16)
+					kpad.fWaitKey=false;
+				else
+				{
+					speed=0;
+					return vm_error.VM_OK;
+				}
+			}
 			while (speed>0)
 			{
 				b1=code[pc++];
@@ -102,6 +119,10 @@ namespace ccemul
 						tv.cls();
 						break;
 					case 0xee: // 00EE, sortie de sous-routine
+						if (sp==-1){
+							fRunning=false;
+							return vm_error.STACK_UNDERFLOW;
+						}
 						pc=stack[sp--];
 						break;
 					case 0xfb: // 00FB, glisse l'affichage vers la droite de 4 pixels
@@ -111,8 +132,8 @@ namespace ccemul
 						tv.scrollLeft(4);
 						break;
 					case 0xfd:// 00FD, Sortie de l'interpréteur.
-						Running=false;
-						return CHIP_EXIT_OK;
+						fRunning=false;
+						return vm_error.VM_OK;
 					case 0xfe: //00FE, revient au vms.mode par défaut chip-8 résolution 64x32
 						break; // ignore ce code
 					case 0xff:  //00FF, passe en vms.mode schip résolution 128x64
@@ -121,6 +142,10 @@ namespace ccemul
 						pc=addr;
 						break;
 					case 0x200: // 2NNN  appelle la sous-routine à l'adresse NNN
+						if (sp+1==STACK_SIZE){
+							fRunning=false;
+							return vm_error.STACK_OVERFLOW;
+						}
 						stack[++sp]=pc;
 						pc=addr;
 						break;
@@ -173,13 +198,17 @@ namespace ccemul
 						break;
 					case 0x80e: // 8XYE     VX := VX shl 1, VF := carry
 						n=(byte)((var[x]&128)>>7);
-						var[x]<<=1;
+						var[x]=(byte)((var[x]<<1)&0xff);
 						var[15]=n;
 						break;
 					case 0x900: // 9XY0     Saute l'instruction suivante si VX <> VY
 						if (var[x]!=var[y]) pc+=2;
 						break;
 					case 0x901: // 9XY1  TONE VX, VY  joue une note de la gamme tempérée.
+						if (var[x]>15){
+							fRunning=false;
+							return vm_error.INVALID_TONE_VALUE;
+						}
 						tone.key_tone(var[x],var[y],false);
 						break;
 					case 0x902: // 9XY2  PRT VX, VY  imprime le texte pointé par I. I est incrémenté.
@@ -187,6 +216,10 @@ namespace ccemul
 						text.set_cursor(var[x],var[y]);
 						n=code[ix++];
 						while (n>0){
+							if (n+32>=Text.FONT_SIZE){
+								fRunning=false;
+								return vm_error.INVALID_CHAR_VALUE;
+							}
 							text.put_char(n);
 							n=code[ix++];
 						}
@@ -195,6 +228,10 @@ namespace ccemul
 						tv.plot(var[x],var[y],eOP.eINVERT);
 						break;
 					case 0x905: // 9XY5 TONE VX, VY, WAIT  joue une note de la gamme tempérée attend la fin avant de poursuivre
+						if (var[x]>15){
+							fRunning=false;
+							return vm_error.INVALID_TONE_VALUE;
+						}
 						tone.key_tone(var[x],var[y],true);
 						break;
 					case 0xa00: // ANNN     I := NNN
@@ -202,18 +239,25 @@ namespace ccemul
 						break;
 					case 0xb00: // BNNN     saut à NNN+V0
 						pc=(ushort)(var[0]+addr);
+						if (pc>=4096){
+							fRunning=false;
+							return vm_error.PC_OUT_OF_BOUND;
+						}
 						break;
 					case 0xc00: //CXKK VX=random_number&KK
 						var[x]=(byte)(rnd.Next()&b2);
 						break;
 					case 0xd00: //DXYN dessine un sprite
 						n=(byte)(b2&0xf);
+						int cx,cy;
+						if (var[x]>127) cx=-(256-var[x]);  else cx=var[x];
+						if (var[y]>127) cy=-(256-var[y]); else cy=var[y];
 						if (n==0){
 							for (int i=0;i<32;i++) block[i]=code[i+ix];
-							var[15]=tv.putSprite((sbyte)var[x],(sbyte)var[y],16,16,block);
+							var[15]=tv.putSprite(cx,cy,16,16,block);
 						}else{
 							if (font_char==0) for (int i=0;i<n;i++)block[i]=code[ix+i];
-							var[15]=tv.putSprite((sbyte)var[x],(sbyte)var[y],8,n,block);
+							var[15]=tv.putSprite(cx,cy,8,n,block);
 						}
 						font_char=0;
 						break;
@@ -228,6 +272,12 @@ namespace ccemul
 						break;
 					case 0xf0a: // FX0A     attend qu'une touche soit enfoncée et met sa valeur dans VX
 						var[x]=kpad.waitKey();
+						if (var[x]==255){
+							kpad.fWaitKey=true;
+							kx=x;
+							speed=0;
+							return vm_error.VM_OK;
+						}
 						break;
 					case 0xf15: // FX15     démarre la minuterie delay_cntr avec la valeur de délais VX
 						dt=var[x];
@@ -239,13 +289,19 @@ namespace ccemul
 						ix += var[x];
 						break;
 					case 0xf29: // FX29     fait pointé ix vers le caractère VX dans la police FONT_SHEX
-						//ix=(ushort)text.font_hex_4x6+var[x]*Text.SHEX_HEIGHT;
+						if (var[x]>15){
+							fRunning=false;
+							return vm_error.INVALID_CHAR_VALUE;
+						}
 						text.select_font(Text.FONT_SHEX);
 						for (int i=0;i<Text.SHEX_HEIGHT;i++)block[i]=text.font_hex_4x6[var[x]*Text.SHEX_HEIGHT+i];
 						font_char=5;
 						break;
 					case 0xf30: // FX30 (schip)    fait pointé ix vers le caractère dans  VX (0..9) pour la police FONT_LHEX
-						//ix=(ushort)text.font_hex_8x10+var[x]*Text.LHEX_HEIGHT;
+						if (var[x]>15){
+							fRunning=false;
+							return vm_error.INVALID_CHAR_VALUE;
+						}
 						text.select_font(Text.FONT_LHEX);
 						for (int i=0;i<Text.LHEX_HEIGHT;i++)block[i]=text.font_hex_8x10[var[x]*Text.LHEX_HEIGHT+i];
 						font_char=9;
@@ -278,25 +334,31 @@ namespace ccemul
 						}
 						break;
 					default:
-						Running=false;
-						return CHIP_BAD_OPCODE;
+						fRunning=false;
+						return vm_error.BAD_OPCODE;
 				}//switch
 				speed--;
 			}//while(speed>0)
-			return CHIP_EXIT_OK;
+			return vm_error.VM_OK;
 		}
 
 		
 		
 		internal void Reset()
 		{
-			sp=0;
+			sp=-1;
 			pc=ORG;
 			tv.cls();
 			text.set_cursor(0,0);
 			text.select_font(Text.FONT_ASCII);
 			speed=0;
-			if (codeInStore) Running=true;
+			kpad.keys_state=0;
+			//if (codeInStore) fRunning=true;
+		}
+		
+		internal void Resume()
+		{
+			if (codeInStore) fRunning=true;
 		}
 		
 	}

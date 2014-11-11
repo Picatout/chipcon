@@ -15,9 +15,21 @@ namespace ccemul
 	/// <summary>
 	/// Description of Form1.
 	/// </summary>
-	public partial class Form1 : Form
+	public partial class FormAbout : Form
 	{
-		public Form1()
+		static String Version="1.0a";
+
+		static String Info=String.Format(
+		"ccemul version {0:S}\r\n"+
+		"Copyright Jacques Deschênes (2014)\r\n"+
+		"CHIPcon emulator\r\n"+
+		"https://github.com/picatout/chipcon\r\n"+
+		"\r\n"+
+		"Project licence: GPLv3\r\n"
+		,Version
+		);
+		
+		public FormAbout()
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -27,6 +39,14 @@ namespace ccemul
 			//
 			// TODO: Add constructor code after the InitializeComponent() call.
 			//
+		}
+		void FormAboutLoad(object sender, EventArgs e)
+		{
+			this.AboutInfo.Text=Info;
+		}
+		void Button1Click(object sender, EventArgs e)
+		{
+			this.Close();
 		}
 	}
 }
