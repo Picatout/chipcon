@@ -74,7 +74,10 @@
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
     <Compile Include="dasm.cs" />
-    <Compile Include="KeyMsgFilter.cs" />
+    <Compile Include="FormBreakPoints.cs" />
+    <Compile Include="FormBreakPoints.Designer.cs">
+      <DependentUpon>FormBreakPoints.cs</DependentUpon>
+    </Compile>
     <Compile Include="Keypad.cs" />
     <Compile Include="MainForm.cs" />
     <Compile Include="MainForm.Designer.cs">
@@ -89,6 +92,9 @@
   <ItemGroup>
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormBreakPoints.resx">
+      <DependentUpon>FormBreakPoints.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

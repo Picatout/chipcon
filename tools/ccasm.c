@@ -61,10 +61,10 @@ node_t *define_list=NULL;
 #define search_define(name) search_list(name,define_list)
 
 
-FILE *bin,  // fichier binaire généré par l'assembleur
-     *ppf;  // fichier optionnel généré par le pré-processeur
+FILE *bin=NULL,  // fichier binaire généré par l'assembleur
+     *ppf=NULL,  // fichier optionnel généré par le pré-processeur
+	 *lbl=NULL;  // fichier des étiquettes avec l'adresse.
 	 
-bool gen_ppf=false;  // si vrai génère un fichier pré-prosessing
 
 int pc; // compteur ordinal
 int line_no; //no de ligne en cours d'analyse
@@ -636,10 +636,13 @@ load_done:
 
 void usage(){
 	puts("CHIPcon assembler");
-	puts("USAGE: ccasm source binary [-p pp_file]");
+	puts("USAGE: ccasm source binary [-p pp_file] [-s labels_file]");
 	puts("'source' is CHIPcon source code file.");
 	puts("'binary' is generated binary file to be executed on CHIPcon.");
 	puts("'-p' cette option genere un fichier de pre-processing nomme 'pp_file'.");
+	puts("'-s' cette option genere un fichier avec la liste des etiquettes.");
+    puts("\t'labels_file' le nom du fichier genere. Ce fichier peut-etre charger");
+    puts("\tdans ccemul pour faciliter la localisation de points d'arrets.");
 	exit (EXIT_FAILURE);
 }
 
@@ -1090,7 +1093,7 @@ bool preprocess(){
 				tok_value[strlen(tok_value)]='"';
 				strcpy(&ppline[pos],tok_value);
 				strcpy(line,ppline);
-				if (gen_ppf) fprintf(ppf,"%d\t\t%s\n",line_no,line);
+				if (ppf) fprintf(ppf,"%d\t\t%s\n",line_no,line);
 				break;
 			case 3:	 // EQU
 				equate();
@@ -1102,7 +1105,7 @@ bool preprocess(){
 				break;
 			}//switch
 		}else{
-			if (gen_ppf) fprintf(ppf,"%d",line_no);
+			if (ppf) fprintf(ppf,"%d",line_no);
 			double_tab=true;
 			while (tok_id){
 				if (tok_id==eSYMBOL && (n=search_define(tok_value))){
@@ -1126,7 +1129,7 @@ bool preprocess(){
 			ppline[pos]=0;
 			strcpy(line,ppline);
 			completed=false;
-			if (gen_ppf){
+			if (ppf){
 				if (double_tab) fprintf(ppf,"\t");
 				fprintf(ppf,"\t%s\n",line);
 			}
@@ -1138,21 +1141,52 @@ bool preprocess(){
 int main(int argc, char **argv){
 	FILE *src;
 	char *ppf_name;
+	char *lbl_name;
+	int i;
 	
 	if (argc < 3) usage();
-	if (!(src=fopen(argv[1],"r"))){ printf("Failed to open %s\n",argv[1]); exit(EXIT_FAILURE);}
-	if (!(bin=fopen(argv[2],"wb"))) {printf("Failed to open %s\n",argv[2]); exit(EXIT_FAILURE);}
-    if (argc>3 && argv[3][0]=='-' && argv[3][1]=='p'){
-		if (strlen(argv[3])>2){
-			ppf_name=malloc(strlen(argv[3])-1);
-			strcpy(ppf_name,argv[3]+2);
-		}else if (argc==5){
-			ppf_name=malloc(strlen(argv[4])+1);
-			strcpy(ppf_name,argv[4]);
-		}else usage();
-		ppf=fopen(ppf_name,"w");
-		if (!ppf) printf("failed to create %s file.\n",ppf_name); else gen_ppf=true;
-	}	
+	for (i=1;i<argc;i++){
+		switch (i){
+		case 1:
+			if (!(src=fopen(argv[1],"r"))){
+				printf("Failed to open %s\n",argv[1]); 
+				exit(EXIT_FAILURE);
+			}
+			break;
+		case 2:
+			if (!(bin=fopen(argv[2],"wb"))){
+				printf("Failed to open %s\n",argv[2]); 
+				exit(EXIT_FAILURE);
+			}
+			break;
+		default:
+			if (argv[i][0]!='-') usage();
+			if (argv[i][1]=='p'){
+				if (strlen(argv[i])>2){
+					ppf_name=malloc(strlen(argv[i])-1);
+					strcpy(ppf_name,argv[i]+2);
+				}else if (argc>i){
+					i++;
+					ppf_name=malloc(strlen(argv[i])+1);
+					strcpy(ppf_name,argv[i]);
+				}else usage();
+				ppf=fopen(ppf_name,"w");
+				if (!ppf) printf("failed to create %s file.\n",ppf_name);
+			}else if (argv[i][1]=='s'){
+				if (strlen(argv[i])>2){
+					lbl_name=malloc(strlen(argv[i])-1);
+					strcpy(lbl_name,argv[i]+2);
+				}else if (argc>i){
+					i++;
+					lbl_name=malloc(strlen(argv[i])+1);
+					strcpy(lbl_name,argv[i]);
+				}else usage();
+				lbl=fopen(lbl_name,"w");
+				if (!lbl) printf("failed to create %s file.\n",lbl_name);
+			}else usage();
+			break;
+		}
+	}
 	pc=ORG;
 	memset(line,0,256);
 	line_no=0;
@@ -1169,12 +1203,17 @@ int main(int argc, char **argv){
 	if (pc>4095 && !feof(src)) memory_overflow();
 	fclose(src);
 	fix_forward_ref();
-	int i;
 	for (i=ORG;i<pc;i++){
 		fputc(binary[i],bin);
 	}
 	fclose(bin);
 	if (ppf) fclose(ppf);
+	if (lbl){ //génère le fichier des étiquettes
+		while (label_list){
+			fprintf(lbl,"%s\t%d\n",label_list->name,label_list->addr);
+			label_list=label_list->next;
+		}
+	}
 	printf("Total lines read: %d\ncode size: %d\n",line_no, pc-ORG);
 	return EXIT_SUCCESS;
 }

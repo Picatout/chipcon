@@ -16,7 +16,6 @@ namespace ccemul
 	/// </summary>
 	public class Keypad
 	{
-		private KeyMessageFilter m_filter = new KeyMessageFilter();
 		
 		byte[] hkeys=new byte[16]
 		{

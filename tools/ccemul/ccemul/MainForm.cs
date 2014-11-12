@@ -39,14 +39,15 @@ namespace ccemul
 		 "Stack underflow",
 		 "Stack overflow"
 		};
+
+ 	    
+		FormBreakPoints BreaksForm;
 		
 		//internal ChipConVM  vm;
 		internal ChipConVM vm;
 		
-		// test sprites
-		byte[] sprite = new byte[8] {0xaa,0xaa,0xaa,0xaa,0xaa,0xaa,0xaa,0xaa};
-		//trace flag
-		bool trace=false;
+		//step flag
+//		bool fSingleStep=false;
 
 		public MainForm()
 		{
@@ -61,20 +62,89 @@ namespace ccemul
 			vm.text = new Text(this);
 			pictureBox1.Image=vm.tv.display;
 			vm.tv.cls();
-			traceToolStripMenuItem.Checked=trace;
+			conState=eCSTATE.IDLE;
+			SetMenuState();
+			BreaksForm = new FormBreakPoints(this);
 		}
+		
+		//états de la console
+		enum eCSTATE {IDLE,RUNNING,PAUSED,STOPPED,STEP};
+		//état actuel de la console
+		eCSTATE conState;
+		//active/désactive les menus en fonction de conState
+		void SetMenuState(){
+			switch(conState){
+				case eCSTATE.IDLE:
+					RestartMenuItem.Enabled=false;
+					BreakPointMenuItem.Enabled=false;
+					clearBreakPointsMenuItem.Enabled=false;
+					PauseToolBtn.Enabled=false;
+					StopToolBtn.Enabled=false;
+					ResumeToolBtn.Enabled=false;
+					RestartToolBtn.Enabled=false;
+					StepToolBtn.Enabled=false;
+	                timer1.Enabled=false;
+					break;
+				case eCSTATE.RUNNING:
+					RestartMenuItem.Enabled=true;
+					BreakPointMenuItem.Enabled=true;
+					clearBreakPointsMenuItem.Enabled=true;
+					PauseToolBtn.Enabled=true;
+					StopToolBtn.Enabled=true;
+					ResumeToolBtn.Enabled=true;
+					RestartToolBtn.Enabled=true;
+					StepToolBtn.Enabled=false;
+	                timer1.Enabled=true;
+					break;
+				case eCSTATE.PAUSED:
+					RestartMenuItem.Enabled=true;
+					BreakPointMenuItem.Enabled=true;
+					clearBreakPointsMenuItem.Enabled=true;
+					PauseToolBtn.Enabled=false;
+					StopToolBtn.Enabled=true;
+					ResumeToolBtn.Enabled=true;
+					RestartToolBtn.Enabled=true;
+					StepToolBtn.Enabled=true;
+	                timer1.Enabled=false;
+					break;
+				case eCSTATE.STOPPED:
+					RestartMenuItem.Enabled=true;
+					BreakPointMenuItem.Enabled=true;
+					clearBreakPointsMenuItem.Enabled=true;
+					PauseToolBtn.Enabled=false;
+					StopToolBtn.Enabled=false;
+					ResumeToolBtn.Enabled=false;
+					RestartToolBtn.Enabled=true;
+					StepToolBtn.Enabled=false;
+	                timer1.Enabled=false;
+					break;
+				case eCSTATE.STEP:
+					RestartMenuItem.Enabled=true;
+					BreakPointMenuItem.Enabled=true;
+					clearBreakPointsMenuItem.Enabled=true;
+					PauseToolBtn.Enabled=false;
+					StopToolBtn.Enabled=false;
+					ResumeToolBtn.Enabled=false;
+					RestartToolBtn.Enabled=false;
+					StepToolBtn.Enabled=false;
+	                timer1.Enabled=true;
+					break;
+			}
+		
+		}
+		
 		
 		void ToolStripMenuItem1Click(object sender, EventArgs e)
 		{
 			
 		}
-		
-		void QuitToolStripMenuItemClick(object sender, EventArgs e)
+	
+		void QuitMenuItemClick(object sender, EventArgs e)
 		{
 			Application.Exit();
 		}
 		
-		void OpenToolStripMenuItemClick(object sender, EventArgs e)
+		void OpenFileMenuItemClick(object sender, EventArgs e)
 		{
 			byte[] data;
 			
@@ -92,6 +162,10 @@ namespace ccemul
                 }
                 fileStream.Close();
                 vm.load(data);
+                textBox1.Text="Running";
+                conState=eCSTATE.RUNNING;
+                SetMenuState();
+                BreaksForm.ClearList();
             }
 		}
 		
@@ -100,36 +174,32 @@ namespace ccemul
 			
 		}
 		
-
-		
-		void MainFormLoad(object sender, EventArgs e)
-		{
-		}
-		
 		
 		void MainFormShown(object sender, EventArgs e)
 		{
-
-			timer1.Enabled=true;
+			textBox1.Text="console idle";
+			conState=eCSTATE.IDLE;
+			SetMenuState();
 		}
 		
 		
-		void displayVMState()
+		void displayVMState(ushort pc)
 		{   
-			ushort prevPC=(ushort)(vm.pc-2);
-			ushort code=(ushort)((vm.code[prevPC]<<8)|vm.code[prevPC+1]);
-			textBox1.AppendText(string.Format("PC={0:X}, ",prevPC));
-			textBox1.AppendText(string.Format("opCode={0:X} ({1:S})\t",code,dasm.deassemble(prevPC,code)));
-			textBox1.AppendText(string.Format("I={0:X}, ",vm.ix));
+			ushort code=(ushort)((vm.code[pc]<<8)|vm.code[pc+1]);
+			textBox1.AppendText(string.Format("PC={0:X3}, ",pc));
+			textBox1.AppendText(string.Format("opCode={0:X4} ({1:S})\t",code,dasm.deassemble(pc,code)));
+			textBox1.AppendText(string.Format("I={0:X3}, ",vm.ix));
 			textBox1.AppendText(string.Format("sp={0}, ",vm.sp));
 			textBox1.AppendText(string.Format("DT={0}, ",vm.dt));
 			textBox1.AppendText(string.Format("ST={0}\r\n",vm.st));
 			for (int i=0;i<16;i++){
 				textBox1.AppendText(string.Format("var[{0:D}]={1:D}, ",i,vm.var[i]));
+				if (i==9) textBox1.AppendText("\r\n");
 			}
 			textBox1.AppendText("\r\n");
 			for (int i=0;i<16;i++){
 				textBox1.AppendText(string.Format("rpl[{0:D}]={0:D}, ",i,vm.rpl[i]));
+				if (i==9) textBox1.AppendText("\r\n");
 			}
 			textBox1.Invalidate();
 			
@@ -142,82 +212,144 @@ namespace ccemul
 			pictureBox1.Invalidate();
 			if (vm.dt>0) vm.dt--;
 			if (vm.st>0) vm.st--;
-			if (vm.fRunning && vm.speed==0){
-				if (trace)
-				{
-					textBox1.Text="";
-					displayVMState();
-					vm.speed=1;
-				}else
+			switch (conState)
+			{
+				case eCSTATE.RUNNING:
 					vm.speed=(byte)trackBar1.Value;
-				if ((error=vm.ccVM())!=vm_error.VM_OK)
-				{
-					
-					textBox1.Text=String.Format("VM error:{0:S}\r\n",error_msg[(int)error]);
-					displayVMState();
-				}else if (!vm.fRunning){
-					textBox1.Text="Game existed normally";
-				}
+					error=vm.ccVM();
+					break;
+				case eCSTATE.STEP:
+					textBox1.Text="last step\r\n";
+					displayVMState(vm.pc);
+					vm.speed=1;
+					error=vm.ccVM();
+					conState=eCSTATE.PAUSED;
+					SetMenuState();
+					break;
+				default:
+					error=vm_error.VM_OK;
+					break;
 			}
-			//if (timer1.Interval==16) timer1.Interval=17; else timer1.Interval=16;
+			switch (error)
+			{
+				case vm_error.VM_OK:
+					break;
+				case vm_error.VM_BREAK:
+					textBox1.Text="break point reached:\r\n";
+					conState=eCSTATE.PAUSED;
+					SetMenuState();
+					displayVMState(vm.pc);
+					break;
+				case vm_error.VM_END:
+					textBox1.Text="game termnated with no error";
+					conState=eCSTATE.STOPPED;
+					SetMenuState();
+					vm.Reset();
+					break;
+				default:
+					textBox1.Text=String.Format("VM error:{0:S}\r\n",error_msg[(int)error]);
+					displayVMState((ushort)(vm.pc-2));
+					conState=eCSTATE.STOPPED;
+					vm.Reset();
+					break;
+			}
+
 		}
-		
+
+
 		void MainFormPaint(object sender, PaintEventArgs e)
 		{
 			
 		}
-		
-		void ResetToolStripMenuItemClick(object sender, EventArgs e)
+
+
+		void RestartMenuItemClick(object sender, EventArgs e)
 		{
-			vm.Reset();
-			textBox1.Text="Restarted";
-			vm.Resume();
-		}
-	
-		
-		void TextBox1KeyDown(object sender, KeyEventArgs e)
-		{
-			
+			if (vm.codeInStore)
+			{
+				vm.Reset();
+				textBox1.Text="Restarted";
+				conState=eCSTATE.RUNNING;
+				SetMenuState();
+			}
 		}
 	
 		void TrackBar1KeyDown(object sender, KeyEventArgs e)
 		{
-			if (vm.fRunning) vm.kpad.hexKeyDown((byte)e.KeyValue);
+			if (conState==eCSTATE.RUNNING ||
+			    conState==eCSTATE.PAUSED) vm.kpad.hexKeyDown((byte)e.KeyValue);
 		}
 
-		void TraceToolStripMenuItemClick(object sender, EventArgs e)
+		void StepMenuItemClick(object sender, EventArgs e)
 		{
-			trace=!trace;
-			traceToolStripMenuItem.Checked=trace;
+			conState=eCSTATE.STEP;
+			SetMenuState();
 		}
 		
 		void TrackBar1KeyUp(object sender, KeyEventArgs e)
 		{
-			if (vm.fRunning) vm.kpad.hexKeyUp((byte)e.KeyValue);
+			if (conState==eCSTATE.RUNNING ||
+			      conState==eCSTATE.PAUSED) vm.kpad.hexKeyUp((byte)e.KeyValue);
 		}
-		void AboutToolStripMenuItemClick(object sender, EventArgs e)
+
+		void AboutMenuItemClick(object sender, EventArgs e)
 		{
 			FormAbout about=new FormAbout();
 			about.Show();
 		}
-		void ToolStripButton2Click(object sender, EventArgs e)
+
+		void PauseToolBtnClick(object sender, EventArgs e)
 		{
-			vm.fRunning=false;
-			textBox1.Text="Paused\r\n";
-			displayVMState();
+			textBox1.Text="Paused, last instruction:\r\n";
+			displayVMState((ushort)(vm.pc-2));
+			conState=eCSTATE.PAUSED;
+			SetMenuState();
 		}
-		void ToolStripButton3Click(object sender, EventArgs e)
+
+		void StopToolBtnClick(object sender, EventArgs e)
 		{
-			vm.fRunning=false;
-			vm.Reset();
 			textBox1.Text="Stopped\r\n";
+			conState=eCSTATE.STOPPED;
+			SetMenuState();
+		}
+
+		void ResumeToolBtnClick(object sender, EventArgs e)
+		{
+			textBox1.Text="Resumed";
+			conState=eCSTATE.RUNNING;
+			SetMenuState();
+		}
+
+		void BreakPointMenuItemClick(object sender, EventArgs e)
+		{
+			
+			BreaksForm.Show();
 			
 		}
-		void ToolStripButton4Click(object sender, EventArgs e)
+
+		void StepToolBtnClick(object sender, EventArgs e)
 		{
-			vm.fRunning=true;
-			textBox1.Text="Resumed";
+			textBox1.Text="Single step";
+			conState=eCSTATE.STEP;
+			SetMenuState();
 		}
+		void ClearBreakPointsMenuItemClick(object sender, EventArgs e)
+		{
+			BreaksForm.ClearList();
+		}
+		void LoadLabelsFileMenuItemClick(object sender, EventArgs e)
+		{
+            openFileDialog1.Filter = "CHIPcon labels|*.lbl|All Files (*.*)|*.*";
+            openFileDialog1.FilterIndex = 1;
+            openFileDialog1.Multiselect = false;
+            DialogResult result=openFileDialog1.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+            	BreaksForm.LoadLabels( openFileDialog1.OpenFile());
+            }
+		}
+
+
 	}
 	
 

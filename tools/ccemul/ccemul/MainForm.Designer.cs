@@ -40,15 +40,15 @@ namespace ccemul
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.openFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.RestartMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.traceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.breakPointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.quitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.MenuDebug = new System.Windows.Forms.ToolStripMenuItem();
+			this.BreakPointMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.clearBreakPointsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.MenuHelp = new System.Windows.Forms.ToolStripMenuItem();
+			this.AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.trackBar1 = new System.Windows.Forms.TrackBar();
@@ -57,10 +57,12 @@ namespace ccemul
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+			this.RestartToolBtn = new System.Windows.Forms.ToolStripButton();
+			this.PauseToolBtn = new System.Windows.Forms.ToolStripButton();
+			this.ResumeToolBtn = new System.Windows.Forms.ToolStripButton();
+			this.StepToolBtn = new System.Windows.Forms.ToolStripButton();
+			this.StopToolBtn = new System.Windows.Forms.ToolStripButton();
+			this.loadLabelsFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -71,8 +73,8 @@ namespace ccemul
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.toolStripMenuItem1,
-			this.debugToolStripMenuItem,
-			this.helpToolStripMenuItem});
+			this.MenuDebug,
+			this.MenuHelp});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(638, 24);
@@ -82,82 +84,83 @@ namespace ccemul
 			// toolStripMenuItem1
 			// 
 			this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.openToolStripMenuItem,
-			this.resetToolStripMenuItem,
+			this.openFileMenuItem,
+			this.RestartMenuItem,
 			this.toolStripSeparator1,
-			this.quitToolStripMenuItem});
+			this.quitMenuItem});
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
 			this.toolStripMenuItem1.Size = new System.Drawing.Size(40, 20);
 			this.toolStripMenuItem1.Text = "Files";
 			this.toolStripMenuItem1.Click += new System.EventHandler(this.ToolStripMenuItem1Click);
 			// 
-			// openToolStripMenuItem
+			// openFileMenuItem
 			// 
-			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
-			this.openToolStripMenuItem.Text = "Open...";
-			this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItemClick);
+			this.openFileMenuItem.Name = "openFileMenuItem";
+			this.openFileMenuItem.Size = new System.Drawing.Size(112, 22);
+			this.openFileMenuItem.Text = "Open...";
+			this.openFileMenuItem.Click += new System.EventHandler(this.OpenFileMenuItemClick);
 			// 
-			// resetToolStripMenuItem
+			// RestartMenuItem
 			// 
-			this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-			this.resetToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
-			this.resetToolStripMenuItem.Text = "Reset";
-			this.resetToolStripMenuItem.Click += new System.EventHandler(this.ResetToolStripMenuItemClick);
+			this.RestartMenuItem.Name = "RestartMenuItem";
+			this.RestartMenuItem.Size = new System.Drawing.Size(112, 22);
+			this.RestartMenuItem.Text = "Restart";
+			this.RestartMenuItem.Click += new System.EventHandler(this.RestartMenuItemClick);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
 			this.toolStripSeparator1.Size = new System.Drawing.Size(109, 6);
 			// 
-			// quitToolStripMenuItem
+			// quitMenuItem
 			// 
-			this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-			this.quitToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
-			this.quitToolStripMenuItem.Text = "Quit";
-			this.quitToolStripMenuItem.Click += new System.EventHandler(this.QuitToolStripMenuItemClick);
+			this.quitMenuItem.Name = "quitMenuItem";
+			this.quitMenuItem.Size = new System.Drawing.Size(112, 22);
+			this.quitMenuItem.Text = "Quit";
+			this.quitMenuItem.Click += new System.EventHandler(this.QuitMenuItemClick);
 			// 
-			// debugToolStripMenuItem
+			// MenuDebug
 			// 
-			this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.traceToolStripMenuItem,
-			this.breakPointToolStripMenuItem});
-			this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
-			this.debugToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
-			this.debugToolStripMenuItem.Text = "debug";
+			this.MenuDebug.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.BreakPointMenuItem,
+			this.clearBreakPointsMenuItem,
+			this.loadLabelsFileMenuItem});
+			this.MenuDebug.Name = "MenuDebug";
+			this.MenuDebug.Size = new System.Drawing.Size(49, 20);
+			this.MenuDebug.Text = "debug";
 			// 
-			// traceToolStripMenuItem
+			// BreakPointMenuItem
 			// 
-			this.traceToolStripMenuItem.Name = "traceToolStripMenuItem";
-			this.traceToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
-			this.traceToolStripMenuItem.Text = "Trace";
-			this.traceToolStripMenuItem.Click += new System.EventHandler(this.TraceToolStripMenuItemClick);
+			this.BreakPointMenuItem.Name = "BreakPointMenuItem";
+			this.BreakPointMenuItem.Size = new System.Drawing.Size(161, 22);
+			this.BreakPointMenuItem.Text = "Break point...";
+			this.BreakPointMenuItem.Click += new System.EventHandler(this.BreakPointMenuItemClick);
 			// 
-			// breakPointToolStripMenuItem
+			// clearBreakPointsMenuItem
 			// 
-			this.breakPointToolStripMenuItem.Name = "breakPointToolStripMenuItem";
-			this.breakPointToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
-			this.breakPointToolStripMenuItem.Text = "Break point...";
+			this.clearBreakPointsMenuItem.Name = "clearBreakPointsMenuItem";
+			this.clearBreakPointsMenuItem.Size = new System.Drawing.Size(161, 22);
+			this.clearBreakPointsMenuItem.Text = "Clear break points";
+			this.clearBreakPointsMenuItem.Click += new System.EventHandler(this.ClearBreakPointsMenuItemClick);
 			// 
-			// helpToolStripMenuItem
+			// MenuHelp
 			// 
-			this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.aboutToolStripMenuItem});
-			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-			this.helpToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-			this.helpToolStripMenuItem.Text = "help";
+			this.MenuHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.AboutMenuItem});
+			this.MenuHelp.Name = "MenuHelp";
+			this.MenuHelp.Size = new System.Drawing.Size(39, 20);
+			this.MenuHelp.Text = "help";
 			// 
-			// aboutToolStripMenuItem
+			// AboutMenuItem
 			// 
-			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
-			this.aboutToolStripMenuItem.Text = "About...";
-			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClick);
+			this.AboutMenuItem.Name = "AboutMenuItem";
+			this.AboutMenuItem.Size = new System.Drawing.Size(115, 22);
+			this.AboutMenuItem.Text = "About...";
+			this.AboutMenuItem.Click += new System.EventHandler(this.AboutMenuItemClick);
 			// 
 			// openFileDialog1
 			// 
 			this.openFileDialog1.FileName = "openFileDialog1";
-			this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialog1FileOk);
 			// 
 			// timer1
 			// 
@@ -219,55 +222,78 @@ namespace ccemul
 			// toolStrip1
 			// 
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.toolStripButton1,
-			this.toolStripButton2,
-			this.toolStripButton4,
-			this.toolStripButton3});
+			this.RestartToolBtn,
+			this.PauseToolBtn,
+			this.ResumeToolBtn,
+			this.StepToolBtn,
+			this.StopToolBtn});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 24);
 			this.toolStrip1.Name = "toolStrip1";
 			this.toolStrip1.Size = new System.Drawing.Size(638, 25);
 			this.toolStrip1.TabIndex = 8;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
-			// toolStripButton1
+			// RestartToolBtn
 			// 
-			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton1.Text = "Run";
-			this.toolStripButton1.Click += new System.EventHandler(this.ResetToolStripMenuItemClick);
+			this.RestartToolBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.RestartToolBtn.Enabled = false;
+			this.RestartToolBtn.Image = ((System.Drawing.Image)(resources.GetObject("RestartToolBtn.Image")));
+			this.RestartToolBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.RestartToolBtn.Name = "RestartToolBtn";
+			this.RestartToolBtn.Size = new System.Drawing.Size(23, 22);
+			this.RestartToolBtn.Text = "Restart";
+			this.RestartToolBtn.Click += new System.EventHandler(this.RestartMenuItemClick);
 			// 
-			// toolStripButton2
+			// PauseToolBtn
 			// 
-			this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
-			this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton2.Name = "toolStripButton2";
-			this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton2.Text = "Pause";
-			this.toolStripButton2.Click += new System.EventHandler(this.ToolStripButton2Click);
+			this.PauseToolBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.PauseToolBtn.Enabled = false;
+			this.PauseToolBtn.Image = ((System.Drawing.Image)(resources.GetObject("PauseToolBtn.Image")));
+			this.PauseToolBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.PauseToolBtn.Name = "PauseToolBtn";
+			this.PauseToolBtn.Size = new System.Drawing.Size(23, 22);
+			this.PauseToolBtn.Text = "Pause";
+			this.PauseToolBtn.Click += new System.EventHandler(this.PauseToolBtnClick);
 			// 
-			// toolStripButton4
+			// ResumeToolBtn
 			// 
-			this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
-			this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton4.Name = "toolStripButton4";
-			this.toolStripButton4.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton4.Text = "Resume";
-			this.toolStripButton4.Click += new System.EventHandler(this.ToolStripButton4Click);
+			this.ResumeToolBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.ResumeToolBtn.Enabled = false;
+			this.ResumeToolBtn.Image = ((System.Drawing.Image)(resources.GetObject("ResumeToolBtn.Image")));
+			this.ResumeToolBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.ResumeToolBtn.Name = "ResumeToolBtn";
+			this.ResumeToolBtn.Size = new System.Drawing.Size(23, 22);
+			this.ResumeToolBtn.Text = "Resume";
+			this.ResumeToolBtn.Click += new System.EventHandler(this.ResumeToolBtnClick);
 			// 
-			// toolStripButton3
+			// StepToolBtn
 			// 
-			this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
-			this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton3.Name = "toolStripButton3";
-			this.toolStripButton3.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton3.Text = "Stop";
-			this.toolStripButton3.Click += new System.EventHandler(this.ToolStripButton3Click);
+			this.StepToolBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.StepToolBtn.Enabled = false;
+			this.StepToolBtn.Image = ((System.Drawing.Image)(resources.GetObject("StepToolBtn.Image")));
+			this.StepToolBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.StepToolBtn.Name = "StepToolBtn";
+			this.StepToolBtn.Size = new System.Drawing.Size(23, 22);
+			this.StepToolBtn.Text = "step";
+			this.StepToolBtn.Click += new System.EventHandler(this.StepToolBtnClick);
+			// 
+			// StopToolBtn
+			// 
+			this.StopToolBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.StopToolBtn.Enabled = false;
+			this.StopToolBtn.Image = ((System.Drawing.Image)(resources.GetObject("StopToolBtn.Image")));
+			this.StopToolBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.StopToolBtn.Name = "StopToolBtn";
+			this.StopToolBtn.Size = new System.Drawing.Size(23, 22);
+			this.StopToolBtn.Text = "Stop";
+			this.StopToolBtn.Click += new System.EventHandler(this.StopToolBtnClick);
+			// 
+			// loadLabelsFileMenuItem
+			// 
+			this.loadLabelsFileMenuItem.Name = "loadLabelsFileMenuItem";
+			this.loadLabelsFileMenuItem.Size = new System.Drawing.Size(161, 22);
+			this.loadLabelsFileMenuItem.Text = "Load labels file";
+			this.loadLabelsFileMenuItem.Click += new System.EventHandler(this.LoadLabelsFileMenuItemClick);
 			// 
 			// MainForm
 			// 
@@ -287,7 +313,6 @@ namespace ccemul
 			this.Name = "MainForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "CHIPcon emulator";
-			this.Load += new System.EventHandler(this.MainFormLoad);
 			this.Shown += new System.EventHandler(this.MainFormShown);
 			this.Paint += new System.Windows.Forms.PaintEventHandler(this.MainFormPaint);
 			this.menuStrip1.ResumeLayout(false);
@@ -304,24 +329,27 @@ namespace ccemul
 		private System.Windows.Forms.TrackBar trackBar1;
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.OpenFileDialog openFileDialog1;
-		private System.Windows.Forms.ToolStripMenuItem quitToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem quitMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem RestartMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem openFileMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
 		private System.Windows.Forms.MenuStrip menuStrip1;
-		private System.Windows.Forms.ToolStripMenuItem traceToolStripMenuItem;
 		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem MenuHelp;
+		private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;
 		private System.Windows.Forms.Label label2;
-		private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem MenuDebug;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem breakPointToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem BreakPointMenuItem;
 		private System.Windows.Forms.ToolStrip toolStrip1;
-		private System.Windows.Forms.ToolStripButton toolStripButton1;
-		private System.Windows.Forms.ToolStripButton toolStripButton2;
-		private System.Windows.Forms.ToolStripButton toolStripButton3;
-		private System.Windows.Forms.ToolStripButton toolStripButton4;
+	
+		private System.Windows.Forms.ToolStripButton PauseToolBtn;
+		private System.Windows.Forms.ToolStripButton StopToolBtn;
+		private System.Windows.Forms.ToolStripButton ResumeToolBtn;
+		private System.Windows.Forms.ToolStripButton StepToolBtn;
+		private System.Windows.Forms.ToolStripButton RestartToolBtn;
+		private System.Windows.Forms.ToolStripMenuItem clearBreakPointsMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem loadLabelsFileMenuItem;
 	}
 }

@@ -17,12 +17,15 @@ namespace ccemul
 	/// 
 	
 	enum vm_error {VM_OK,BAD_OPCODE,INVALID_CHAR_VALUE,INVALID_TONE_VALUE,
-		           PC_OUT_OF_BOUND,STACK_UNDERFLOW,STACK_OVERFLOW}
+		           PC_OUT_OF_BOUND,STACK_UNDERFLOW,STACK_OVERFLOW,VM_BREAK,VM_END}
 
 	internal class ChipConVM
 	{
 		const int ORG=512;
+		const int CODE_SIZE=4096;
 		const int STACK_SIZE=32;
+		const int MAX_BREAK=10;
+		
 		
 		internal TVout tv;
 		internal Text text;
@@ -33,18 +36,18 @@ namespace ccemul
 		internal byte speed;
 		internal byte dt; // durée délais jeux
 		internal byte st; // durée tonalité
-		bool codeInStore=false;
-		internal bool fRunning=false;
+		internal bool codeInStore=false;
 		internal ushort pc; // compteur ordinal
 		internal short sp; // pointeur de pile
 		internal ushort ix; // registre pointeur de donnée
 		internal ushort[] stack=new ushort[STACK_SIZE]; //pile des retours
 		internal byte[] var=new byte[16];  // variables
 		internal byte[] rpl=new byte[16];  // sauvegarde des variables
-		internal byte[] code= new byte[4096]; // espace de code programme.
+		internal byte[] code= new byte[CODE_SIZE]; // espace de code programme.
 		byte[] block= new byte[32]; // transfert sprite
 		byte font_char=0;
 		byte kx;
+		BreakPoint[] breaks;
 		
 		internal ChipConVM()
 		{
@@ -55,6 +58,7 @@ namespace ccemul
 			pc=ORG;
 			dt=0;
 			st=0;
+			breaks= new BreakPoint[MAX_BREAK] {null,null,null,null,null,null,null,null,null,null};
 		}
 		
 		internal void load(byte[] program)
@@ -69,7 +73,7 @@ namespace ccemul
 			text.set_cursor(0,0);
 			text.select_font(Text.FONT_ASCII);
 			speed=0;
-			fRunning=true;
+			ClearBreakPoints();
 		}
 		
 		// machine virtuelle CHIPcon
@@ -77,6 +81,7 @@ namespace ccemul
 		{
 			byte x,y,n,b1,b2;
 			ushort addr,opCode;
+			int j;
 			
 			if (kpad.fWaitKey){
 				var[kx]=kpad.keypadRead();
@@ -90,6 +95,23 @@ namespace ccemul
 			}
 			while (speed>0)
 			{
+				if (pc>(CODE_SIZE-2)){
+					speed=0;
+					return vm_error.PC_OUT_OF_BOUND;
+				}
+				if ((j=isBreakPoint(pc))>-1)
+				{
+					if (breaks[j].isEnabled())
+					{
+						breaks[j].disable();
+						speed=0;
+						return vm_error.VM_BREAK;
+					    	
+					}else
+					{
+						breaks[j].enable();
+					}
+				}
 				b1=code[pc++];
 				b2=code[pc++];
 				addr=(ushort)(((b1&0xf)<<8)|b2);
@@ -120,7 +142,6 @@ namespace ccemul
 						break;
 					case 0xee: // 00EE, sortie de sous-routine
 						if (sp==-1){
-							fRunning=false;
 							return vm_error.STACK_UNDERFLOW;
 						}
 						pc=stack[sp--];
@@ -132,8 +153,8 @@ namespace ccemul
 						tv.scrollLeft(4);
 						break;
 					case 0xfd:// 00FD, Sortie de l'interpréteur.
-						fRunning=false;
-						return vm_error.VM_OK;
+						speed=0;
+						return vm_error.VM_END;
 					case 0xfe: //00FE, revient au vms.mode par défaut chip-8 résolution 64x32
 						break; // ignore ce code
 					case 0xff:  //00FF, passe en vms.mode schip résolution 128x64
@@ -143,7 +164,6 @@ namespace ccemul
 						break;
 					case 0x200: // 2NNN  appelle la sous-routine à l'adresse NNN
 						if (sp+1==STACK_SIZE){
-							fRunning=false;
 							return vm_error.STACK_OVERFLOW;
 						}
 						stack[++sp]=pc;
@@ -206,7 +226,6 @@ namespace ccemul
 						break;
 					case 0x901: // 9XY1  TONE VX, VY  joue une note de la gamme tempérée.
 						if (var[x]>15){
-							fRunning=false;
 							return vm_error.INVALID_TONE_VALUE;
 						}
 						tone.key_tone(var[x],var[y],false);
@@ -217,7 +236,6 @@ namespace ccemul
 						n=code[ix++];
 						while (n>0){
 							if (n+32>=Text.FONT_SIZE){
-								fRunning=false;
 								return vm_error.INVALID_CHAR_VALUE;
 							}
 							text.put_char(n);
@@ -229,7 +247,6 @@ namespace ccemul
 						break;
 					case 0x905: // 9XY5 TONE VX, VY, WAIT  joue une note de la gamme tempérée attend la fin avant de poursuivre
 						if (var[x]>15){
-							fRunning=false;
 							return vm_error.INVALID_TONE_VALUE;
 						}
 						tone.key_tone(var[x],var[y],true);
@@ -240,7 +257,6 @@ namespace ccemul
 					case 0xb00: // BNNN     saut à NNN+V0
 						pc=(ushort)(var[0]+addr);
 						if (pc>=4096){
-							fRunning=false;
 							return vm_error.PC_OUT_OF_BOUND;
 						}
 						break;
@@ -290,7 +306,6 @@ namespace ccemul
 						break;
 					case 0xf29: // FX29     fait pointé ix vers le caractère VX dans la police FONT_SHEX
 						if (var[x]>15){
-							fRunning=false;
 							return vm_error.INVALID_CHAR_VALUE;
 						}
 						text.select_font(Text.FONT_SHEX);
@@ -299,7 +314,6 @@ namespace ccemul
 						break;
 					case 0xf30: // FX30 (schip)    fait pointé ix vers le caractère dans  VX (0..9) pour la police FONT_LHEX
 						if (var[x]>15){
-							fRunning=false;
 							return vm_error.INVALID_CHAR_VALUE;
 						}
 						text.select_font(Text.FONT_LHEX);
@@ -334,7 +348,6 @@ namespace ccemul
 						}
 						break;
 					default:
-						fRunning=false;
 						return vm_error.BAD_OPCODE;
 				}//switch
 				speed--;
@@ -353,13 +366,89 @@ namespace ccemul
 			text.select_font(Text.FONT_ASCII);
 			speed=0;
 			kpad.keys_state=0;
-			//if (codeInStore) fRunning=true;
 		}
 		
-		internal void Resume()
+		internal void AddBreakPoint(ushort addr)
 		{
-			if (codeInStore) fRunning=true;
+			BreakPoint bp=new BreakPoint(addr);
+			
+			for (int i=0;i<MAX_BREAK;i++)
+			{
+				if (breaks[i]==null)
+				{
+					breaks[i]=bp;
+					return;
+				}
+			}
+		}
+		
+		internal void RemoveBreakPoint(ushort addr)
+		{
+			for (int i=0;i<MAX_BREAK;i++)
+				if (breaks[i].GetAddress()==addr)
+				{	
+					breaks[i]=null;
+					return;
+				}
+		}
+		
+		internal void ClearBreakPoints()
+		{
+			for (int i=0;i<MAX_BREAK;i++) breaks[i]=null;
+		}
+		
+		internal BreakPoint[] GetBreakPointList()
+		{
+			return breaks;
+		}
+		
+		int isBreakPoint(ushort addr)
+		{
+			for (int i=0;i<MAX_BREAK;i++)
+			{
+				if (breaks[i]!=null && breaks[i].GetAddress()==addr) return i;
+			}
+			return -1;
 		}
 		
 	}
+
+	class BreakPoint
+	{
+		ushort address;
+		bool enabled;
+		
+		internal BreakPoint(ushort addr)
+		{
+			address=addr;
+			enabled=true;
+		}
+		
+		internal ushort GetAddress()
+		{
+			return address;
+		}
+		
+		internal bool AddressMatch(ushort addr)
+		{
+			return address==addr;
+		}
+		
+		internal void enable()
+		{
+			enabled=true;
+		}
+		
+		internal void disable()
+		{
+			enabled=false;
+		}
+		
+		internal bool isEnabled()
+		{
+			return enabled;
+		}
+	}
+		
+
 }

@@ -13,3 +13,4 @@ C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.c
 C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.exe
 C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.pdb
 C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.FormAbout.resources
+C:\Users\Jacques\Documents\GitHub\chipcon\tools\ccemul\ccemul\obj\Debug\ccemul.FormBreakPoints.resources
