@@ -6,11 +6,10 @@ defn digit_count v4
 
 ; test
 	HIGH
+start:	
 	CLS
 	LD xpos, 0
 	LD ypos, 0
-	LD v2, 16
-	LD F, v2
 	LD I, MSG
 	PRT xpos, ypos
 	LD key, K
@@ -33,7 +32,9 @@ b1:
 	add digit_count,-1
 	se digit_count, 0
 	jp b1
-	exit
+	ld v1, 10
+	tone v0,v1
+	jp start
 
 bcd:
 	db 0,0,0

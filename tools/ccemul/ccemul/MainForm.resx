@@ -165,10 +165,12 @@
   </data>
   <data name="StopToolBtn.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACBSURBVDhPjZABDsAgCAP9lv9/2GYJddiB2uSWIC2EtUy9
-        9yfD23u50Rgfg7WTK2yZQQW9wKpTGKAf+HQTBvE8J79ZgUeXzJw2lGoB37YDTsO3A05hsAygWesKepYB
-        N1tJyJlYpGZFw5Q90lRRhSE20iCI5w5K/f5FfIPhRjQrotZeZz9EQLNF4xwAAAAASUVORK5CYII=
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADESURBVEhLtZPbDsMgDEP5/5/ehLE7K6M0XHokh8Zx8tby
+        xOcBxtbghbEQWYCbOSE6ATfmhJUETK4JqwOY2BNOdODkjHDKoHNWOPnWcamebvVnXMRexOzdLj1WBjSI
+        ijPv9a03eKwhEBVn3utbb/BYbVBR7/5dr2/HZqw0bJDu9a3XVa1W/wfpXt96XdVqtT0XnWDXq3jvc3rv
+        /Qs4adA5I5zqwMmecGIAE2vCagIm54SVCbiRE6ILcHMsRDbAhQGM3VDKFztNOAGMNDd8AAAAAElFTkSu
+        QmCC
 </value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

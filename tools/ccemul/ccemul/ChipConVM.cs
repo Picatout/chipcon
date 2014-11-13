@@ -1,4 +1,23 @@
-﻿/*
+﻿/*---------------------------------------------------------------------------
+* Copyright 2014, Jacques Deschênes
+* This file is part of CHIPcon.
+*
+*     CHIPcon is free software: you can redistribute it and/or modify
+*     it under the terms of the GNU General Public License as published by
+*     the Free Software Foundation, either version 3 of the License, or
+*     (at your option) any later version.
+*
+*     CHIPcon is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+*     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*     GNU General Public License for more details.
+*
+*     You should have received a copy of the GNU General Public License
+*     along with CHIPcon.  If not, see <http://www.gnu.org/licenses/>.
+*
+*--------------------------------------------------------------------------
+*/
+/*
  * Created by SharpDevelop.
  * User: Jacques
  * Date: 2014-11-06
@@ -235,7 +254,7 @@ namespace ccemul
 						text.set_cursor(var[x],var[y]);
 						n=code[ix++];
 						while (n>0){
-							if (n+32>=Text.FONT_SIZE){
+							if (n-32>=Text.FONT_SIZE){
 								return vm_error.INVALID_CHAR_VALUE;
 							}
 							text.put_char(n);
@@ -366,6 +385,7 @@ namespace ccemul
 			text.select_font(Text.FONT_ASCII);
 			speed=0;
 			kpad.keys_state=0;
+			kpad.fWaitKey=false;
 		}
 		
 		internal void AddBreakPoint(ushort addr)

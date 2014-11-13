@@ -41,12 +41,14 @@ namespace ccemul
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.openFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.reloadLastFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.RestartMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.quitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.MenuDebug = new System.Windows.Forms.ToolStripMenuItem();
 			this.BreakPointMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.clearBreakPointsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.loadLabelsFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.MenuHelp = new System.Windows.Forms.ToolStripMenuItem();
 			this.AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
@@ -62,7 +64,6 @@ namespace ccemul
 			this.ResumeToolBtn = new System.Windows.Forms.ToolStripButton();
 			this.StepToolBtn = new System.Windows.Forms.ToolStripButton();
 			this.StopToolBtn = new System.Windows.Forms.ToolStripButton();
-			this.loadLabelsFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -85,6 +86,7 @@ namespace ccemul
 			// 
 			this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.openFileMenuItem,
+			this.reloadLastFileMenuItem,
 			this.RestartMenuItem,
 			this.toolStripSeparator1,
 			this.quitMenuItem});
@@ -96,26 +98,34 @@ namespace ccemul
 			// openFileMenuItem
 			// 
 			this.openFileMenuItem.Name = "openFileMenuItem";
-			this.openFileMenuItem.Size = new System.Drawing.Size(112, 22);
+			this.openFileMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.openFileMenuItem.Text = "Open...";
 			this.openFileMenuItem.Click += new System.EventHandler(this.OpenFileMenuItemClick);
+			// 
+			// reloadLastFileMenuItem
+			// 
+			this.reloadLastFileMenuItem.Enabled = false;
+			this.reloadLastFileMenuItem.Name = "reloadLastFileMenuItem";
+			this.reloadLastFileMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.reloadLastFileMenuItem.Text = "Reload last file";
+			this.reloadLastFileMenuItem.Click += new System.EventHandler(this.ReloadLastFileMenuItemClick);
 			// 
 			// RestartMenuItem
 			// 
 			this.RestartMenuItem.Name = "RestartMenuItem";
-			this.RestartMenuItem.Size = new System.Drawing.Size(112, 22);
+			this.RestartMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.RestartMenuItem.Text = "Restart";
 			this.RestartMenuItem.Click += new System.EventHandler(this.RestartMenuItemClick);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(109, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
 			// 
 			// quitMenuItem
 			// 
 			this.quitMenuItem.Name = "quitMenuItem";
-			this.quitMenuItem.Size = new System.Drawing.Size(112, 22);
+			this.quitMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.quitMenuItem.Text = "Quit";
 			this.quitMenuItem.Click += new System.EventHandler(this.QuitMenuItemClick);
 			// 
@@ -142,6 +152,13 @@ namespace ccemul
 			this.clearBreakPointsMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.clearBreakPointsMenuItem.Text = "Clear break points";
 			this.clearBreakPointsMenuItem.Click += new System.EventHandler(this.ClearBreakPointsMenuItemClick);
+			// 
+			// loadLabelsFileMenuItem
+			// 
+			this.loadLabelsFileMenuItem.Name = "loadLabelsFileMenuItem";
+			this.loadLabelsFileMenuItem.Size = new System.Drawing.Size(161, 22);
+			this.loadLabelsFileMenuItem.Text = "Load labels file";
+			this.loadLabelsFileMenuItem.Click += new System.EventHandler(this.LoadLabelsFileMenuItemClick);
 			// 
 			// MenuHelp
 			// 
@@ -288,13 +305,6 @@ namespace ccemul
 			this.StopToolBtn.Text = "Stop";
 			this.StopToolBtn.Click += new System.EventHandler(this.StopToolBtnClick);
 			// 
-			// loadLabelsFileMenuItem
-			// 
-			this.loadLabelsFileMenuItem.Name = "loadLabelsFileMenuItem";
-			this.loadLabelsFileMenuItem.Size = new System.Drawing.Size(161, 22);
-			this.loadLabelsFileMenuItem.Text = "Load labels file";
-			this.loadLabelsFileMenuItem.Click += new System.EventHandler(this.LoadLabelsFileMenuItemClick);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -351,5 +361,6 @@ namespace ccemul
 		private System.Windows.Forms.ToolStripButton RestartToolBtn;
 		private System.Windows.Forms.ToolStripMenuItem clearBreakPointsMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem loadLabelsFileMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem reloadLastFileMenuItem;
 	}
 }

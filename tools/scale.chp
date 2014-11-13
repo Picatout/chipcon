@@ -1,0 +1,38 @@
+﻿;scale
+start:
+	ld v3,0
+	ld v4,5
+go_up:
+	call display_v3
+	tone v3,v4
+	ld v0,10
+	ld dt,v0
+	call delay
+	add v3,1
+	se v3, 16
+	jp go_up
+go_down:
+	add v3,255
+	sne v3,255
+	jp start
+	call display_v3
+	tone v3,v4
+	ld v0,10
+	ld dt,v0
+	call delay
+	jp .-8
+display_v3:
+	cls
+	ld ve,0
+	ld vd,0
+	LD F, v3
+	drw ve,vd,5
+	ret
+
+delay:
+	ld v0, dt
+	se v0,0
+	jp .-2
+	ret
+	
+

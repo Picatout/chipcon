@@ -40,7 +40,8 @@ typedef struct data_node{
 	struct data_node *next;
 }node_t;
 
-typedef enum token {eNONE,eSYMBOL,eLABEL,eNUMBER,eSTRING,eADDOP,eMULOP,eCOMMA,eLPAREN,eRPAREN,eLBRACKET,eRBRACKET} token_t;
+typedef enum token {eNONE,eSYMBOL,eLABEL,eNUMBER,eSTRING,eADDOP,eMULOP,
+                    eCOMMA,eLPAREN,eRPAREN,eLBRACKET,eRBRACKET,eDOT} token_t;
 
 token_t tok_id;
 char tok_value[256];
@@ -278,6 +279,7 @@ void op0(mnemo_t code){
 void op1(mnemo_t code){
 	unsigned b1,b2;
 	node_t *n;
+	char c;
 	
 	switch (code){
 	case eSCD: // SCD
@@ -288,8 +290,33 @@ void op1(mnemo_t code){
 	case eJP: // JP
 		b2=0;
 		next_token();
-		if (tok_id!=eSYMBOL) error();
-		if (!strcmp(tok_value,"V0")){
+		if (!(tok_id==eSYMBOL || tok_id==eDOT)) error();
+		if (tok_id==eDOT){ // JP .-n|.+n|.n
+			b1=0x10;
+			c='+';
+			next_token();
+			if (tok_id==eADDOP){
+				c=tok_value[0];
+				next_token();
+			}
+			if (tok_id==eNUMBER){
+				switch(c){
+				case '+':
+					b2=pc+(token_to_i()<<1);
+					break;
+				case '-':
+					b2=pc-(token_to_i()<<1);
+					break;
+					
+				}
+				if (b2<ORG || b2>4094){
+					puts("JP target out of range");
+					error();
+				}
+				b1|=b2>>8;
+				b2&=0xff;
+			}else error();
+		}else if (!strcmp(tok_value,"V0")){
 			b1=0xB0;
 			next_token();
 			if (tok_id!=eCOMMA) error();
@@ -711,6 +738,11 @@ void next_token(){
 				tok_value[i++]=line[inp];
 				state=5;	
 				break;
+			case '.':
+				tok_id=eDOT;
+				tok_value[i++]=line[inp];
+				state=5;
+				break;
 			case '[':
 				tok_id=eLBRACKET;
 				tok_value[i++]=line[inp];
@@ -1108,6 +1140,7 @@ bool preprocess(){
 			if (ppf) fprintf(ppf,"%d",line_no);
 			double_tab=true;
 			while (tok_id){
+				//printf("%d\t%s\n",tok_id,tok_value);
 				if (tok_id==eSYMBOL && (n=search_define(tok_value))){
 					strcpy(&ppline[pos],n->defn);
 				}else if (tok_id==eSYMBOL && (n=search_symbol(tok_value))){

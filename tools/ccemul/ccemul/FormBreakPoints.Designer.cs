@@ -20,6 +20,7 @@ namespace ccemul
 		private System.Windows.Forms.Button CloseBtn;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ListBox LabelsListBox;
+		private System.Windows.Forms.Label label2;
 		
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -48,21 +49,22 @@ namespace ccemul
 			this.CloseBtn = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.LabelsListBox = new System.Windows.Forms.ListBox();
+			this.label2 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// BreaksCombo
 			// 
 			this.BreaksCombo.FormattingEnabled = true;
-			this.BreaksCombo.Location = new System.Drawing.Point(12, 195);
+			this.BreaksCombo.Location = new System.Drawing.Point(12, 225);
 			this.BreaksCombo.MaxDropDownItems = 10;
 			this.BreaksCombo.Name = "BreaksCombo";
-			this.BreaksCombo.Size = new System.Drawing.Size(143, 21);
+			this.BreaksCombo.Size = new System.Drawing.Size(171, 21);
 			this.BreaksCombo.Sorted = true;
 			this.BreaksCombo.TabIndex = 0;
 			// 
 			// AddBtn
 			// 
-			this.AddBtn.Location = new System.Drawing.Point(189, 12);
+			this.AddBtn.Location = new System.Drawing.Point(189, 225);
 			this.AddBtn.Name = "AddBtn";
 			this.AddBtn.Size = new System.Drawing.Size(75, 23);
 			this.AddBtn.TabIndex = 1;
@@ -72,7 +74,7 @@ namespace ccemul
 			// 
 			// DeleteBtn
 			// 
-			this.DeleteBtn.Location = new System.Drawing.Point(189, 195);
+			this.DeleteBtn.Location = new System.Drawing.Point(189, 276);
 			this.DeleteBtn.Name = "DeleteBtn";
 			this.DeleteBtn.Size = new System.Drawing.Size(75, 23);
 			this.DeleteBtn.TabIndex = 2;
@@ -92,7 +94,7 @@ namespace ccemul
 			// 
 			// label1
 			// 
-			this.label1.Location = new System.Drawing.Point(12, 169);
+			this.label1.Location = new System.Drawing.Point(12, 199);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(143, 23);
 			this.label1.TabIndex = 4;
@@ -101,17 +103,26 @@ namespace ccemul
 			// LabelsListBox
 			// 
 			this.LabelsListBox.FormattingEnabled = true;
-			this.LabelsListBox.Location = new System.Drawing.Point(12, 12);
+			this.LabelsListBox.Location = new System.Drawing.Point(12, 38);
 			this.LabelsListBox.Name = "LabelsListBox";
-			this.LabelsListBox.Size = new System.Drawing.Size(171, 147);
+			this.LabelsListBox.Size = new System.Drawing.Size(252, 134);
 			this.LabelsListBox.TabIndex = 5;
 			this.LabelsListBox.SelectedIndexChanged += new System.EventHandler(this.LabelsListBoxSelectedIndexChanged);
+			// 
+			// label2
+			// 
+			this.label2.Location = new System.Drawing.Point(12, 12);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(171, 23);
+			this.label2.TabIndex = 6;
+			this.label2.Text = "Available Labels";
 			// 
 			// FormBreakPoints
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 355);
+			this.ClientSize = new System.Drawing.Size(292, 385);
+			this.Controls.Add(this.label2);
 			this.Controls.Add(this.LabelsListBox);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.CloseBtn);
@@ -121,6 +132,7 @@ namespace ccemul
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "FormBreakPoints";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Break points";
 			this.ResumeLayout(false);
 

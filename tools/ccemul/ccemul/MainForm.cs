@@ -1,4 +1,23 @@
-﻿/*
+﻿/*---------------------------------------------------------------------------
+* Copyright 2014, Jacques Deschênes
+* This file is part of CHIPcon.
+*
+*     CHIPcon is free software: you can redistribute it and/or modify
+*     it under the terms of the GNU General Public License as published by
+*     the Free Software Foundation, either version 3 of the License, or
+*     (at your option) any later version.
+*
+*     CHIPcon is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+*     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*     GNU General Public License for more details.
+*
+*     You should have received a copy of the GNU General Public License
+*     along with CHIPcon.  If not, see <http://www.gnu.org/licenses/>.
+*
+*--------------------------------------------------------------------------
+*/
+/*
  * Created by SharpDevelop.
  * User: Jacques
  * Date: 2014-11-05
@@ -115,7 +134,7 @@ namespace ccemul
 					StopToolBtn.Enabled=false;
 					ResumeToolBtn.Enabled=false;
 					RestartToolBtn.Enabled=true;
-					StepToolBtn.Enabled=false;
+					StepToolBtn.Enabled=true;
 	                timer1.Enabled=false;
 					break;
 				case eCSTATE.STEP:
@@ -166,7 +185,10 @@ namespace ccemul
                 conState=eCSTATE.RUNNING;
                 SetMenuState();
                 BreaksForm.ClearList();
+                reloadLastFileMenuItem.Enabled=true;
             }
+            string lbl_file=openFileDialog1.FileName.Split(new char[]{'.'})[0]+".lbl";
+            BreaksForm.LoadLabels(lbl_file);
 		}
 		
 		void OpenFileDialog1FileOk(object sender, System.ComponentModel.CancelEventArgs e)
@@ -309,6 +331,7 @@ namespace ccemul
 		void StopToolBtnClick(object sender, EventArgs e)
 		{
 			textBox1.Text="Stopped\r\n";
+			vm.Reset();
 			conState=eCSTATE.STOPPED;
 			SetMenuState();
 		}
@@ -342,11 +365,32 @@ namespace ccemul
             openFileDialog1.Filter = "CHIPcon labels|*.lbl|All Files (*.*)|*.*";
             openFileDialog1.FilterIndex = 1;
             openFileDialog1.Multiselect = false;
+            reloadLastFileMenuItem.Enabled=false;
             DialogResult result=openFileDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
-            	BreaksForm.LoadLabels( openFileDialog1.OpenFile());
+            	BreaksForm.LoadLabels(openFileDialog1.FileName);
             }
+		}
+		void ReloadLastFileMenuItemClick(object sender, EventArgs e)
+		{
+		    byte[] data;
+		    
+			System.IO.Stream fileStream = openFileDialog1.OpenFile();
+            data= new byte[Math.Min(3584,fileStream.Length)];
+            using (System.IO.BinaryReader reader = new System.IO.BinaryReader(fileStream))
+            {
+            	reader.Read(data,0,(int)data.Length);
+            }
+            fileStream.Close();
+            vm.load(data);
+            textBox1.Text="Running";
+            conState=eCSTATE.RUNNING;
+            SetMenuState();
+            BreaksForm.ClearList();
+            string lbl_file=openFileDialog1.FileName.Split(new char[]{'.'})[0]+".lbl";
+            BreaksForm.LoadLabels(lbl_file);
+
 		}
 
 
