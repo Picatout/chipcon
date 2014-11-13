@@ -65,9 +65,9 @@ namespace ccemul
 		//internal ChipConVM  vm;
 		internal ChipConVM vm;
 		
-		//step flag
-//		bool fSingleStep=false;
-
+		//name of game loaded
+		string gameName=null;
+		
 		public MainForm()
 		{
 			//
@@ -187,8 +187,11 @@ namespace ccemul
                 BreaksForm.ClearList();
                 reloadLastFileMenuItem.Enabled=true;
             }
-            string lbl_file=openFileDialog1.FileName.Split(new char[]{'.'})[0]+".lbl";
+            gameName=openFileDialog1.FileName.Split(new char[]{'.'})[0];
+            string lbl_file=gameName+".lbl";
             BreaksForm.LoadLabels(lbl_file);
+            string[] pathSplit= gameName.Split(new char[]{'\\'});
+            this.Text=String.Format("CHIPcon emulator ( {0:S} )", pathSplit[pathSplit.Length-1]);
 		}
 		
 		void OpenFileDialog1FileOk(object sender, System.ComponentModel.CancelEventArgs e)

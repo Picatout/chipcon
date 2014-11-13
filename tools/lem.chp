@@ -19,33 +19,54 @@
 ; fichier source pour l'assembleur de CHIPcon 
 ;
 ; NOM: LEM
-; DESCRIPION: Jeux qui consiste à faire alunir le LEM sur la surface de la lune.
+; DESCRIPION: Jeux qui consiste à faire alunir le LEM.
 ;             clone d'un jeux datant des années 197x
+;             contrôle: (2) up
+;                       (4) vers la gauche
+;                       (6) vers la droite
+;
 ; AUTEUR: Jacques Deschênes
 ; CRÉATION: 2014-10-30
 ;--------------------------------------------------------------------------
 
+;;;;;;;;;;;;;;;
+;; variables ;;
+;;;;;;;;;;;;;;;
+defn carry VF   ; utilisé comme indicateur booléen par plusieurs codes opérationnels.
 defn xpos VE	; coordonnée x du LEM
 defn ypos VD    ; coordonnée y du LEM
 defn hspeed VC  ; vitesse horizontale du LEM
 defn vspeed VB  ; vitesse verticale du LEM
 defn fuel VA    ; niveau de carburant
-defn carry VF   ; utilisé comme indicateur booléen par plusieurs codes opérationnels.
+defn score V9   ; nombre d'alunissage réussis
+defn set V8     ; nombre de tentative d'alunissage
+defn pad V7    ; position du pad d'alunissage
+defn w  V0     ; registre de travail temporaire
 
-
+;;;;;;;;;;;;;;;;;
+;; constantes  ;;
+;;;;;;;;;;;;;;;;;
 equ SCREEN_WIDTH 128 ; nombre de pixels horizontalement
 equ SCREEN_HEIGH 64  ; nombre de pixels verticalement
-equ LANDING_PAD  16  ; largeur de la plateforme d'alunissage
+equ PAD_WIDTH  16  ; largeur de la plateforme d'alunissage
 equ LEM_WIDTH 16     ; largeur du LEM
 equ K_RIGHT_JET 4    ; touche de contrôle du jet de droite
 equ K_LEFT_JET  6    ; touche de contrôle du jet de gauche
 equ K_UP_JET    2    ; touche de contrôle du jet vertical
 
+
+;;;;;;;;;;;;;;;;;;;;
+;;  code segment  ;;
+;;;;;;;;;;;;;;;;;;;;
 	high
 	cls
+	ld score, 0
+	ld set, 0
+next_set:
+	add set,1
 ;position initiale du LEM
 ;centre haut de l'écran
-	ld xpos,(SCREEN_WIDTH-LANDING_PAD)/2  
+	ld xpos,(SCREEN_WIDTH-PAD_WIDTH)/2  
 	ld ypos,0  
 ; vitesses initiales nulles 
 	ld hspeed,0
@@ -54,26 +75,26 @@ equ K_UP_JET    2    ; touche de contrôle du jet vertical
 	ld fuel, 100
 ; dessine la surface de la lune
 	call moonscape
-; dessine LEM et imprime niveau carburant
+; dessine LEM et affiche le niveau carburant
 	call drw_lem
 	call prt_fuel_level
 ;boucle principale
 main:
 	sne fuel,0 
-	jp move_lem ; plus de carburant
+	jp move_lem ; plus de carburant ignore le clavier
 ; lecture clavier
-	ld v0, K_RIGHT_JET
-	sknp v0 ; jet de droite allumé
+	ld w, K_RIGHT_JET
+	sknp w ; jet de droite allumé
 	jp right_jet
-	ld v0, K_LEFT_JET
-	sknp v0 ; jet de gauche allumé
+	ld w, K_LEFT_JET
+	sknp w ; jet de gauche allumé
 	jp left_jet
-	ld v0, K_UP_JET
-	sknp v0 ; fusée principale allumée
+	ld w, K_UP_JET
+	sknp w ; fusée principale allumée
 	jp up_jet
 	jp move_lem
 right_jet:
-	call prt_fuel_level
+	call prt_fuel_level 
 	add hspeed,-1  
 	add fuel,-1  
 	jp update_fuel
@@ -88,20 +109,18 @@ up_jet:
 	call prt_fuel_level
 	add vspeed, -2  
 	se fuel, 1
-	add fuel, -1  
+	add fuel, -1  ; réacteur plus puissant consomme 2 unités de carburant
 	add fuel, -1   
 update_fuel:
 	call prt_fuel_level
-	; déplacement LEM
+; déplacement LEM
 move_lem:
 	call prt_fuel_level ; efface niveau de carburant
 	call drw_lem ; efface LEM
 ; mise à jour position LEM
 	add xpos, hspeed  
-;	ld  v0, SCREEN_WIDTH-LEM_WIDTH
-;	sub v0, ve
-;	se carry, 1
-;	jp lost_in_space
+	ld w,127
+	and xpos,w
 	add ypos, vspeed 
 	add vspeed, 1  ; gravitée
 	call drw_lem
@@ -112,68 +131,150 @@ move_lem:
 	sne fuel, 0
 	jp fuel_empty
 ; délais
-	ld v0,10
+	ld w,10
 	call delay 
 	jp main
 ; réservoir vide
 fuel_empty:
 	call prt_fuel_level
-	ld v0, 10
-	ld v1, 5
-	tone v0,v1
-	ld v0, 5
+	ld w, 10
+	ld v1, 4
+	tone w,v1
+	ld w, 4
 	call delay
 	call prt_fuel_level
-	ld v0, 5
-	tone v0,v1
+	ld w, 4
+	tone w,v1
 	call delay
 	jp main
 
 ;délais
-; v0 = nombre de frame
+; arguments:
+; 	w = nombre de frame
 delay:
-	ld dt,v0
-dly_loop:
-	ld v0, dt
-	se v0, 0
-	jp dly_loop
+	ld dt,w
+	ld w, dt
+	se w, 0
+	jp .-2
 	ret
 	
-lost_in_space:
 ; il y a eu collision avec le sol	
+; condition succès: 
+;   LEM entièrement sur le pad
+;   vitesse inférieure à 3
 collision:
 	call prt_fuel_level
-	ld v0,vspeed
-	ld v3, 3
+	ld w,2
+	sub w, vspeed
+	se carry, 1
+	jp crash  ; vitesse verticale trop grande
+	ld w,2
+	sub w, hspeed
+	se carry, 1
+	jp crash  ; vitesse horizontale trop grande
+	ld w, xpos
+	sub w, pad
+	se carry, 1
+	jp crash   ; à gauche du pad
+	ld w, pad
+	add w, PAD_WIDTH
+	subn w, xpos
+	se carry, 0
+	jp crash    ; à droite du pad
+; alunissage réussi
+	add score,1
+	ld i, success_msg
+	ld v1,0
+	ld v2,16
+	prt v1,v2
+	jp wait_next_set
+crash:
+	ld i, crash_msg
+	ld v1, 0
+	ld v2,16
+	prt v1,v2
+wait_next_set:
+	call display_score
+	ld w, 60
+	call delay
+	ld w, k
+	sknp w
+	jp .-1
+	cls
+	jp next_set
+
 	
-	exit
 	
 ; dessine le LEM
 drw_lem:
 	ld I, LEM
-	DRW VE,VD,0
+	DRW xpos,ypos,0
+	ret
+
+; affiche le pointage
+; variables locales
+;	v1  position x
+;	v2  position y
+display_score:
+	ld v1, 0
+	ld v2, 10
+	ld i, bcd
+	ld b, score
+	call display_bcd
+	ld i, slash
+	drw v1,v2,5
+	add v1, 4
+	ld i, bcd
+	ld b, set
+	call display_bcd
+	ret
+	
+; affiche le nombre contenu dans la variable bcd
+; utilise la police 4x6
+; arguments: 
+; 	v1 position x (incrémenté de 4 après chaque caractère)
+;   v2 position y	
+; variable locales:
+;	v3 index dans le tableau bcd
+;	w contient le digit à afficher
+display_bcd:
+	ld v3, 0
+	ld i, bcd
+	add i, v3
+	ld w, [i]
+	ld f, w
+	drw v1,v2,5
+	add v1,4
+	add v3,1
+	se v3,3
+	jp .-8
 	ret
 
 ;dessine la surface de la lune
+;variables locales:
+;	v0 position x du pixel
+;	v1 position y du pixel
+;   v3 variable temporaire
+;   v4 position à droite du pad
 moonscape:
 	ld v0,0
 	ld v1,SCREEN_HEIGH-1 ; y
-	rnd v2,#F8 ; position gauche de la zone d'alunissage
-	ld v3,SCREEN_WIDTH-LANDING_PAD
-	sub v3,v2
+	rnd pad,#F8 ; position gauche de la zone d'alunissage
+	ld v3,SCREEN_WIDTH-PAD_WIDTH
+	sub v3,pad
 	se carry,1
-	ld v2,SCREEN_WIDTH-LANDING_PAD
-	ld v4,LANDING_PAD
-	add v4,v2
+	ld pad,SCREEN_WIDTH-PAD_WIDTH
+	ld v4,PAD_WIDTH
+	add v4,pad
 scape_loop:
 	ld v3,v0
-	sub v3,v2
+	sub v3,pad 
 	se carry,1
-	jp rand_y
+	jp rand_y  ; à gauche du pad
 	ld v3,v0
 	sub v3,v4
-	se carry,1
-	jp put_pixel
+	se carry,1  ; à droite du pad
+	jp put_pixel ; sur le pad
 rand_y:
 	sne v1,SCREEN_HEIGH-1
 	add v1,-1
@@ -192,43 +293,72 @@ put_pixel:
 	ret
 
 ; affiche le niveau de carburant
+; utilise la police 8x10
+; variables locales:
+;	v1  position x (incrémenté de 8 après chaque caractère)
+;	v2	position y
+;   w  chiffre à afficher
+;   v3  index dans le tableau bcd (incrémenté de 1 après chaque caractère)
 prt_fuel_level:
-	ld v4,0
+	ld v1,0
+	ld v2,0
+	ld v3,0
 	ld I, BCD
-	ld B, VA
-	ld V1,0
-	ld V2,0
+	ld B, fuel
 prt_fuel_loop:	
 	ld I, BCD
-	add i, v4
-	ld V0,[I]
-	ld LF,V0
+	add i, v3
+	ld w,[I]
+	ld LF,w
 	drw v1,v2,10
 	add v1,8
-	add v4,1
-	se v4,3
+	add v3,1
+	se v3,3
 	jp prt_fuel_loop
 	ret
-	
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;     data  segment    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;	
+
 ; véhicule d'alunissage	
 LEM:
-dw	$......1111......
-dw  $.....11..11.....
-dw  $...1111111111...
-dw  $..111111111111..
-dw	$..1..........1..
-dw	$1.1.11111111.1.1
-dw	$.11.11....11.11.
-dw	$..1.11....11.1..
-dw  $.11.11111111.11.
-dw	$1.1..........1.1
-dw	$..111111111111..
-dw	$..111111111111..
-dw	$...1..1.1..1....
-dw	$..1..1...1..1...
-dw	$.11.........11..
-dw  $11...........11.
+	dw	$......1111......
+	dw  $.....11..11.....
+	dw  $...1111111111...
+	dw  $..111111111111..
+	dw	$..1..........1..
+	dw	$1.1.11111111.1.1
+	dw	$.11.11....11.11.
+	dw	$..1.11....11.1..
+	dw  $.11.11111111.11.
+	dw	$1.1..........1.1
+	dw	$..111111111111..
+	dw	$..111111111111..
+	dw	$...1..1.1..1....
+	dw	$..1..1...1..1...
+	dw	$.11.........11..
+	dw  $11...........11.
 
+slash:
+	db $..1.....
+	db $.1......
+	db $.1......
+	db $1.......
+	db $1.......
+
+crash_msg:
+	ascii "you crashed"
+success_msg:
+	ascii "congratulation!"
+	
 ; espace variable BCD
 BCD:
-db	0,0,0
+	db	0,0,0
+
+particles:
+		db 0,0,0,0
+		db 0,0,0,0
+		db 0,0,0,0
+		db 0,0,0,0
+		

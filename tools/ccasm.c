@@ -347,7 +347,7 @@ void op1(mnemo_t code){
 		n=search_label(tok_value);
 		if (n){
 			b1|=(n->addr&0xf00)>>8;
-			b2&=n->addr&0xff;
+			b2=n->addr&0xff;
 		}else{
 			b2=0;
 			forward_list=add_forward_ref(tok_value,pc);
